@@ -57,6 +57,10 @@ export const News: CollectionConfig = {
           label: 'City Events',
           value: 'city-events',
         },
+        {
+          label: 'Alerts',
+          value: 'alerts',
+        },
       ],
       defaultValue: 'city-events',
     },
@@ -134,16 +138,7 @@ export const News: CollectionConfig = {
     afterChange: [
       async ({ doc, req, operation, previousDoc }) => {
         // Send push notification if enabled and status is published
-        // Only send if newly published or pushNotification flag was just enabled
-        const isNewlyPublished = 
-          doc.status === 'published' && 
-          previousDoc?.status !== 'published'
-        
-        const pushNotificationEnabled = 
-          doc.pushNotification && 
-          !previousDoc?.pushNotification
-
-        if ((isNewlyPublished || pushNotificationEnabled) && doc.status === 'published') {
+        if (doc.status === 'published' && doc.pushNotification) {
           try {
             req.payload.logger.info(`Sending push notification for news: ${doc.title}`)
             

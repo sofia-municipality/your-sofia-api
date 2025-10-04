@@ -168,7 +168,7 @@ export interface News {
     };
     [k: string]: unknown;
   } | null;
-  topic: 'festivals' | 'street-closure' | 'city-events';
+  topic: 'festivals' | 'street-closure' | 'city-events' | 'alerts';
   image?: (number | null) | Media;
   location?: {
     latitude?: number | null;

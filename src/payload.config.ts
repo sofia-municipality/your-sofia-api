@@ -65,9 +65,9 @@ export default buildConfig({
     pool: {
       connectionString: process.env.DATABASE_URI || '',
     },
-    push: false, // Disable automatic schema push - use migrations instead
-    // @ts-expect-error - extensionsFilters is valid but not in type definition yet
-    extensionsFilters: ['postgis'], // Enable PostGIS extension - ignores spatial_ref_sys tables
+    push: true,
+    extensions: ['postgis'], // Enable PostGIS extension
+    tablesFilter: ['!spatial_ref_sys', '!geography_columns', '!geometry_columns', '!raster_columns', '!raster_overviews'], // Ignore PostGIS system tables
     migrationDir: path.resolve(dirname, 'migrations'),
   }),
   collections: [News, Pages, Posts, Media, Categories, Users, PushTokens],
