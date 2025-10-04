@@ -73,6 +73,7 @@ export interface Config {
     media: Media;
     categories: Category;
     users: User;
+    'push-tokens': PushToken;
     redirects: Redirect;
     forms: Form;
     'form-submissions': FormSubmission;
@@ -90,6 +91,7 @@ export interface Config {
     media: MediaSelect<false> | MediaSelect<true>;
     categories: CategoriesSelect<false> | CategoriesSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
+    'push-tokens': PushTokensSelect<false> | PushTokensSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
     'form-submissions': FormSubmissionsSelect<false> | FormSubmissionsSelect<true>;
@@ -768,6 +770,33 @@ export interface Form {
   createdAt: string;
 }
 /**
+ * Expo push notification tokens from mobile devices
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "push-tokens".
+ */
+export interface PushToken {
+  id: number;
+  /**
+   * Expo Push Token (e.g., ExponentPushToken[...])
+   */
+  token: string;
+  /**
+   * Device platform
+   */
+  device: 'ios' | 'android';
+  /**
+   * Whether this token should receive notifications
+   */
+  active?: boolean | null;
+  /**
+   * Last time this token was verified
+   */
+  lastUsed?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "redirects".
  */
@@ -962,6 +991,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'users';
         value: number | User;
+      } | null)
+    | ({
+        relationTo: 'push-tokens';
+        value: number | PushToken;
       } | null)
     | ({
         relationTo: 'redirects';
@@ -1341,6 +1374,18 @@ export interface UsersSelect<T extends boolean = true> {
   hash?: T;
   loginAttempts?: T;
   lockUntil?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "push-tokens_select".
+ */
+export interface PushTokensSelect<T extends boolean = true> {
+  token?: T;
+  device?: T;
+  active?: T;
+  lastUsed?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

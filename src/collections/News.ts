@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload'
+import { sendNewsNotification } from '../utilities/pushNotifications'
 
 export const News: CollectionConfig = {
   slug: 'news',
@@ -131,11 +132,32 @@ export const News: CollectionConfig = {
   ],
   hooks: {
     afterChange: [
-      async ({ doc, req, operation }) => {
+      async ({ doc, req, operation, previousDoc }) => {
         // Send push notification if enabled and status is published
-        if (doc.pushNotification && doc.status === 'published' && operation === 'update') {
-          // TODO: Implement push notification logic here
-          req.payload.logger.info(`Push notification triggered for news: ${doc.title}`)
+        // Only send if newly published or pushNotification flag was just enabled
+        const isNewlyPublished = 
+          doc.status === 'published' && 
+          previousDoc?.status !== 'published'
+        
+        const pushNotificationEnabled = 
+          doc.pushNotification && 
+          !previousDoc?.pushNotification
+
+        if ((isNewlyPublished || pushNotificationEnabled) && doc.status === 'published') {
+          try {
+            req.payload.logger.info(`Sending push notification for news: ${doc.title}`)
+            
+            await sendNewsNotification(
+              req.payload,
+              doc.id,
+              doc.title,
+              doc.description,
+            )
+            
+            req.payload.logger.info(`Push notification sent successfully for news: ${doc.title}`)
+          } catch (error) {
+            req.payload.logger.error(`Failed to send push notification: ${error}`)
+          }
         }
       },
     ],

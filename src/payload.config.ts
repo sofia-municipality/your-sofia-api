@@ -12,6 +12,7 @@ import { News } from './collections/News'
 import { Pages } from './collections/Pages'
 import { Posts } from './collections/Posts'
 import { Users } from './collections/Users'
+import { PushTokens } from './collections/PushTokens'
 import { Footer } from './Footer/config'
 import { Header } from './Header/config'
 import { plugins } from './plugins'
@@ -64,11 +65,12 @@ export default buildConfig({
     pool: {
       connectionString: process.env.DATABASE_URI || '',
     },
-    push: false,
+    push: false, // Disable automatic schema push - use migrations instead
     // @ts-expect-error - extensionsFilters is valid but not in type definition yet
-    extensionsFilters: ['postgis'], // Enable PostGIS extension
+    extensionsFilters: ['postgis'], // Enable PostGIS extension - ignores spatial_ref_sys tables
+    migrationDir: path.resolve(dirname, 'migrations'),
   }),
-  collections: [News, Pages, Posts, Media, Categories, Users],
+  collections: [News, Pages, Posts, Media, Categories, Users, PushTokens],
   cors: [getServerSideURL()].filter(Boolean),
   globals: [Header, Footer],
   localization: {
