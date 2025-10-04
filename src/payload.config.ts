@@ -8,6 +8,7 @@ import { fileURLToPath } from 'url'
 
 import { Categories } from './collections/Categories'
 import { Media } from './collections/Media'
+import { News } from './collections/News'
 import { Pages } from './collections/Pages'
 import { Posts } from './collections/Posts'
 import { Users } from './collections/Users'
@@ -63,10 +64,27 @@ export default buildConfig({
     pool: {
       connectionString: process.env.DATABASE_URI || '',
     },
+    push: false,
+    // @ts-expect-error - extensionsFilters is valid but not in type definition yet
+    extensionsFilters: ['postgis'], // Enable PostGIS extension
   }),
-  collections: [Pages, Posts, Media, Categories, Users],
+  collections: [News, Pages, Posts, Media, Categories, Users],
   cors: [getServerSideURL()].filter(Boolean),
   globals: [Header, Footer],
+  localization: {
+    locales: [
+      {
+        label: 'Bulgarian',
+        code: 'bg',
+      },
+      {
+        label: 'English',
+        code: 'en',
+      },
+    ],
+    defaultLocale: 'bg',
+    fallback: true,
+  },
   plugins: [
     ...plugins,
     // storage-adapter-placeholder

@@ -1,106 +1,210 @@
-# Payload Website Template
+# Your Sofia API - Payload CMS# Payload Website Template
 
-This is the official [Payload Website Template](https://github.com/payloadcms/payload/blob/main/templates/website). Use it to power websites, blogs, or portfolios from small to enterprise. This repo includes a fully-working backend, enterprise-grade admin panel, and a beautifully designed, production-ready website.
 
-This template is right for you if you are working on:
 
-- A personal or enterprise-grade website, blog, or portfolio
-- A content publishing platform with a fully featured publication workflow
-- Exploring the capabilities of Payload
+Content management system for the Your Sofia mobile app, built with Payload CMS 3.0 and PostgreSQL with PostGIS.This is the official [Payload Website Template](https://github.com/payloadcms/payload/blob/main/templates/website). Use it to power websites, blogs, or portfolios from small to enterprise. This repo includes a fully-working backend, enterprise-grade admin panel, and a beautifully designed, production-ready website.
 
-Core features:
 
-- [Pre-configured Payload Config](#how-it-works)
-- [Authentication](#users-authentication)
-- [Access Control](#access-control)
-- [Layout Builder](#layout-builder)
+
+## Quick StartThis template is right for you if you are working on:
+
+
+
+### Prerequisites- A personal or enterprise-grade website, blog, or portfolio
+
+- Node.js 18+ and pnpm- A content publishing platform with a fully featured publication workflow
+
+- Docker and Docker Compose- Exploring the capabilities of Payload
+
+
+
+### SetupCore features:
+
+
+
+1. **Start PostgreSQL with PostGIS**:- [Pre-configured Payload Config](#how-it-works)
+
+   ```bash- [Authentication](#users-authentication)
+
+   docker-compose -f docker-compose.postgres.yml up -d- [Access Control](#access-control)
+
+   ```- [Layout Builder](#layout-builder)
+
 - [Draft Preview](#draft-preview)
-- [Live Preview](#live-preview)
-- [On-demand Revalidation](#on-demand-revalidation)
-- [SEO](#seo)
-- [Search](#search)
+
+2. **Install dependencies** (already done if you followed setup):- [Live Preview](#live-preview)
+
+   ```bash- [On-demand Revalidation](#on-demand-revalidation)
+
+   pnpm install- [SEO](#seo)
+
+   ```- [Search](#search)
+
 - [Redirects](#redirects)
-- [Jobs and Scheduled Publishing](#jobs-and-scheduled-publish)
-- [Website](#website)
 
-## Quick Start
+3. **Start the development server**:- [Jobs and Scheduled Publishing](#jobs-and-scheduled-publish)
 
-To spin up this example locally, follow these steps:
+   ```bash- [Website](#website)
 
-### Clone
+   pnpm dev
 
-If you have not done so already, you need to have standalone copy of this repo on your machine. If you've already cloned this repo, skip to [Development](#development).
+   ```## Quick Start
 
-#### Method 1 (recommended)
 
-Go to Payload Cloud and [clone this template](https://payloadcms.com/new/clone/website). This will create a new repository on your GitHub account with this template's code which you can then clone to your own machine.
+
+4. **Access the admin panel**:To spin up this example locally, follow these steps:
+
+   - Open http://localhost:3000/admin
+
+   - Create your first admin user### Clone
+
+
+
+### Environment VariablesIf you have not done so already, you need to have standalone copy of this repo on your machine. If you've already cloned this repo, skip to [Development](#development).
+
+
+
+See `.env` file for configuration. Key variables:#### Method 1 (recommended)
+
+- `DATABASE_URI` - PostgreSQL connection string (PostGIS enabled)
+
+- `PAYLOAD_SECRET` - Secret key for PayloadGo to Payload Cloud and [clone this template](https://payloadcms.com/new/clone/website). This will create a new repository on your GitHub account with this template's code which you can then clone to your own machine.
+
+- `NEXT_PUBLIC_SERVER_URL` - Public URL for the API
 
 #### Method 2
 
+## Collections
+
 Use the `create-payload-app` CLI to clone this template directly to your machine:
 
-```bash
-pnpx create-payload-app my-project -t website
+### News
+
+Bilingual (Bulgarian/English) news collection for the mobile app:```bash
+
+- **title** - News headline (localized)pnpx create-payload-app my-project -t website
+
+- **description** - Short description (localized)```
+
+- **content** - Full content with rich text editor (localized)
+
+- **topic** - Category: festivals, street-closure, city-events#### Method 3
+
+- **image** - Featured image
+
+- **location** - Latitude/longitude for map displayUse the `git` CLI to clone this template directly to your machine:
+
+- **status** - draft or published
+
+- **publishedAt** - Publication date```bash
+
+- **pushNotification** - Trigger push notification on publishgit clone -n --depth=1 --filter=tree:0 https://github.com/payloadcms/payload my-project && cd my-project && git sparse-checkout set --no-cone templates/website && git checkout && rm -rf .git && git init && git add . && git mv -f templates/website/{.,}* . && git add . && git commit -m "Initial commit"
+
 ```
 
-#### Method 3
-
-Use the `git` CLI to clone this template directly to your machine:
-
-```bash
-git clone -n --depth=1 --filter=tree:0 https://github.com/payloadcms/payload my-project && cd my-project && git sparse-checkout set --no-cone templates/website && git checkout && rm -rf .git && git init && git add . && git mv -f templates/website/{.,}* . && git add . && git commit -m "Initial commit"
-```
+## API Endpoints
 
 ### Development
 
-1. First [clone the repo](#clone) if you have not done so already
-1. `cd my-project && cp .env.example .env` to copy the example environment variables
-1. `pnpm install && pnpm dev` to install dependencies and start the dev server
-1. open `http://localhost:3000` to open the app in your browser
+### REST API
 
-That's it! Changes made in `./src` will be reflected in your app. Follow the on-screen instructions to login and create your first admin user. Then check out [Production](#production) once you're ready to build and serve your app, and [Deployment](#deployment) when you're ready to go live.
+- `GET /api/news` - Get all published news1. First [clone the repo](#clone) if you have not done so already
 
-## How it works
+- `GET /api/news?locale=bg` - Get news in Bulgarian1. `cd my-project && cp .env.example .env` to copy the example environment variables
 
-The Payload config is tailored specifically to the needs of most websites. It is pre-configured in the following ways:
+- `GET /api/news?locale=en` - Get news in English1. `pnpm install && pnpm dev` to install dependencies and start the dev server
 
-### Collections
+- `GET /api/news/:id` - Get specific news item1. open `http://localhost:3000` to open the app in your browser
 
-See the [Collections](https://payloadcms.com/docs/configuration/collections) docs for details on how to extend this functionality.
 
-- #### Users (Authentication)
 
-  Users are auth-enabled collections that have access to the admin panel and unpublished content. See [Access Control](#access-control) for more details.
+### GraphQLThat's it! Changes made in `./src` will be reflected in your app. Follow the on-screen instructions to login and create your first admin user. Then check out [Production](#production) once you're ready to build and serve your app, and [Deployment](#deployment) when you're ready to go live.
 
-  For additional help, see the official [Auth Example](https://github.com/payloadcms/payload/tree/main/examples/auth) or the [Authentication](https://payloadcms.com/docs/authentication/overview#authentication-overview) docs.
+- Endpoint: `http://localhost:3000/api/graphql`
 
-- #### Posts
+- Query news with flexible filtering## How it works
 
-  Posts are used to generate blog posts, news articles, or any other type of content that is published over time. All posts are layout builder enabled so you can generate unique layouts for each post using layout-building blocks, see [Layout Builder](#layout-builder) for more details. Posts are also draft-enabled so you can preview them before publishing them to your website, see [Draft Preview](#draft-preview) for more details.
 
-- #### Pages
 
-  All pages are layout builder enabled so you can generate unique layouts for each page using layout-building blocks, see [Layout Builder](#layout-builder) for more details. Pages are also draft-enabled so you can preview them before publishing them to your website, see [Draft Preview](#draft-preview) for more details.
+## LocalizationThe Payload config is tailored specifically to the needs of most websites. It is pre-configured in the following ways:
+
+
+
+The system supports Bulgarian (default) and English:### Collections
+
+- Bulgarian code: `bg` (default)
+
+- English code: `en`See the [Collections](https://payloadcms.com/docs/configuration/collections) docs for details on how to extend this functionality.
+
+
+
+When creating content, fill in both language versions for best user experience.- #### Users (Authentication)
+
+
+
+## Push Notifications  Users are auth-enabled collections that have access to the admin panel and unpublished content. See [Access Control](#access-control) for more details.
+
+
+
+News items have a `pushNotification` checkbox. When checked and the status changes to "published", a hook is triggered (TODO: implement push notification service).  For additional help, see the official [Auth Example](https://github.com/payloadcms/payload/tree/main/examples/auth) or the [Authentication](https://payloadcms.com/docs/authentication/overview#authentication-overview) docs.
+
+
+
+## Database- #### Posts
+
+
+
+PostgreSQL 16 with PostGIS 3.5 extension enabled for spatial data.  Posts are used to generate blog posts, news articles, or any other type of content that is published over time. All posts are layout builder enabled so you can generate unique layouts for each post using layout-building blocks, see [Layout Builder](#layout-builder) for more details. Posts are also draft-enabled so you can preview them before publishing them to your website, see [Draft Preview](#draft-preview) for more details.
+
+
+
+Stop the database:- #### Pages
+
+```bash
+
+docker-compose -f docker-compose.postgres.yml down  All pages are layout builder enabled so you can generate unique layouts for each page using layout-building blocks, see [Layout Builder](#layout-builder) for more details. Pages are also draft-enabled so you can preview them before publishing them to your website, see [Draft Preview](#draft-preview) for more details.
+
+```
 
 - #### Media
 
-  This is the uploads enabled collection used by pages, posts, and projects to contain media like images, videos, downloads, and other assets. It features pre-configured sizes, focal point and manual resizing to help you manage your pictures.
+Reset the database:
 
-- #### Categories
+```bash  This is the uploads enabled collection used by pages, posts, and projects to contain media like images, videos, downloads, and other assets. It features pre-configured sizes, focal point and manual resizing to help you manage your pictures.
 
-  A taxonomy used to group posts together. Categories can be nested inside of one another, for example "News > Technology". See the official [Payload Nested Docs Plugin](https://payloadcms.com/docs/plugins/nested-docs) for more details.
+docker-compose -f docker-compose.postgres.yml down -v
 
-### Globals
+docker-compose -f docker-compose.postgres.yml up -d- #### Categories
 
-See the [Globals](https://payloadcms.com/docs/configuration/globals) docs for details on how to extend this functionality.
+pnpm dev
 
-- `Header`
+```  A taxonomy used to group posts together. Categories can be nested inside of one another, for example "News > Technology". See the official [Payload Nested Docs Plugin](https://payloadcms.com/docs/plugins/nested-docs) for more details.
+
+
+
+## Development### Globals
+
+
+
+- `pnpm dev` - Start development serverSee the [Globals](https://payloadcms.com/docs/configuration/globals) docs for details on how to extend this functionality.
+
+- `pnpm build` - Build for production
+
+- `pnpm start` - Start production server- `Header`
+
+- `pnpm generate:types` - Generate TypeScript types
 
   The data required by the header on your front-end like nav links.
 
+## Useful Resources
+
 - `Footer`
 
-  Same as above but for the footer of your site.
+- [Payload CMS Documentation](https://payloadcms.com/docs)
+
+- [PostgreSQL Adapter](https://payloadcms.com/docs/database/postgres)  Same as above but for the footer of your site.
+
+- [Localization](https://payloadcms.com/docs/configuration/localization)
 
 ## Access control
 
