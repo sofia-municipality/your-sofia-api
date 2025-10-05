@@ -869,7 +869,7 @@ export interface Signal {
   /**
    * Detailed description of the problem
    */
-  description: string;
+  description?: string | null;
   category:
     | 'waste-container'
     | 'street-damage'

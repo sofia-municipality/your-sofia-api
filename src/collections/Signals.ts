@@ -85,7 +85,7 @@ export const Signals: CollectionConfig = {
       name: 'description',
       label: 'Description',
       type: 'textarea',
-      required: true,
+      required: false,
       localized: true,
       admin: {
         description: 'Detailed description of the problem',
