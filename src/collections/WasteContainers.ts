@@ -4,7 +4,7 @@ export const WasteContainers: CollectionConfig = {
   slug: 'waste-containers',
   admin: {
     useAsTitle: 'publicNumber',
-    defaultColumns: ['publicNumber', 'location', 'capacitySize', 'collectorName'],
+    defaultColumns: ['publicNumber', 'location', 'capacitySize', 'servicedBy'],
     group: 'City Infrastructure',
   },
   access: {
@@ -121,8 +121,8 @@ export const WasteContainers: CollectionConfig = {
       },
     },
     {
-      name: 'collectorName',
-      label: 'Collector Company/Service',
+      name: 'servicedBy',
+      label: 'Serviced By',
       type: 'text',
       required: false,
       admin: {

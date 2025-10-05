@@ -841,7 +841,7 @@ export interface WasteContainer {
   /**
    * Name of the company or service responsible for collection
    */
-  collectorName?: string | null;
+  servicedBy?: string | null;
   /**
    * Type of waste this container accepts
    */
@@ -1466,7 +1466,7 @@ export interface WasteContainersSelect<T extends boolean = true> {
   capacityVolume?: T;
   capacitySize?: T;
   serviceInterval?: T;
-  collectorName?: T;
+  servicedBy?: T;
   wasteType?: T;
   status?: T;
   notes?: T;
