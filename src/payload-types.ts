@@ -75,6 +75,7 @@ export interface Config {
     users: User;
     'push-tokens': PushToken;
     'waste-containers': WasteContainer;
+    signals: Signal;
     redirects: Redirect;
     forms: Form;
     'form-submissions': FormSubmission;
@@ -94,6 +95,7 @@ export interface Config {
     users: UsersSelect<false> | UsersSelect<true>;
     'push-tokens': PushTokensSelect<false> | PushTokensSelect<true>;
     'waste-containers': WasteContainersSelect<false> | WasteContainersSelect<true>;
+    signals: SignalsSelect<false> | SignalsSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
     'form-submissions': FormSubmissionsSelect<false> | FormSubmissionsSelect<true>;
@@ -856,6 +858,87 @@ export interface WasteContainer {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "signals".
+ */
+export interface Signal {
+  id: number;
+  /**
+   * Brief description of the signal
+   */
+  title: string;
+  /**
+   * Detailed description of the problem
+   */
+  description: string;
+  category:
+    | 'waste-container'
+    | 'street-damage'
+    | 'lighting'
+    | 'green-spaces'
+    | 'parking'
+    | 'public-transport'
+    | 'other';
+  /**
+   * Reference to a related city object (e.g., waste container)
+   */
+  cityObject?: {
+    type?: ('waste-container' | 'street' | 'park' | 'building' | 'other') | null;
+    /**
+     * ID or reference number of the related object
+     */
+    referenceId?: string | null;
+    /**
+     * Name or description of the related object
+     */
+    name?: string | null;
+  };
+  /**
+   * State of the waste container (only for waste container signals)
+   */
+  containerState?: ('full' | 'dirty' | 'damaged') | null;
+  location?: {
+    /**
+     * Latitude coordinate
+     */
+    latitude?: number | null;
+    /**
+     * Longitude coordinate
+     */
+    longitude?: number | null;
+    /**
+     * Human-readable address
+     */
+    address?: string | null;
+  };
+  /**
+   * Photos of the problem
+   */
+  images?: (number | Media)[] | null;
+  /**
+   * Current status of the signal
+   */
+  status: 'pending' | 'in-progress' | 'resolved' | 'rejected';
+  /**
+   * Internal notes from administrators
+   */
+  adminNotes?: string | null;
+  /**
+   * Name of the person reporting (optional)
+   */
+  reporterName?: string | null;
+  /**
+   * Email of the person reporting (optional)
+   */
+  reporterEmail?: string | null;
+  /**
+   * Phone number of the person reporting (optional)
+   */
+  reporterPhone?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "redirects".
  */
 export interface Redirect {
@@ -1057,6 +1140,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'waste-containers';
         value: number | WasteContainer;
+      } | null)
+    | ({
+        relationTo: 'signals';
+        value: number | Signal;
       } | null)
     | ({
         relationTo: 'redirects';
@@ -1470,6 +1557,38 @@ export interface WasteContainersSelect<T extends boolean = true> {
   wasteType?: T;
   status?: T;
   notes?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "signals_select".
+ */
+export interface SignalsSelect<T extends boolean = true> {
+  title?: T;
+  description?: T;
+  category?: T;
+  cityObject?:
+    | T
+    | {
+        type?: T;
+        referenceId?: T;
+        name?: T;
+      };
+  containerState?: T;
+  location?:
+    | T
+    | {
+        latitude?: T;
+        longitude?: T;
+        address?: T;
+      };
+  images?: T;
+  status?: T;
+  adminNotes?: T;
+  reporterName?: T;
+  reporterEmail?: T;
+  reporterPhone?: T;
   updatedAt?: T;
   createdAt?: T;
 }
