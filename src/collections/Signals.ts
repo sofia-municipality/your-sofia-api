@@ -66,8 +66,33 @@ export const Signals: CollectionConfig = {
     // Anyone can read and create signals (citizens can report)
     read: () => true,
     create: () => true,
-    // Only admins can update/delete
-    update: ({ req: { user } }) => Boolean(user),
+    // Update: Allow if user is admin OR if reporterUniqueId matches
+    update: async ({ req, data, id }) => {
+      // Admins can always update
+      if (req.user) return true;
+
+      // For non-admin updates, verify reporterUniqueId
+      if (data && data.reporterUniqueId && id) {
+        try {
+          // Fetch the existing signal
+          const existingSignal = await req.payload.findByID({
+            collection: 'signals',
+            id: id.toString(),
+          });
+
+          // Check if the reporterUniqueId matches
+          if (existingSignal.reporterUniqueId === data.reporterUniqueId) {
+            return true;
+          }
+        } catch (error) {
+          req.payload.logger.error(`Error verifying reporterUniqueId: ${error}`);
+          return false;
+        }
+      }
+
+      return false;
+    },
+    // Only admins can delete
     delete: ({ req: { user } }) => Boolean(user),
   },
   fields: [
