@@ -74,6 +74,7 @@ export interface Config {
     categories: Category;
     users: User;
     'push-tokens': PushToken;
+    'waste-containers': WasteContainer;
     redirects: Redirect;
     forms: Form;
     'form-submissions': FormSubmission;
@@ -92,6 +93,7 @@ export interface Config {
     categories: CategoriesSelect<false> | CategoriesSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
     'push-tokens': PushTokensSelect<false> | PushTokensSelect<true>;
+    'waste-containers': WasteContainersSelect<false> | WasteContainersSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
     'form-submissions': FormSubmissionsSelect<false> | FormSubmissionsSelect<true>;
@@ -798,6 +800,62 @@ export interface PushToken {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "waste-containers".
+ */
+export interface WasteContainer {
+  id: number;
+  /**
+   * Unique identifier visible to citizens (e.g., SOF-001, WC-123)
+   */
+  publicNumber: string;
+  /**
+   * Photo of the waste container
+   */
+  image?: (number | null) | Media;
+  location: {
+    /**
+     * Latitude coordinate (e.g., 42.6977 for Sofia)
+     */
+    latitude: number;
+    /**
+     * Longitude coordinate (e.g., 23.3219 for Sofia)
+     */
+    longitude: number;
+    /**
+     * Human-readable address (optional)
+     */
+    address?: string | null;
+  };
+  /**
+   * Container capacity in cubic meters (m³)
+   */
+  capacityVolume: number;
+  /**
+   * Relative size classification for easy filtering
+   */
+  capacitySize: 'tiny' | 'small' | 'standard' | 'big' | 'industrial';
+  /**
+   * How often the container is serviced (e.g., "Daily", "Every Monday and Thursday", "Twice a week")
+   */
+  serviceInterval?: string | null;
+  /**
+   * Name of the company or service responsible for collection
+   */
+  collectorName?: string | null;
+  /**
+   * Type of waste this container accepts
+   */
+  wasteType: 'general' | 'recyclables' | 'organic' | 'glass' | 'paper' | 'plastic' | 'metal';
+  status: 'active' | 'full' | 'maintenance' | 'inactive';
+  /**
+   * Any additional information about this container
+   */
+  notes?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "redirects".
  */
 export interface Redirect {
@@ -995,6 +1053,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'push-tokens';
         value: number | PushToken;
+      } | null)
+    | ({
+        relationTo: 'waste-containers';
+        value: number | WasteContainer;
       } | null)
     | ({
         relationTo: 'redirects';
@@ -1384,6 +1446,30 @@ export interface PushTokensSelect<T extends boolean = true> {
   device?: T;
   active?: T;
   lastUsed?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "waste-containers_select".
+ */
+export interface WasteContainersSelect<T extends boolean = true> {
+  publicNumber?: T;
+  image?: T;
+  location?:
+    | T
+    | {
+        latitude?: T;
+        longitude?: T;
+        address?: T;
+      };
+  capacityVolume?: T;
+  capacitySize?: T;
+  serviceInterval?: T;
+  collectorName?: T;
+  wasteType?: T;
+  status?: T;
+  notes?: T;
   updatedAt?: T;
   createdAt?: T;
 }

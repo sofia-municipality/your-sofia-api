@@ -13,6 +13,7 @@ import { Pages } from './collections/Pages'
 import { Posts } from './collections/Posts'
 import { Users } from './collections/Users'
 import { PushTokens } from './collections/PushTokens'
+import { WasteContainers } from './collections/WasteContainers'
 import { Footer } from './Footer/config'
 import { Header } from './Header/config'
 import { plugins } from './plugins'
@@ -70,7 +71,7 @@ export default buildConfig({
     tablesFilter: ['!spatial_ref_sys', '!geography_columns', '!geometry_columns', '!raster_columns', '!raster_overviews'], // Ignore PostGIS system tables
     migrationDir: path.resolve(dirname, 'migrations'),
   }),
-  collections: [News, Pages, Posts, Media, Categories, Users, PushTokens],
+  collections: [News, Pages, Posts, Media, Categories, Users, PushTokens, WasteContainers],
   cors: [getServerSideURL()].filter(Boolean),
   globals: [Header, Footer],
   localization: {
