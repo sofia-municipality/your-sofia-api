@@ -1,8 +1,8 @@
 {
-  "name": "api",
+  "name": "your-sofia-api",
   "version": "1.0.0",
-  "description": "Website template for Payload",
-  "license": "MIT",
+  "description": "YourSofia Mobile Application Backend and Administrative UI built using Payload CMS",
+  "license": "EUPL-1.2",
   "type": "module",
   "scripts": {
     "build": "cross-env NODE_OPTIONS=--no-deprecation next build",
