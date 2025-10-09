@@ -2,14 +2,9 @@
 
 [![License: EUPL 1.2](https://img.shields.io/badge/License-EUPL%201.2-blue.svg)](https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12)
 [![Build Docker Image](https://github.com/sofia-municipality/your-sofia-api/actions/workflows/docker-build.yml/badge.svg)](https://github.com/sofia-municipality/your-sofia-api/actions/workflows/docker-build.yml)
-[![Payload CMS](https://img.shields.io/badge/Payload%20CMS-3.31-000000)](https://payloadcms.com/)
+[![Payload CMS](https://img.shields.io/badge/Payload%20CMS-3.59-000000)](https://payloadcms.com/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-17-336791?logo=postgresql)](https://www.postgresql.org/)
 [![Next.js](https://img.shields.io/badge/Next.js-15-000000?logo=next.js)](https://nextjs.org/) Sofia API / Твоята София API
-
-[![License: EUPL 1.2](https://img.shields.io/badge/License-EUPL%201.2-blue.svg)](https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12)
-[![Payload CMS](https://img.shields.io/badge/Payload%20CMS-3.31-000000)](https://payloadcms.com/)
-[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-17-336791?logo=postgresql)](https://www.postgresql.org/)
-[![Next.js](https://img.shields.io/badge/Next.js-15-000000?logo=next.js)](https://nextjs.org/)
 
 The backend API for **Your Sofia** mobile application. Built with Payload CMS 3.0, this bilingual (Bulgarian/English) content management system powers city services, news, and civic engagement features for Sofia residents.
 
