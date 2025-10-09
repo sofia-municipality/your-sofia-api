@@ -1,5 +1,6 @@
 // storage-adapter-import-placeholder
 import { postgresAdapter } from '@payloadcms/db-postgres'
+import { migrations } from './migrations'
 
 import sharp from 'sharp' // sharp-import
 import path from 'path'
@@ -20,6 +21,7 @@ import { Header } from './Header/config'
 import { plugins } from './plugins'
 import { defaultLexical } from '@/fields/defaultLexical'
 import { getServerSideURL } from './utilities/getURL'
+import { healthCheck } from './endpoints/health'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -67,13 +69,15 @@ export default buildConfig({
     pool: {
       connectionString: process.env.DATABASE_URI || '',
     },
-    push: true,
+    push: (process.env.NODE_ENV === 'development'), // Enable push only in development environment
     extensions: ['postgis'], // Enable PostGIS extension
     tablesFilter: ['!spatial_ref_sys', '!geography_columns', '!geometry_columns', '!raster_columns', '!raster_overviews'], // Ignore PostGIS system tables
     migrationDir: path.resolve(dirname, 'migrations'),
+    prodMigrations: migrations,
   }),
   collections: [News, Pages, Posts, Media, Categories, Users, PushTokens, WasteContainers, Signals],
   cors: [getServerSideURL()].filter(Boolean),
+  endpoints: [healthCheck],
   globals: [Header, Footer],
   localization: {
     locales: [

@@ -1,0 +1,7 @@
+# Place your SSL certificate here
+# cert.pem - Full certificate chain
+# key.pem - Private key
+
+# For Let's Encrypt, copy from:
+# /etc/letsencrypt/live/your-domain/fullchain.pem -> cert.pem
+# /etc/letsencrypt/live/your-domain/privkey.pem -> key.pem
