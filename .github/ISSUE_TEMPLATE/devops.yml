@@ -1,19 +1,19 @@
-name: ⚡ Performance Issue
-description: DevOps-related performance issues, CI/CD, infrastructure, monitoring, or deployment problems
-title: "[DevOps-related]: "
+name: 🚀 DevOps/Infrastructure
+description: DevOps-related issues, CI/CD, infrastructure, monitoring, or deployment problems
+title: "[DevOps]: "
 labels: ["devops", "needs-triage"]
 assignees: []
 body:
   - type: markdown
     attributes:
       value: |
-        These issues are for improving development experience, quality, and reliability of our infrastructure.
+        These issues are for improving development workflows, infrastructure, deployment processes, and operational reliability.
 
   - type: dropdown
     id: component
     attributes:
-      label: Issue Area
-      description: Which devops area needs improvement?
+      label: DevOps Area
+      description: Which DevOps area does this issue relate to?
       options:
         - CI/CD Pipeline
         - Infrastructure as Code
@@ -29,9 +29,9 @@ body:
   - type: textarea
     id: description
     attributes:
-      label: Proposed Improvement Description
-      description: Describe the need of improvement in detail
+      label: Issue Description
+      description: Describe the DevOps issue or improvement needed
       placeholder: |
-        The build takes X minutes to complete.
+        Example: The CI/CD pipeline takes 15 minutes to complete, we should optimize the build steps.
     validations:
       required: true
