@@ -30,8 +30,6 @@ COPY . .
 # Learn more here: https://nextjs.org/telemetry
 ENV NEXT_TELEMETRY_DISABLED=1
 
-# Set dummy environment variables for build time
-ENV PAYLOAD_SECRET=build_time_secret_will_be_replaced_at_runtime
 ENV DATABASE_URI=postgres://postgres:postgres@127.0.0.1:5432/api
 ENV NEXT_PUBLIC_SERVER_URL=http://localhost:3000
 

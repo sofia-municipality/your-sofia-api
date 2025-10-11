@@ -7,7 +7,7 @@ This guide explains how to deploy Your Sofia API to a production server.
 ## Prerequisites
 
 - Docker and Docker Compose installed on the server
-- Domain name configured (e.g., `api.your-sofia.bg`)
+- Domain name configured (e.g., `your.sofia.bg`)
 - SSL certificates (Let's Encrypt recommended)
 - Minimum 2GB RAM, 20GB storage
 
@@ -32,7 +32,7 @@ nano .env.production
 - `PAYLOAD_SECRET` - Random 32+ character string
 - `CRON_SECRET` - Random 32+ character string
 - `PREVIEW_SECRET` - Random 32+ character string
-- `NEXT_PUBLIC_SERVER_URL` - Your domain (e.g., `https://api.your-sofia.bg`)
+- `NEXT_PUBLIC_SERVER_URL` - Your domain (e.g., `https://your.sofia.bg`)
 
 Generate secrets:
 ```bash
@@ -54,16 +54,16 @@ sudo apt-get update
 sudo apt-get install certbot
 
 # Get certificate
-sudo certbot certonly --standalone -d api.your-sofia.bg
+sudo certbot certonly --standalone -d your.sofia.bg
 
 # Copy certificates
-sudo cp /etc/letsencrypt/live/api.your-sofia.bg/fullchain.pem docker/nginx/ssl/cert.pem
-sudo cp /etc/letsencrypt/live/api.your-sofia.bg/privkey.pem docker/nginx/ssl/key.pem
+sudo cp /etc/letsencrypt/live/your.sofia.bg/fullchain.pem docker/nginx/ssl/cert.pem
+sudo cp /etc/letsencrypt/live/your.sofia.bg/privkey.pem docker/nginx/ssl/key.pem
 ```
 
 ### 4. Update Nginx Configuration
 
-Edit `docker/nginx/nginx.conf` and replace `api.your-sofia.bg` with your domain.
+Edit `docker/nginx/nginx.conf` and replace `your.sofia.bg` with your domain.
 
 ### 5. Deploy with Docker Compose
 
@@ -94,12 +94,12 @@ docker ps
 docker-compose -f docker/docker-compose.prod.yml logs -f payload
 
 # Test API
-curl https://api.your-sofia.bg/api/health
+curl https://your.sofia.bg/api/health
 ```
 
 ### 7. Create Admin User
 
-Navigate to `https://api.your-sofia.bg/admin` and create your first admin user.
+Navigate to `https://your.sofia.bg/admin` and create your first admin user.
 
 ## Database Management
 

@@ -53,9 +53,9 @@ This document describes the Continuous Integration and Continuous Deployment set
 ### For Production Deployment
 - `DEPLOY_SSH_KEY` - Private SSH key for server access
 - `DEPLOY_USER` - SSH username (e.g., `deploy`)
-- `DEPLOY_HOST` - Server hostname or IP (e.g., `api.your-sofia.bg`)
+- `DEPLOY_HOST` - Server hostname or IP (e.g., `your.sofia.bg`)
 - `DEPLOY_PATH` - Path to application on server (e.g., `/var/www/your-sofia-api`)
-- `DEPLOY_URL` - Public URL for health checks (e.g., `https://api.your-sofia.bg`)
+- `DEPLOY_URL` - Public URL for health checks (e.g., `https://your.sofia.bg`)
 - `SLACK_WEBHOOK_URL` - (Optional) Slack webhook for notifications
 
 ### Setting up secrets
@@ -115,11 +115,11 @@ This document describes the Continuous Integration and Continuous Deployment set
    sudo apt-get install certbot
    
    # Get certificate
-   sudo certbot certonly --standalone -d api.your-sofia.bg
+   sudo certbot certonly --standalone -d your.sofia.bg
    
    # Copy to application
-   sudo cp /etc/letsencrypt/live/api.your-sofia.bg/fullchain.pem docker/nginx/ssl/cert.pem
-   sudo cp /etc/letsencrypt/live/api.your-sofia.bg/privkey.pem docker/nginx/ssl/key.pem
+   sudo cp /etc/letsencrypt/live/your.sofia.bg/fullchain.pem docker/nginx/ssl/cert.pem
+   sudo cp /etc/letsencrypt/live/your.sofia.bg/privkey.pem docker/nginx/ssl/key.pem
    sudo chown deploy:deploy docker/nginx/ssl/*.pem
    ```
 
@@ -162,7 +162,7 @@ This document describes the Continuous Integration and Continuous Deployment set
 
 2. **Or deploy from server:**
    ```bash
-   ssh deploy@api.your-sofia.bg
+   ssh deploy@your.sofia.bg
    cd /var/www/your-sofia-api
    git pull origin main
    docker-compose -f docker/docker-compose.prod.yml --env-file .env.production pull
@@ -191,7 +191,7 @@ docker-compose -f docker/docker-compose.prod.yml ps
 ### Health Checks
 ```bash
 # From local machine
-curl https://api.your-sofia.bg/api/health
+curl https://your.sofia.bg/api/health
 
 # From server
 docker exec your-sofia-api-prod curl http://localhost:3000/api/health
@@ -201,7 +201,7 @@ docker exec your-sofia-api-prod curl http://localhost:3000/api/health
 
 ### Quick Rollback to Previous Tag
 ```bash
-ssh deploy@api.your-sofia.bg
+ssh deploy@your.sofia.bg
 cd /var/www/your-sofia-api
 
 # Find previous tag
@@ -240,7 +240,7 @@ docker-compose -f docker/docker-compose.prod.yml up -d
 1. **SSH key issues:**
    ```bash
    # Test SSH connection
-   ssh -i ~/.ssh/your-sofia-deploy deploy@api.your-sofia.bg
+   ssh -i ~/.ssh/your-sofia-deploy deploy@your.sofia.bg
    
    # Verify key is in GitHub secrets
    # Regenerate if needed
