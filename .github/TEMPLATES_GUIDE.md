@@ -305,7 +305,7 @@ Your Sofia is Bulgarian-first:
 - Low-severity issues
 - Dependency updates
 
-**Private (email security@your-sofia.bg):**
+**Private (email itsecurity@sofia.bg):**
 - Critical vulnerabilities
 - Data exposure risks
 - Authentication bypasses

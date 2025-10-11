@@ -1,8 +1,5 @@
 blank_issues_enabled: false
 contact_links:
-  - name: 💬 GitHub Discussions
-    url: https://github.com/sofia-municipality/your-sofia/discussions
-    about: Ask questions, share ideas, or discuss with the community
-  - name: 📖 Documentation
-    url: https://github.com/sofia-municipality/your-sofia/blob/main/README.md
-    about: Read the project documentation and setup guides
+  - name: ⚠️ Security Vulnerability Reporting
+    url: https://github.com/your-sofia/your-sofia-api/security/advisories
+    about: Report critical security vulnerabilities privately via email to [itsecurity@sofia.bg](mailto:itsecurity@sofia.bg)  
