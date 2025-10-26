@@ -1,6 +1,30 @@
 import type { CollectionConfig } from 'payload'
 import { APIError } from 'payload'
 
+/**
+ * Calculate distance between two coordinates using Haversine formula
+ * Returns distance in meters
+ */
+function calculateDistance(
+  lat1: number,
+  lon1: number,
+  lat2: number,
+  lon2: number
+): number {
+  const R = 6371e3 // Earth's radius in meters
+  const φ1 = (lat1 * Math.PI) / 180
+  const φ2 = (lat2 * Math.PI) / 180
+  const Δφ = ((lat2 - lat1) * Math.PI) / 180
+  const Δλ = ((lon2 - lon1) * Math.PI) / 180
+
+  const a =
+    Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+    Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) * Math.sin(Δλ / 2)
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+
+  return R * c // Distance in meters
+}
+
 export const Signals: CollectionConfig = {
   slug: 'signals',
   admin: {
@@ -13,6 +37,69 @@ export const Signals: CollectionConfig = {
       async ({ data, req, operation }) => {
         // Only run on create operation
         if (operation !== 'create' || !data) return data
+
+        // Check for proximity restriction for non-admin users
+        if (
+          data.category === 'waste-container' &&
+          data.cityObject?.referenceId &&
+          data.location?.latitude &&
+          data.location?.longitude
+        ) {
+          // Check if user is admin (skip proximity check for admins)
+          const isAdmin = req.user?.role === 'admin'
+
+          if (!isAdmin) {
+            try {
+              // Find the container by publicNumber
+              const containers = await req.payload.find({
+                collection: 'waste-containers',
+                where: {
+                  publicNumber: {
+                    equals: data.cityObject.referenceId,
+                  },
+                },
+                limit: 1,
+              })
+
+              if (containers.docs.length > 0) {
+                const container = containers.docs[0]
+                if (
+                  container &&
+                  container.location?.latitude &&
+                  container.location?.longitude
+                ) {
+                  const distance = calculateDistance(
+                    data.location.latitude,
+                    data.location.longitude,
+                    container.location.latitude,
+                    container.location.longitude
+                  )
+
+                  // Check if user is within 30 meters
+                  if (distance > 30) {
+                    req.payload.logger.warn(
+                      `Signal rejected: User is ${Math.round(distance)}m away from container ${data.cityObject.referenceId} (max 30m allowed)`
+                    )
+
+                    throw new APIError(
+                      `You must be within 30 meters of the container to report a signal. Current distance: ${Math.round(distance)}m`,
+                      403
+                    )
+                  }
+                }
+              }
+            } catch (error) {
+              // If it's our custom APIError, re-throw it
+              if (error instanceof APIError) {
+                throw error
+              }
+              // For other errors, log and continue (fail-open)
+              req.payload.logger.error(
+                `Error checking proximity: ${error}`
+              )
+            }
+          }
+        }
 
         // Check for duplicate waste container signals
         if (
