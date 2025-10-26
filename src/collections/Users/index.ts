@@ -32,7 +32,12 @@ export const Users: CollectionConfig = {
     defaultColumns: ['name', 'email'],
     useAsTitle: 'name',
   },
-  auth: true,
+  auth: {
+    //verify: process.env.NODE_ENV === 'production',
+    tokenExpiration: 60 * 60 * 24, // 24h in secconds
+    maxLoginAttempts: 5, // the admin can unlock manually
+    lockTime: 1000 * 60 * 10, // 10 minutes in milliseconds
+  },
   fields: [
     {
       name: 'name',
