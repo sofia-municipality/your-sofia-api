@@ -105,8 +105,8 @@ export default buildConfig({
   jobs: {
     access: {
       run: ({ req }: { req: PayloadRequest }): boolean => {
-        // Allow logged in users to execute this endpoint (default)
-        if (req.user) return true
+        // Only allow users with 'admin' role
+        if (req.user && req.user.role === 'admin') return true
 
         // If there is no logged in user, then check
         // for the Vercel Cron secret to be present as an
