@@ -27,8 +27,8 @@ importers:
         specifier: 3.59.1
         version: 3.59.1(@types/react@19.0.12)(monaco-editor@0.53.0)(next@15.5.4(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(sass@1.77.4))(payload@3.59.1(graphql@16.11.0)(typescript@5.7.3))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(typescript@5.7.3)
       '@payloadcms/plugin-import-export':
-        specifier: ^3.61.1
-        version: 3.61.1(@payloadcms/ui@3.59.1(@types/react@19.0.12)(monaco-editor@0.53.0)(next@15.5.4(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(sass@1.77.4))(payload@3.59.1(graphql@16.11.0)(typescript@5.7.3))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(typescript@5.7.3))(payload@3.59.1(graphql@16.11.0)(typescript@5.7.3))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+        specifier: 3.59.1
+        version: 3.59.1(@payloadcms/ui@3.59.1(@types/react@19.0.12)(monaco-editor@0.53.0)(next@15.5.4(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(sass@1.77.4))(payload@3.59.1(graphql@16.11.0)(typescript@5.7.3))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(typescript@5.7.3))(payload@3.59.1(graphql@16.11.0)(typescript@5.7.3))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       '@payloadcms/plugin-nested-docs':
         specifier: 3.59.1
         version: 3.59.1(payload@3.59.1(graphql@16.11.0)(typescript@5.7.3))
@@ -1378,11 +1378,11 @@ packages:
       react: ^19.0.0 || ^19.0.0-rc-65a56d0e-20241020
       react-dom: ^19.0.0 || ^19.0.0-rc-65a56d0e-20241020
 
-  '@payloadcms/plugin-import-export@3.61.1':
-    resolution: {integrity: sha512-/R9BEeSy02rM+GcW/Kog2BEOgJNzjqcOI8sfYjBA3nVLTglp8tiz5cjHfL04dj4TD7AKtGBSZHQuvopNsKc93w==}
+  '@payloadcms/plugin-import-export@3.59.1':
+    resolution: {integrity: sha512-klW6zie2hCcuPjsVM+GSodF9VwKhvrjjQeaoRXE8UXA9M0zh5UwHzq46ljxINRDNVMyT/6eVZ7e0vEQ8jHwUmQ==}
     peerDependencies:
-      '@payloadcms/ui': 3.61.1
-      payload: 3.61.1
+      '@payloadcms/ui': 3.59.1
+      payload: 3.59.1
 
   '@payloadcms/plugin-nested-docs@3.59.1':
     resolution: {integrity: sha512-39LDCpmeemGKcCjM5q/WBRXxYqIhPkKnyoFdPuk+oThXhWJHmrjAf7CDEDLUlGad4loYe8ywwr3jaKAtJorfbw==}
@@ -1421,9 +1421,6 @@ packages:
 
   '@payloadcms/translations@3.59.1':
     resolution: {integrity: sha512-kBuYV4tGOUpVkh6es6cBhbJn14dGtNnYkGtHhScbtGVX6ZJyVudY9ypKQhljAEzdQq0n+kkmi1sfwlaRps+t6w==}
-
-  '@payloadcms/translations@3.61.1':
-    resolution: {integrity: sha512-pLx2+WMgzIaKZ8+6tdHIHFcKdXZMyzvKj5AxzZygtt9OZWK7tVX7Q7d08/ineeiuEdt4V1kyf0FXHN9OY1Alsg==}
 
   '@payloadcms/ui@3.59.1':
     resolution: {integrity: sha512-T6GkdDqj3rd9qkkJ3HfgDTSA5BzU58xq1i5f/4QC8AE21BISRI3ZIiyz4K07BMipaqqN98zw+6j2kwRCPuJ/xw==}
@@ -6416,10 +6413,10 @@ snapshots:
       - supports-color
       - typescript
 
-  '@payloadcms/plugin-import-export@3.61.1(@payloadcms/ui@3.59.1(@types/react@19.0.12)(monaco-editor@0.53.0)(next@15.5.4(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(sass@1.77.4))(payload@3.59.1(graphql@16.11.0)(typescript@5.7.3))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(typescript@5.7.3))(payload@3.59.1(graphql@16.11.0)(typescript@5.7.3))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)':
+  '@payloadcms/plugin-import-export@3.59.1(@payloadcms/ui@3.59.1(@types/react@19.0.12)(monaco-editor@0.53.0)(next@15.5.4(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(sass@1.77.4))(payload@3.59.1(graphql@16.11.0)(typescript@5.7.3))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(typescript@5.7.3))(payload@3.59.1(graphql@16.11.0)(typescript@5.7.3))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)':
     dependencies:
       '@faceless-ui/modal': 3.0.0(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
-      '@payloadcms/translations': 3.61.1
+      '@payloadcms/translations': 3.59.1
       '@payloadcms/ui': 3.59.1(@types/react@19.0.12)(monaco-editor@0.53.0)(next@15.5.4(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(sass@1.77.4))(payload@3.59.1(graphql@16.11.0)(typescript@5.7.3))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)(typescript@5.7.3)
       csv-parse: 5.6.0
       csv-stringify: 6.6.0
@@ -6510,10 +6507,6 @@ snapshots:
       - yjs
 
   '@payloadcms/translations@3.59.1':
-    dependencies:
-      date-fns: 4.1.0
-
-  '@payloadcms/translations@3.61.1':
     dependencies:
       date-fns: 4.1.0
 
