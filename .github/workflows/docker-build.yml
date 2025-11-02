@@ -63,3 +63,13 @@ jobs:
           sbom: true
           build-args: |
             NODE_ENV=production
+
+      - name: Debug - Check public folder in build context and image
+        if: github.event_name != 'pull_request'
+        run: |
+          echo "=== Checking public folder in build context (source) ==="
+          ls -la public/
+          echo ""
+          echo "=== Checking public folder contents in built image ==="
+          IMAGE_TAG=$(echo "${{ steps.meta.outputs.tags }}" | head -n 1)
+          docker run --rm $IMAGE_TAG ls -la /app/public/
