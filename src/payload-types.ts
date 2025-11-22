@@ -875,6 +875,10 @@ export interface WasteContainer {
    * Any additional information about this container
    */
   notes?: string | null;
+  /**
+   * Timestamp when the container was last marked as clean
+   */
+  lastCleaned?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -1623,6 +1627,7 @@ export interface WasteContainersSelect<T extends boolean = true> {
   source?: T;
   status?: T;
   notes?: T;
+  lastCleaned?: T;
   updatedAt?: T;
   createdAt?: T;
 }

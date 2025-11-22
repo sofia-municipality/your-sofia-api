@@ -244,5 +244,16 @@ export const WasteContainers: CollectionConfig = {
         description: 'Any additional information about this container',
       },
     },
+    {
+      name: 'lastCleaned',
+      label: 'Last Cleaned',
+      type: 'date',
+      admin: {
+        description: 'Timestamp when the container was last marked as clean',
+        date: {
+          pickerAppearance: 'dayAndTime',
+        },
+      },
+    },
   ],
 }
