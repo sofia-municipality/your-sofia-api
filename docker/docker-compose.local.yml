@@ -1,6 +1,5 @@
-version: '3.8'
-
 # Development Docker Compose Configuration
+# you need only postgres for local development, run payload locally with `pnpm dev`
 # For production deployment, use docker-compose.prod.yml
 
 services:
@@ -9,43 +8,25 @@ services:
     container_name: your-sofia-postgres-dev
     restart: unless-stopped
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: your-sofia-dev
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-your-sofia}
     ports:
-      - "5433:5432"
+      - "${POSTGRES_PORT:-5432}:5432"
     volumes:
-      - postgres_dev_data:/var/lib/postgresql/data
+      - yoursofia_dev_postgres:/var/lib/postgresql/data
+      - ../backups:/backups
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 10s
-      timeout: 5s
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
+      interval: 30s
+      timeout: 10s
       retries: 5
-    networks:
-      - your-sofia-dev-network
-
-  payload:
-    build:
-      context: ..
-      dockerfile: docker/Dockerfile
-    container_name: your-sofia-api-dev
-    restart: unless-stopped
-    environment:
-      DATABASE_URI: postgres://postgres:postgres@postgres:5432/your-sofia-dev
-      PAYLOAD_SECRET: ${PAYLOAD_SECRET:-dev-secret-change-me}
-      NEXT_PUBLIC_SERVER_URL: ${NEXT_PUBLIC_SERVER_URL:-http://localhost:3003}
-      NODE_ENV: development
-      PORT: 3000
-    ports:
-      - "3003:3000"
-    depends_on:
-      postgres:
-        condition: service_healthy
+      start_period: 30s
     networks:
       - your-sofia-dev-network
 
 volumes:
-  postgres_dev_data:
+  yoursofia_dev_postgres:
     driver: local
 
 networks:

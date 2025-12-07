@@ -104,13 +104,81 @@ Click the "Fork" button on the [GitHub repository](https://github.com/sofia-muni
 ### 2. Clone Your Fork
 
 ```bash
-git clone https://github.com/YOUR-USERNAME/your-sofia.git
-cd your-sofia
+git clone https://github.com/YOUR-USERNAME/your-sofia-api.git
+cd your-sofia-api
 ```
 
 ### 3. Set Up the Development Environment
 
-Follow the setup instructions in [README.md](README.md#getting-started).
+#### Prerequisites
+
+Before you begin, ensure you have the following installed:
+
+- **Node.js** (v20 or higher) - [Download](https://nodejs.org/)
+- **pnpm** (v10.18+) - Install with `npm install -g pnpm` or `corepack enable`
+- **Docker** - [Download Docker Desktop](https://www.docker.com/products/docker-desktop/)
+
+#### Installation Steps
+
+**1. Install dependencies:**
+
+```bash
+pnpm install
+```
+
+**2. Set up environment variables:**
+Create a `.env.local` file in the root directory:
+
+```bash
+cp .env.example .env.local
+```
+
+**3. Start PostgreSQL database:**
+
+Using Docker Compose (recommended):
+
+```bash
+docker-compose -f docker/docker-compose.local.yml up -d
+```
+
+This will start PostgreSQL with PostGIS extension on port `5432`.
+
+**4. Run database migrations:**
+
+```bash
+pnpm payload migrate
+```
+
+**5. Start the development server:**
+
+```bash
+pnpm dev
+```
+
+The API will be available at:
+- **Admin Panel**: http://localhost:3000/admin
+- **API**: http://localhost:3000/api
+- **GraphQL**: http://localhost:3000/api/graphql
+
+**6. Create your first admin user:**
+
+Visit http://localhost:3000/admin and follow the setup wizard to create your admin account.
+
+#### Troubleshooting
+
+**Database connection fails:**
+- Ensure Docker is running: `docker ps`
+- Check PostgreSQL logs: `docker-compose -f docker/docker-compose.local.yml logs postgres`
+- Verify DATABASE_URI in `.env.local`
+
+**Port conflicts:**
+- If port 3000 is in use, change `PORT=3001` in `.env.local`
+- If port 5432 is in use, modify `docker-compose.local.yml` to use a different port
+
+**Build errors:**
+- Clear cache: `rm -rf .next node_modules && pnpm install`
+- Regenerate types: `pnpm generate:types`
+
 
 ### 4. Create a Branch
 

@@ -8,7 +8,7 @@ This directory contains all Docker-related files for deploying Your Sofia API.
 docker/
 ├── Dockerfile                    # Multi-stage production Docker image
 ├── .dockerignore                 # Files to exclude from Docker build context
-├── docker-compose.postgres.yml  # PostgreSQL for local development
+├── docker-compose.local.yml    # PostgreSQL for local development
 ├── docker-compose.prod.yml      # Production deployment configuration
 ├── nginx/                        # Nginx reverse proxy configuration
 │   ├── nginx.conf               # Nginx configuration with SSL, rate limiting
@@ -23,7 +23,7 @@ docker/
 ### Development (PostgreSQL only)
 
 ```bash
-docker-compose -f docker/docker-compose.postgres.yml up -d
+docker-compose -f docker/docker-compose.local.yml up -d
 ```
 
 ### Production Deployment
