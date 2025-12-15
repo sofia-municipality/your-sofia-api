@@ -27,9 +27,13 @@ export const cleanContainer: Endpoint = {
 
     try {
       // Parse form data (supports multipart for photo upload)
+      if (!req.formData) {
+        return Response.json({ error: 'Form data not available' }, { status: 400 })
+      }
       const formData = await req.formData()
       const notes = formData.get('notes') as string | null
       const photoFile = formData.get('photo') as File | null
+      
       // Find the container
       const container = await payload.findByID({
         collection: 'waste-containers',
@@ -128,7 +132,7 @@ export const cleanContainer: Endpoint = {
             `Photo observation created for container ${container.publicNumber} by ${(user as any).email}`
           )
         } catch (photoError) {
-          payload.logger.error(`Error uploading photo for container ${id}:`, photoError)
+          payload.logger.error(`Error uploading photo for container ${id}: ${photoError}`)
           // Continue even if photo upload fails
         }
       }
@@ -147,7 +151,7 @@ export const cleanContainer: Endpoint = {
         { status: 200 }
       )
     } catch (error) {
-      payload.logger.error(`Error cleaning container ${id}:`, error)
+      payload.logger.error(`Error cleaning container ${id}: ${error}`)
       return Response.json({ error: 'Failed to clean container' }, { status: 500 })
     }
   },
