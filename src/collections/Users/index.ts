@@ -1,9 +1,11 @@
 import type { CollectionConfig } from 'payload'
 
 import { authenticated } from '../../access/authenticated'
+import { deleteAccount } from '../../endpoints/deleteAccount'
 
 export const Users: CollectionConfig = {
   slug: 'users',
+  endpoints: [deleteAccount],
   access: {
     admin: ({ req: { user } }) => {
       // Only admin role can access the admin panel
