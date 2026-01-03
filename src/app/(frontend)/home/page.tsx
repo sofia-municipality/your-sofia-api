@@ -108,6 +108,12 @@ export default function HomePage() {
             <p className="text-gray-500">
               © 2025 Sofia Municipality | Столична община
             </p>
+            <Link
+              href="/terms-of-use"
+              className="text-sm text-gray-500 hover:text-gray-700 transition-colors"
+            >
+              Privacy Policy & Terms of Use
+            </Link>
           </div>
         </div>
       </div>
