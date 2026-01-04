@@ -49,7 +49,7 @@ export const Users: CollectionConfig = {
       name: 'role',
       type: 'select',
       required: true,
-      defaultValue: 'admin',
+      defaultValue: 'user',
       options: [
         {
           label: 'User',
