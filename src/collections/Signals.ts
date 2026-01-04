@@ -1,5 +1,6 @@
 import type { CollectionConfig } from 'payload'
 import { APIError } from 'payload'
+import { randomUUID } from 'crypto'
 
 /**
  * Calculate distance between two coordinates using Haversine formula
@@ -98,6 +99,57 @@ export const Signals: CollectionConfig = {
                 `Error checking proximity: ${error}`
               )
             }
+          }
+        }
+
+        // Auto-create waste container if referenceId is empty for waste-container signals
+        //TODO: Don't create duplicates if there is a container within X meters already
+        if (
+          data.category === 'waste-container' &&
+          data.cityObject?.type === 'waste-container' &&
+          !data.cityObject?.referenceId &&
+          data.location?.latitude &&
+          data.location?.longitude
+        ) {
+          try {
+            // Generate a unique public number based on UUID
+            const publicNumber = `SOF-WASTE-${randomUUID()}`
+
+            // Create a new waste container
+            const newContainer = await req.payload.create({
+              collection: 'waste-containers',
+              data: {
+                publicNumber,
+                status: 'active',
+                source : 'community',
+                wasteType: 'general',
+                capacitySize: 'standard',
+                capacityVolume: 3,
+                location: {
+                  latitude: data.location.latitude,
+                  longitude: data.location.longitude,
+                  address: data.location.address,
+                },
+                notes: `Auto-created from signal. ${data.cityObject.name || 'New container'}`,
+              },
+              draft: false
+            })
+
+            // Update the signal data with the new container reference
+            data.cityObject.referenceId = publicNumber
+
+            req.payload.logger.info(
+              `Auto-created waste container ${publicNumber} (ID: ${newContainer.id}) from signal`
+            )
+          } catch (error) {
+            req.payload.logger.error(
+              `Failed to auto-create waste container: ${error}`
+            )
+            // Re-throw error to fail signal creation
+            throw new APIError(
+              `Failed to create new waste container: ${error instanceof Error ? error.message : 'Unknown error'}`,
+              500
+            )
           }
         }
 
