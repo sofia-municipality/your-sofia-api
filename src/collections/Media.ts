@@ -18,10 +18,10 @@ export const Media: CollectionConfig = {
   slug: 'media',
   access: {
     admin: ({ req: { user } }) => user?.role === 'admin',
-    create: authenticated,
-    delete: authenticated,
+    create: anyone, //TODO: only mobile app users and admins should be able to upload
+    delete: ({ req: { user } }) => user?.role === 'admin',
     read: anyone,
-    update: authenticated,
+    update: ({ req: { user } }) => user?.role === 'admin',
   },
   fields: [
     {
