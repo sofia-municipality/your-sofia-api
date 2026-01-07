@@ -10,6 +10,7 @@ import * as migration_20251028_213810_import_signals_again from './20251028_2138
 import * as migration_20251122_091224 from './20251122_091224';
 import * as migration_20251122_140508_upload_photo_observation from './20251122_140508_upload_photo_observation';
 import * as migration_20260104_174157 from './20260104_174157';
+import * as migration_20260107_191231_reporterid from './20260107_191231_reporterid';
 
 export const migrations = [
   {
@@ -70,6 +71,11 @@ export const migrations = [
   {
     up: migration_20260104_174157.up,
     down: migration_20260104_174157.down,
-    name: '20260104_174157'
+    name: '20260104_174157',
+  },
+  {
+    up: migration_20260107_191231_reporterid.up,
+    down: migration_20260107_191231_reporterid.down,
+    name: '20260107_191231_reporterid'
   },
 ];

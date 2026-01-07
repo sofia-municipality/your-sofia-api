@@ -217,6 +217,10 @@ export interface Media {
     };
     [k: string]: unknown;
   } | null;
+  /**
+   * Unique identifier of the device/user that uploaded this media
+   */
+  reporterUniqueId?: string | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -1498,6 +1502,7 @@ export interface PostsSelect<T extends boolean = true> {
 export interface MediaSelect<T extends boolean = true> {
   alt?: T;
   caption?: T;
+  reporterUniqueId?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;

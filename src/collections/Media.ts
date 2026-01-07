@@ -18,7 +18,12 @@ export const Media: CollectionConfig = {
   slug: 'media',
   access: {
     admin: ({ req: { user } }) => user?.role === 'admin',
-    create: anyone, //TODO: only mobile app users and admins should be able to upload
+    create: ({ req, data }) => {
+      // Allow registered users to upload without reporterUniqueId
+      if (authenticated({ req })) return true
+      // Require reporterUniqueId for public uploads
+      return !!data?.reporterUniqueId
+    },
     delete: ({ req: { user } }) => user?.role === 'admin',
     read: anyone,
     update: ({ req: { user } }) => user?.role === 'admin',
@@ -37,6 +42,13 @@ export const Media: CollectionConfig = {
           return [...rootFeatures, FixedToolbarFeature(), InlineToolbarFeature()]
         },
       }),
+    },
+    {
+      name: 'reporterUniqueId',
+      type: 'text',
+      admin: {
+        description: 'Unique identifier of the device/user that uploaded this media',
+      },
     },
   ],
   upload: {
