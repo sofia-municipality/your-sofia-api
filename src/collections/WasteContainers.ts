@@ -238,6 +238,50 @@ export const WasteContainers: CollectionConfig = {
       defaultValue: 'active',
     },
     {
+      name: 'state',
+      label: 'Container State',
+      type: 'select',
+      hasMany: true,
+      admin: {
+        description: 'Current state(s) of the waste container (can have multiple states)',
+      },
+      options: [
+        {
+          label: 'Full',
+          value: 'full',
+        },
+        {
+          label: 'Dirty',
+          value: 'dirty',
+        },
+        {
+          label: 'Damaged',
+          value: 'damaged',
+        },
+        {
+          label: 'Empty',
+          value: 'empty',
+        },
+        {
+          label: 'Maintenance',
+          value: 'maintenance',
+        },
+        {
+          label: 'For Collection',
+          value: 'forCollection',
+        },
+        {
+          label: 'Fallen',
+          value: 'fallen',
+        },
+        {
+          label: 'Bulky Waste',
+          value: 'bulkyWaste',
+        },
+      ],
+      defaultValue: 'empty',
+    },
+    {
       name: 'notes',
       label: 'Additional Notes',
       type: 'textarea',

@@ -223,11 +223,9 @@ export const Signals: CollectionConfig = {
         // Only run on create operation
         if (operation !== 'create') return doc
 
-        // Check if this is a waste container signal with "full" state
+        // Check if this is a waste container signal
         if (
           doc.category === 'waste-container' &&
-          Array.isArray(doc.containerState) &&
-          doc.containerState.includes('full') &&
           doc.cityObject?.type === 'waste-container' &&
           doc.cityObject?.referenceId
         ) {
@@ -245,25 +243,42 @@ export const Signals: CollectionConfig = {
 
             if (containers.docs.length > 0 && containers.docs[0]) {
               const container = containers.docs[0]
+              const updateData: any = {}
               
-              // Update container status to "full" if it's not already
-              if (container.status !== 'full') {
+              // Update container status to "full" if signal reports it as full
+              if (Array.isArray(doc.containerState) && doc.containerState.includes('full')) {
+                if (container.status !== 'full') {
+                  updateData.status = 'full'
+                }
+              }
+
+              // Update container state field with new states from signal
+              if (Array.isArray(doc.containerState) && doc.containerState.length > 0) {
+                // Get existing states or empty array
+                const existingStates = Array.isArray(container.state) ? container.state : []
+                
+                // Merge states (add new ones, remove duplicates)
+                const mergedStates = [...new Set([...existingStates, ...doc.containerState])]
+                
+                updateData.state = mergedStates
+              }
+
+              // Only update if there's something to update
+              if (Object.keys(updateData).length > 0) {
                 await req.payload.update({
                   collection: 'waste-containers',
                   id: container.id,
-                  data: {
-                    status: 'full',
-                  },
+                  data: updateData,
                 })
 
                 req.payload.logger.info(
-                  `Container ${doc.cityObject.referenceId} status automatically updated to "full" due to signal ${doc.id}`
+                  `Container ${doc.cityObject.referenceId} updated due to signal ${doc.id}. Changes: ${JSON.stringify(updateData)}`
                 )
               }
             }
           } catch (error) {
             req.payload.logger.error(
-              `Failed to update container status for signal ${doc.id}: ${error}`
+              `Failed to update container for signal ${doc.id}: ${error}`
             )
           }
         }
