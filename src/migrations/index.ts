@@ -11,6 +11,7 @@ import * as migration_20251122_091224 from './20251122_091224';
 import * as migration_20251122_140508_upload_photo_observation from './20251122_140508_upload_photo_observation';
 import * as migration_20260104_174157 from './20260104_174157';
 import * as migration_20260107_191231_reporterid from './20260107_191231_reporterid';
+import * as migration_20260111_import_podyane_and_triaditsa_containers from './20260111_import_podyane_and_triaditsa_containers';
 
 export const migrations = [
   {
@@ -77,5 +78,10 @@ export const migrations = [
     up: migration_20260107_191231_reporterid.up,
     down: migration_20260107_191231_reporterid.down,
     name: '20260107_191231_reporterid'
+  },
+  {
+    up: migration_20260111_import_podyane_and_triaditsa_containers.up,
+    down: migration_20260111_import_podyane_and_triaditsa_containers.down,
+    name: '20260111_import_podyane_and_triaditsa_containers'
   },
 ];
