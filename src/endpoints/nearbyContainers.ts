@@ -85,12 +85,6 @@ export const nearbyContainers: Endpoint = {
       
       console.log('[nearbyContainers] Query executed successfully, rows:', result.rows.length, result.rows[0])
 
-      for(const row of result.rows) {
-        if (row.state && row.state.length > 0) {
-          console.log('[nearbyContainers] Container state data:', row.state)
-        }
-      }
-
       // Transform the results to match the WasteContainer type
       const containers = result.rows.map((row: any) => ({
         id: row.id,
