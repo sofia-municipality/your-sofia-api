@@ -1,5 +1,6 @@
 import type { CollectionConfig } from 'payload'
 import { cleanContainer } from '../endpoints/cleanContainer'
+import { nearbyContainers } from '../endpoints/nearbyContainers'
 
 const canEditContainers = ({ req: { user } }: any) => {
   return user?.role === 'containerAdmin' || user?.role === 'admin'
@@ -12,7 +13,7 @@ export const WasteContainers: CollectionConfig = {
     defaultColumns: ['publicNumber', 'location', 'capacitySize', 'servicedBy'],
     group: 'City Infrastructure',
   },
-  endpoints: [cleanContainer],
+  endpoints: [cleanContainer, nearbyContainers],
   access: {
     // Only admin role can access the admin panel
     admin: ({ req: { user } }) => user?.role === 'admin',
