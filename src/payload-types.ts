@@ -944,7 +944,9 @@ export interface Signal {
   /**
    * State of the waste container (only for waste container signals)
    */
-  containerState?: ('full' | 'dirty' | 'damaged' | 'empty' | 'forCollection' | 'broken')[] | null;
+  containerState?:
+    | ('full' | 'dirty' | 'damaged' | 'empty' | 'maintenance' | 'forCollection' | 'fallen' | 'bulkyWaste')[]
+    | null;
   location?: {
     /**
      * Latitude coordinate
