@@ -61,16 +61,19 @@ export const nearbyContainers: Endpoint = {
           wc.last_cleaned,
           wc.created_at,
           wc.updated_at,
+          COALESCE(json_agg(wcs.value) FILTER (WHERE wcs.value IS NOT NULL), '[]'::json) as state,
           ST_Distance(
             ST_MakePoint(${longitude}, ${latitude})::geography,
             ST_MakePoint(wc.location_longitude, wc.location_latitude)::geography
           ) as distance
         FROM waste_containers wc
+        LEFT JOIN waste_containers_state wcs ON wcs.parent_id = wc.id
         WHERE ST_DWithin(
           ST_MakePoint(${longitude}, ${latitude})::geography,
           ST_MakePoint(wc.location_longitude, wc.location_latitude)::geography,
           ${radius}
         )
+        GROUP BY wc.id
         ORDER BY distance ASC
         LIMIT ${limit}
       `
@@ -80,7 +83,13 @@ export const nearbyContainers: Endpoint = {
       // Execute the query
       const result = await db.drizzle.execute(query)
       
-      console.log('[nearbyContainers] Query executed successfully, rows:', result.rows.length)
+      console.log('[nearbyContainers] Query executed successfully, rows:', result.rows.length, result.rows[0])
+
+      for(const row of result.rows) {
+        if (row.state && row.state.length > 0) {
+          console.log('[nearbyContainers] Container state data:', row.state)
+        }
+      }
 
       // Transform the results to match the WasteContainer type
       const containers = result.rows.map((row: any) => ({
@@ -97,6 +106,7 @@ export const nearbyContainers: Endpoint = {
         servicedBy: row.serviced_by,
         wasteType: row.waste_type,
         status: row.status,
+        state: Array.isArray(row.state) ? row.state : [],
         notes: row.notes,
         lastCleaned: row.last_cleaned,
         createdAt: row.created_at,

@@ -881,6 +881,10 @@ export interface WasteContainer {
   source: 'community' | 'official' | 'third_party';
   status: 'active' | 'full' | 'maintenance' | 'inactive';
   /**
+   * Current state(s) of the waste container (can have multiple states)
+   */
+  state?: ('full' | 'dirty' | 'damaged' | 'empty' | 'maintenance' | 'forCollection' | 'fallen' | 'bulkyWaste')[] | null;
+  /**
    * Any additional information about this container
    */
   notes?: string | null;
@@ -1669,6 +1673,7 @@ export interface WasteContainersSelect<T extends boolean = true> {
   wasteType?: T;
   source?: T;
   status?: T;
+  state?: T;
   notes?: T;
   lastCleaned?: T;
   updatedAt?: T;
