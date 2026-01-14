@@ -82,13 +82,14 @@ export const cleanContainer: Endpoint = {
 
       await Promise.all(updatePromises)
 
-      // Update container status to active and set lastCleaned timestamp
+      // Update container status to active, set lastCleaned timestamp, and clear containerState
       const updatedContainer = await payload.update({
         collection: 'waste-containers',
         id: parseInt(id as string),
         data: {
           status: 'active',
           lastCleaned: new Date().toISOString(),
+          state: [],
         },
       })
 
