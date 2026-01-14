@@ -246,7 +246,7 @@ export const Signals: CollectionConfig = {
               const updateData: any = {}
               
               // Update container status to "full" if signal reports it as full
-              if (Array.isArray(doc.containerState) && doc.containerState.includes('full')) {
+              if (Array.isArray(doc.containerState) && doc.containerState.length > 0) {
                 if (container.status !== 'full') {
                   updateData.status = 'full'
                 }
