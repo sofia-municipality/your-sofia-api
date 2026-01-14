@@ -8,6 +8,7 @@ export const WasteContainerObservations: CollectionConfig = {
     update: ({req: {user}}) => user?.role === 'admin',
     delete: ({req: {user}}) => user?.role === 'admin',
   },
+  admin: {group: 'City Infrastructure'} ,
   fields: [
     {
       name: 'container',
