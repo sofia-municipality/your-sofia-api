@@ -14,6 +14,8 @@ import * as migration_20260107_191231_reporterid from './20260107_191231_reporte
 import * as migration_20260111_174909_container_states from './20260111_174909_container_states';
 import * as migration_20260111_183034_added_container_states from './20260111_183034_added_container_states';
 import * as migration_20260111_import_podyane_and_triaditsa_containers from './20260111_import_podyane_and_triaditsa_containers';
+import * as migration_20260115_192810 from './20260115_192810';
+import * as migration_20260115_194957_signal_container_state from './20260115_194957_signal_container_state';
 
 export const migrations = [
   {
@@ -94,6 +96,16 @@ export const migrations = [
   {
     up: migration_20260111_import_podyane_and_triaditsa_containers.up,
     down: migration_20260111_import_podyane_and_triaditsa_containers.down,
-    name: '20260111_import_podyane_and_triaditsa_containers'
+    name: '20260111_import_podyane_and_triaditsa_containers',
+  },
+  {
+    up: migration_20260115_192810.up,
+    down: migration_20260115_192810.down,
+    name: '20260115_192810',
+  },
+  {
+    up: migration_20260115_194957_signal_container_state.up,
+    down: migration_20260115_194957_signal_container_state.down,
+    name: '20260115_194957_signal_container_state'
   },
 ];

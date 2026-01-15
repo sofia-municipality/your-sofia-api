@@ -883,7 +883,7 @@ export interface WasteContainer {
   /**
    * Current state(s) of the waste container (can have multiple states)
    */
-  state?: ('full' | 'dirty' | 'damaged' | 'empty' | 'maintenance' | 'forCollection' | 'fallen' | 'bulkyWaste')[] | null;
+  state?: ('full' | 'dirty' | 'damaged' | 'leaves' | 'maintenance' | 'bagged' | 'fallen' | 'bulkyWaste')[] | null;
   /**
    * Any additional information about this container
    */
@@ -949,7 +949,7 @@ export interface Signal {
    * State of the waste container (only for waste container signals)
    */
   containerState?:
-    | ('full' | 'dirty' | 'damaged' | 'empty' | 'maintenance' | 'forCollection' | 'fallen' | 'bulkyWaste')[]
+    | ('full' | 'dirty' | 'damaged' | 'leaves' | 'maintenance' | 'bagged' | 'fallen' | 'bulkyWaste')[]
     | null;
   location?: {
     /**

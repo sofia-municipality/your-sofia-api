@@ -458,16 +458,16 @@ export const Signals: CollectionConfig = {
           value: 'damaged',
         },
         {
-          label: 'Empty',
-          value: 'empty',
+          label: 'Leaves',
+          value: 'leaves',
         },
         {
           label: 'Maintenance',
           value: 'maintenance',
         },
         {
-          label: 'For Collection',
-          value: 'forCollection',
+          label: 'Bagged Waste',
+          value: 'bagged',
         },
         {
           label: 'Fallen',
