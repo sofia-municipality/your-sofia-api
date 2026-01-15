@@ -259,16 +259,16 @@ export const WasteContainers: CollectionConfig = {
           value: 'damaged',
         },
         {
-          label: 'Empty',
-          value: 'empty',
+          label: 'Leaves',
+          value: 'leaves',
         },
         {
           label: 'Maintenance',
           value: 'maintenance',
         },
         {
-          label: 'For Collection',
-          value: 'forCollection',
+          label: 'Bagged Waste',
+          value: 'bagged',
         },
         {
           label: 'Fallen',
@@ -279,7 +279,6 @@ export const WasteContainers: CollectionConfig = {
           value: 'bulkyWaste',
         },
       ],
-      defaultValue: 'empty',
     },
     {
       name: 'notes',
