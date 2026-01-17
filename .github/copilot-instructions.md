@@ -141,6 +141,20 @@ hooks: {
 },
 ```
 
+### Code Formatting
+
+- **CRITICAL**: Always read `.prettierrc.json` before generating new code
+- Follow Prettier configuration:
+  - No semicolons (`semi: false`)
+  - Single quotes (`singleQuote: true`)
+  - 2 space indentation (`tabWidth: 2`)
+  - No bracket spacing (`bracketSpacing: false`)
+  - ES5 trailing commas (`trailingComma: "es5"`)
+  - 100 character line width (`printWidth: 100`)
+- All generated code must conform to these formatting rules
+- When creating new files, ensure they follow the Prettier configuration
+- Run `pnpm format` if unsure about formatting
+
 ## Integration Points
 
 ### API Endpoints
