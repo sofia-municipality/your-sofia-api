@@ -864,6 +864,10 @@ export interface WasteContainer {
    */
   capacitySize: 'tiny' | 'small' | 'standard' | 'big' | 'industrial';
   /**
+   * Number of physical bins at this location (default: 1)
+   */
+  binCount?: number | null;
+  /**
    * How often the container is serviced (e.g., "Daily", "Every Monday and Thursday", "Twice a week")
    */
   serviceInterval?: string | null;
@@ -1668,6 +1672,7 @@ export interface WasteContainersSelect<T extends boolean = true> {
       };
   capacityVolume?: T;
   capacitySize?: T;
+  binCount?: T;
   serviceInterval?: T;
   servicedBy?: T;
   wasteType?: T;

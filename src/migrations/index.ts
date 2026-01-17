@@ -16,6 +16,7 @@ import * as migration_20260111_183034_added_container_states from './20260111_18
 import * as migration_20260111_import_podyane_and_triaditsa_containers from './20260111_import_podyane_and_triaditsa_containers';
 import * as migration_20260115_192810 from './20260115_192810';
 import * as migration_20260115_194957_signal_container_state from './20260115_194957_signal_container_state';
+import * as migration_20260117_101146_bins from './20260117_101146_bins';
 
 export const migrations = [
   {
@@ -106,6 +107,11 @@ export const migrations = [
   {
     up: migration_20260115_194957_signal_container_state.up,
     down: migration_20260115_194957_signal_container_state.down,
-    name: '20260115_194957_signal_container_state'
+    name: '20260115_194957_signal_container_state',
+  },
+  {
+    up: migration_20260117_101146_bins.up,
+    down: migration_20260117_101146_bins.down,
+    name: '20260117_101146_bins'
   },
 ];
