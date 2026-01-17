@@ -131,6 +131,16 @@ export const WasteContainers: CollectionConfig = {
       },
     },
     {
+      name: 'binCount',
+      label: 'Number of Bins',
+      type: 'number',
+      min: 1,
+      defaultValue: 1,
+      admin: {
+        description: 'Number of physical bins at this location (default: 1)',
+      },
+    },
+    {
       name: 'serviceInterval',
       label: 'Service Interval',
       type: 'text',
