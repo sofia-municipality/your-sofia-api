@@ -97,6 +97,12 @@ Help make the app accessible to everyone:
 
 ## 🚀 Getting Started
 
+> **📦 Monorepo Setup:** Your Sofia consists of two repositories that work together:
+> - **your-sofia-api** (this repo) - Payload CMS backend API
+> - **your-sofia-mobile** - React Native mobile app
+>
+> Both repositories need to be cloned and configured for full functionality. The mobile app connects to this API for all data operations.
+
 ### 1. Fork the Repository
 
 Click the "Fork" button on the [GitHub repository](https://github.com/sofia-municipality/your-sofia).
