@@ -6,10 +6,9 @@ Thank you for your interest in contributing to **Your Sofia**! This project is b
 
 ---
 
-## 📋 Table of Contents
+## Table of Contents
 
 - [Code of Conduct](#code-of-conduct)
-- [How Can I Contribute?](#how-can-i-contribute)
 - [Getting Started](#getting-started)
 - [Reporting Issues](#reporting-issues)
 - [Submitting Changes](#submitting-changes)
@@ -19,7 +18,7 @@ Thank you for your interest in contributing to **Your Sofia**! This project is b
 
 ---
 
-## 🤝 Code of Conduct
+## Code of Conduct
 
 ### Our Pledge
 
@@ -48,64 +47,17 @@ Project maintainers have the right and responsibility to remove, edit, or reject
 
 ---
 
-## 🎯 How Can I Contribute?
+## Getting Started
 
-### 1. 🐛 Reporting Bugs
+**📦 Monorepo Setup:** Your Sofia consists of two repositories that work together:
+- **your-sofia-api** (this repo) - Payload CMS backend API
+- **your-sofia-mobile** - React Native mobile app
 
-Use the provided [issue templates](https://github.com/sofia-municipality/your-sofia/issues/new/choose) to report bugs. Include:
-
-- Clear title and steps to reproduce
-- Expected vs actual behavior
-- Device and OS information
-- Screenshots or error messages
-
-### 2. 💡 Suggesting Features
-
-Have an idea? Check [existing issues](https://github.com/sofia-municipality/your-sofia/issues) first. Describe:
-
-- What problem it solves
-- Proposed solution
-- Benefit for Sofia residents
-- Mockups (if applicable)
-
-### 3. 🔧 Contributing Code
-
-We welcome:
-
-- Bug fixes
-- New features (after discussion in issues)
-- Performance and UI/UX improvements
-- Test coverage
-- Accessibility enhancements
-
-### 4. 📖 Improving Documentation
-
-- Fix typos and clarify sections
-- Add examples and tutorials
-- Translate to Bulgarian
-- Document new features
-
-### 5. 🌍 Translation and Localization
-
-Help make the app accessible to everyone:
-
-- Translate missing strings (bg/en)
-- Improve existing translations
-- Report incorrect or unclear wording
-
----
-
-## 🚀 Getting Started
-
-> **📦 Monorepo Setup:** Your Sofia consists of two repositories that work together:
-> - **your-sofia-api** (this repo) - Payload CMS backend API
-> - **your-sofia-mobile** - React Native mobile app
->
-> Both repositories need to be cloned and configured for full functionality. The mobile app connects to this API for all data operations.
+Both repositories need to be cloned and configured for full functionality. The mobile app connects to this API for all data operations.
 
 ### 1. Fork the Repository
 
-Click the "Fork" button on the [GitHub repository](https://github.com/sofia-municipality/your-sofia).
+Click the "Fork" button on the [GitHub repository](https://github.com/sofia-municipality/your-sofia-api).
 
 ### 2. Clone Your Fork
 
@@ -170,42 +122,6 @@ The API will be available at:
 
 Visit http://localhost:3000/admin and follow the setup wizard to create your admin account.
 
-#### Troubleshooting
-
-**Database connection fails:**
-- Ensure Docker is running: `docker ps`
-- Check PostgreSQL logs: `docker-compose -f docker/docker-compose.local.yml logs postgres`
-- Verify DATABASE_URI in `.env.local`
-
-**Port conflicts:**
-- If port 3000 is in use, change `PORT=3001` in `.env.local`
-- If port 5432 is in use, modify `docker-compose.local.yml` to use a different port
-
-**Build errors:**
-- Clear cache: `rm -rf .next node_modules && pnpm install`
-- Regenerate types: `pnpm generate:types`
-
-
-### 4. Create a Branch
-
-```bash
-git checkout -b feature/your-feature-name
-# or
-git checkout -b fix/bug-description
-```
-
-**Branch naming conventions:**
-
-- `feature/` - New features (e.g., `feature/air-quality-alerts`)
-- `fix/` - Bug fixes (e.g., `fix/news-refresh-language`)
-- `docs/` - Documentation (e.g., `docs/api-endpoints`)
-- `refactor/` - Code refactoring (e.g., `refactor/api-client`)
-- `test/` - Adding tests (e.g., `test/news-component`)
-
-### 5. Make Your Changes
-
-Write your code following quality and style standards.
-
 ### 6. Test Your Changes
 
 ```bash
@@ -221,32 +137,6 @@ pnpm lint
 pnpm typecheck
 ```
 
-### 7. Commit Your Changes
-
-Write clear, descriptive commit messages in English, example:
-
-```bash
-git add .
-git commit -m "added: air quality notifications
-
-- Added user setting for air quality threshold in profile settings
-- Implemented backend scheduled task to check air quality
-- Send push notifications when threshold exceeded
-- Added Bulgarian and English translations
-
-Closes #123"
-```
-
-**Types:**
-
-- `added:` - New functionality
-- `fixed:` - Bug fix
-- `docs:` - Documentation changes
-- `style:` - Code style changes (formatting, no logic changes)
-- `refactor:` - Code refactoring
-- `test:` - Adding or updating tests
-- `chore:` - Build process, dependencies, etc.
-
 ### 8. Push to Your Fork
 
 ```bash
@@ -259,7 +149,7 @@ Go to the original repository and click "New Pull Request".
 
 ---
 
-## 📝 Reporting Issues
+## Reporting Issues
 
 ### Writing Good Issues
 
@@ -280,7 +170,7 @@ Go to the original repository and click "New Pull Request".
 
 ---
 
-## 🔄 Submitting Changes
+## Submitting Changes
 
 ### Pull Request Guidelines
 
@@ -295,7 +185,7 @@ Go to the original repository and click "New Pull Request".
 
 ---
 
-## 👀 Code Review Process
+## Code Review Process
 
 ### For Contributors
 
@@ -346,7 +236,7 @@ Go to the original repository and click "New Pull Request".
 
 ---
 
-## 🤝 Community
+## Community
 
 ### Communication Channels
 
@@ -362,13 +252,13 @@ We value all contributions! Contributors are:
 
 ---
 
-## 📜 License
+## License
 
 By contributing to Your Sofia, you agree that your contributions will be licensed under the [EUPL-1.2 License](LICENSE).
 
 ---
 
-## 🙏 Thank You!
+## Thank You!
 
 Your contributions make **Your Sofia** better for everyone. Whether you're fixing a typo or building a major feature, every contribution matters. Together we're building a more transparent, accessible, and livable city.
 

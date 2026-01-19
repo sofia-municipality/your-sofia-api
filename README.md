@@ -12,7 +12,7 @@ The backend API for **Your Sofia** mobile application. Built with Payload CMS 3.
 
 ---
 
-## 📖 Table of Contents
+## Table of Contents
 
 - [Motivation](#motivation)
 - [Features](#features)
@@ -25,7 +25,7 @@ The backend API for **Your Sofia** mobile application. Built with Payload CMS 3.
 
 ---
 
-## 🎯 Motivation
+## Motivation
 
 **Your Sofia** is a mobile application for the residents of Sofia. The main motivation is **creating a better living environment through active interaction between citizens and administration**. This project welcomes contributions from developers, designers, and all community members who share the vision of transparent and accessible city services.
 
@@ -73,7 +73,7 @@ Guiding Rules:
 
 ---
 
-## 🤝 Contributing
+## Contributing
 
 We welcome contributions from everyone! Whether you're fixing a bug, adding a feature, improving documentation, or translating content, your help makes **Your Sofia** better for all citizens.
 
@@ -96,7 +96,7 @@ For detailed instructions, see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ---
 
-## 📄 License
+## License
 
 This project is licensed under the **European Union Public License (EUPL) v1.2**.
 
@@ -118,21 +118,13 @@ For questions about licensing, visit the [EUPL FAQ](https://joinup.ec.europa.eu/
 
 ---
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 - **Sofia Municipality**: For supporting open civic technology
 - **Contributors**: Everyone who has helped improve this project
 - **Expo Team**: For the amazing React Native framework
 - **Payload CMS**: For the powerful headless CMS
 - **Open Source Community**: For the tools and libraries we build upon
-
----
-
-## 📞 Contact & Support
-
-- **Issues**: [GitHub Issues](https://github.com/sofia-municipality/your-sofia-api/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/sofia-municipality/your-sofia-api/discussions)
-- **Email**: support@your-sofia.bg (if applicable)
 
 ---
 
