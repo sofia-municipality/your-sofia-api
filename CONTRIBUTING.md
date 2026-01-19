@@ -122,31 +122,27 @@ The API will be available at:
 
 Visit http://localhost:3000/admin and follow the setup wizard to create your admin account.
 
-### 6. Test Your Changes
 
-```bash
-# Frontend tests
-cd app
-pnpm typecheck
-pnpm lint
-pnpm test
-
-# Backend tests
-cd api
-pnpm lint
-pnpm typecheck
-```
-
-### 8. Push to Your Fork
+### 6. Push to Your Fork
 
 ```bash
 git push origin feature/your-feature-name
 ```
 
-### 9. Open a Pull Request
+### 7. Open a Pull Request
 
 Go to the original repository and click "New Pull Request".
 
+### 8. Ask a maintainer to review and merge
+
+Ping one of the maintainers that your PR is ready for review.
+Your PR is going to be merge with rebase or squash depending on size to preserve linear history.
+
+> NOTE!: After the merge **don't sync** your fork with the button in Github.
+Use the following to rebase your fork too:
+```bash
+git fetch upstream && git rebase upstream && git push --force-with-lease
+```
 ---
 
 ## Reporting Issues
@@ -195,6 +191,7 @@ Go to the original repository and click "New Pull Request".
 2. Respond to feedback or requested changes
 3. Update your PR by pushing new commits
 4. Request re-review when ready
+5. After your PR is merged in upstream, use `git fetch upstream && git rebase upstream && git push --force-with-lease` to maintain linear history
 
 **Responding to feedback:**
 
