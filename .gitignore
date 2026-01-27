@@ -8,9 +8,10 @@ node_modules
 .next
 .vercel
 
+coverage
+
 # Payload default media upload directory
 public/media/
-
 public/robots.txt
 public/sitemap*.xml
 
