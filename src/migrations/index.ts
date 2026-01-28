@@ -17,6 +17,8 @@ import * as migration_20260111_import_podyane_and_triaditsa_containers from './2
 import * as migration_20260115_192810 from './20260115_192810';
 import * as migration_20260115_194957_signal_container_state from './20260115_194957_signal_container_state';
 import * as migration_20260117_101146_bins from './20260117_101146_bins';
+import * as migration_20260128_import_slatina_containers from './20260128_import_slatina_containers';
+import * as migration_20260128_import_izgrev_containers from './20260128_import_izgrev_containers';
 
 export const migrations = [
   {
@@ -112,6 +114,17 @@ export const migrations = [
   {
     up: migration_20260117_101146_bins.up,
     down: migration_20260117_101146_bins.down,
-    name: '20260117_101146_bins'
+    name: '20260117_101146_bins',
   },
+  {
+    up: migration_20260128_import_slatina_containers.up,
+    down: migration_20260128_import_slatina_containers.down,
+    name: '20260128_import_slatina_containers',
+  },
+  {
+    up: migration_20260128_import_izgrev_containers.up,
+    down: migration_20260128_import_izgrev_containers.down,
+    name: '20260128_import_izgrev_containers',
+  },
+
 ];
