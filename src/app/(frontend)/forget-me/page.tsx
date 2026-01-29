@@ -206,22 +206,22 @@ export default function ForgetMePage() {
                         </p>
                         <ul className="list-none pl-0 text-gray-700 space-y-2">
                           <li>
-                            <a
+                            <Link
                               href="/terms-of-use"
                               className="text-blue-600 hover:underline inline-flex items-center gap-2"
                             >
                               Общи условия и Политика за поверителност
-                            </a>
+                            </Link>
                           </li>
                           <li>
-                            <a
+                            <Link
                               href="https://www.sofia.bg/en/protection-of-personal-data"
                               target="_blank"
                               rel="noopener noreferrer"
                               className="text-blue-600 hover:underline inline-flex items-center gap-2"
                             >
                               Защита на личните данни - София.бг
-                            </a>
+                            </Link>
                           </li>
                         </ul>
                       </div>
