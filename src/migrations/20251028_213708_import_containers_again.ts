@@ -19,7 +19,7 @@ export async function up({ payload }: MigrateUpArgs): Promise<void> {
   console.log(`Found ${containersData.length} containers to import`)
 
   let imported = 0
-  let skipped = 0
+  const skipped = 0
   let errors = 0
 
   // Process containers in batches to avoid memory issues
