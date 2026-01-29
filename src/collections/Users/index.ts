@@ -1,7 +1,6 @@
 import type { CollectionConfig } from 'payload'
 
-import { authenticated } from '../../access/authenticated'
-import { deleteAccount } from '../../endpoints/deleteAccount'
+import { deleteAccount } from '../../endpoints/deleteAccount' 
 
 export const Users: CollectionConfig = {
   slug: 'users',
@@ -11,12 +10,23 @@ export const Users: CollectionConfig = {
       // Only admin role can access the admin panel
       return user?.role === 'admin'
     },
-    create: authenticated,
+    create: () => true,
     delete: ({ req: { user } }) => {
       // Only admins can delete users
       return user?.role === 'admin'
     },
-    read: authenticated,
+    read: ({ req: { user } }) => {
+      // Admins can read all users
+      if (user?.role === 'admin') {
+        return true
+      }
+      // Users can only read their own profile
+      return {
+        id: {
+          equals: user?.id,
+        },
+      }
+    },
     update: ({ req: { user } }) => {
       // Admins can edit all users, users can edit themselves
       if (user?.role === 'admin') {
@@ -50,6 +60,14 @@ export const Users: CollectionConfig = {
       type: 'select',
       required: true,
       defaultValue: 'user',
+      access: {
+        create: ({ req: { user } }) => {
+          return user?.role === 'admin'
+        },
+        update: ({ req: { user } }) => {
+          return user?.role === 'admin'
+        }
+      },
       options: [
         {
           label: 'User',
