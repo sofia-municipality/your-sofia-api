@@ -44,6 +44,9 @@ importers:
       '@payloadcms/richtext-lexical':
         specifier: 3.68.4
         version: 3.68.4(@faceless-ui/modal@3.0.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(@faceless-ui/scroll-info@2.0.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(@payloadcms/next@3.68.4(@types/react@19.0.12)(graphql@16.11.0)(monaco-editor@0.53.0)(next@15.5.9(@babel/core@7.28.6)(babel-plugin-macros@3.1.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(sass@1.77.4))(payload@3.68.4(graphql@16.11.0)(typescript@5.7.3))(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(typescript@5.7.3))(@types/react@19.0.12)(monaco-editor@0.53.0)(next@15.5.9(@babel/core@7.28.6)(babel-plugin-macros@3.1.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(sass@1.77.4))(payload@3.68.4(graphql@16.11.0)(typescript@5.7.3))(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(typescript@5.7.3)(yjs@13.6.27)
+      '@payloadcms/translations':
+        specifier: ^3.73.0
+        version: 3.73.0
       '@payloadcms/ui':
         specifier: 3.68.4
         version: 3.68.4(@types/react@19.0.12)(monaco-editor@0.53.0)(next@15.5.9(@babel/core@7.28.6)(babel-plugin-macros@3.1.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(sass@1.77.4))(payload@3.68.4(graphql@16.11.0)(typescript@5.7.3))(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(typescript@5.7.3)
@@ -1778,6 +1781,9 @@ packages:
 
   '@payloadcms/translations@3.68.4':
     resolution: {integrity: sha512-1LbClkAlvWKWVD8a8RuNYS109Ga/RwSA5X5nohmBNNAp10E4auM2PhQXcSHh5gvVDUuA1puVJUL9cEVwY0E0gg==}
+
+  '@payloadcms/translations@3.73.0':
+    resolution: {integrity: sha512-sxC7GSO6Bnrngc46C39BD9ecHZZuKNh01MLRp1IPlqhJvP86JZliylQnoUV8TKmXm1aWJyvo7ZxIg9iojrDL7Q==}
 
   '@payloadcms/ui@3.68.4':
     resolution: {integrity: sha512-RLbCFsKzmAwV5QNb+RxQU1CI2XaGYLh6KeLqOzGfkC/bsdZoTl4FKX702e6DLFRfmYLG8Jf7Vkdk4E4ZMeQsew==}
@@ -8255,6 +8261,10 @@ snapshots:
       - yjs
 
   '@payloadcms/translations@3.68.4':
+    dependencies:
+      date-fns: 4.1.0
+
+  '@payloadcms/translations@3.73.0':
     dependencies:
       date-fns: 4.1.0
 

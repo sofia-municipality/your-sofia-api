@@ -5,6 +5,8 @@ import { migrations } from './migrations'
 import sharp from 'sharp' // sharp-import
 import path from 'path'
 import { buildConfig, PayloadRequest } from 'payload'
+import { en } from '@payloadcms/translations/languages/en'
+import { bg } from '@payloadcms/translations/languages/bg'
 import { fileURLToPath } from 'url'
 
 import { Categories } from './collections/Categories'
@@ -80,6 +82,9 @@ export default buildConfig({
   cors: [getServerSideURL()].filter(Boolean),
   endpoints: [healthCheck],
   globals: [Header, Footer],
+  i18n: {
+    supportedLanguages: { en, bg },
+  },
   localization: {
     locales: [
       {
