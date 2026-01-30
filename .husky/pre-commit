@@ -1,0 +1,18 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+echo "Running pre-commit: formatting and lint fixes..."
+
+# Run Prettier to format files
+pnpm format || {
+  echo "❌ 'pnpm format' failed. Fix formatting issues and try committing again."
+  exit 1
+}
+
+# Run ESLint autofix
+pnpm lint:fix || {
+  echo "❌ 'pnpm lint:fix' failed. Fix lint issues and try committing again."
+  exit 1
+}
+
+echo "✅ Format + lint fixes applied and staged."

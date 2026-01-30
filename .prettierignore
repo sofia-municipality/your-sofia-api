@@ -10,5 +10,7 @@
 **/node_modules
 **/temp
 **/docs/**
+**/migrations/**
 tsconfig.json
+pnpm-lock.yaml
 

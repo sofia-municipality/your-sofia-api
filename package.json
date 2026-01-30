@@ -20,7 +20,9 @@
     "start": "cross-env NODE_OPTIONS=--no-deprecation next start",
     "test": "jest",
     "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage"
+    "test:coverage": "jest --coverage",
+    "format": "prettier --write .",
+    "prepare": "husky"
   },
   "dependencies": {
     "@payloadcms/admin-bar": "3.68.4",
@@ -85,7 +87,8 @@
     "tailwindcss": "^3.4",
     "ts-jest": "^29.2.5",
     "ts-node": "^10.9.2",
-    "typescript": "5.7.3"
+    "typescript": "5.7.3",
+    "husky": "^9.1.7"
   },
   "engines": {
     "node": "^18.20.2 || >=20.9.0",
