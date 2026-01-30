@@ -18,7 +18,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     environment: production
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -62,7 +62,7 @@ jobs:
         run: |
           echo "Waiting for deployment to be ready..."
           sleep 30
-          
+
           # Check health endpoint
           response=$(curl -s -o /dev/null -w "%{http_code}" $DEPLOY_URL/api/health)
           if [ $response -eq 200 ]; then

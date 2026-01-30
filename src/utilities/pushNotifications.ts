@@ -15,7 +15,7 @@ interface PushNotificationData {
  */
 export async function sendPushNotifications(
   payload: Payload,
-  notification: PushNotificationData,
+  notification: PushNotificationData
 ): Promise<void> {
   try {
     // Fetch all active push tokens
@@ -36,7 +36,7 @@ export async function sendPushNotifications(
 
     // Create messages
     const messages: ExpoPushMessage[] = []
-    
+
     for (const tokenDoc of tokensResult.docs) {
       const pushToken = tokenDoc.token as string
 
@@ -76,7 +76,7 @@ export async function sendPushNotifications(
 
     // Log results
     payload.logger.info(
-      `Sent ${messages.length} push notifications, received ${tickets.length} tickets`,
+      `Sent ${messages.length} push notifications, received ${tickets.length} tickets`
     )
 
     // Check for errors in tickets
@@ -98,7 +98,7 @@ export async function sendNewsNotification(
   payload: Payload,
   newsId: string | number,
   title: string,
-  description: string,
+  description: string
 ): Promise<void> {
   await sendPushNotifications(payload, {
     title,

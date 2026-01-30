@@ -45,7 +45,7 @@ const getPostsSitemap = unstable_cache(
   ['posts-sitemap'],
   {
     tags: ['posts-sitemap'],
-  },
+  }
 )
 
 export async function GET() {

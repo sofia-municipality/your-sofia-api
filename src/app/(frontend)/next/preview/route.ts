@@ -13,7 +13,7 @@ export async function GET(
         value: string
       }
     }
-  } & Request,
+  } & Request
 ): Promise<Response> {
   const payload = await getPayload({ config: configPromise })
 

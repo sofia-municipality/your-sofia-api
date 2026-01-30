@@ -50,6 +50,7 @@ Project maintainers have the right and responsibility to remove, edit, or reject
 ## Getting Started
 
 **📦 Monorepo Setup:** Your Sofia consists of two repositories that work together:
+
 - **your-sofia-api** (this repo) - Payload CMS backend API
 - **your-sofia-mobile** - React Native mobile app
 
@@ -114,6 +115,7 @@ pnpm dev
 ```
 
 The API will be available at:
+
 - **Admin Panel**: http://localhost:3000/admin
 - **API**: http://localhost:3000/api
 - **GraphQL**: http://localhost:3000/api/graphql
@@ -121,7 +123,6 @@ The API will be available at:
 **6. Create your first admin user:**
 
 Visit http://localhost:3000/admin and follow the setup wizard to create your admin account.
-
 
 ### 6. Push to Your Fork
 
@@ -139,10 +140,12 @@ Ping one of the maintainers that your PR is ready for review.
 Your PR is going to be merge with rebase or squash depending on size to preserve linear history.
 
 > NOTE!: After the merge **don't sync** your fork with the button in Github.
-Use the following to rebase your fork too:
+> Use the following to rebase your fork too:
+
 ```bash
 git fetch upstream && git rebase upstream && git push --force-with-lease
 ```
+
 ---
 
 ## Reporting Issues
@@ -215,7 +218,7 @@ git fetch upstream && git rebase upstream && git push --force-with-lease
 **Review etiquette:**
 
 - Be respectful and constructive
-- Explain *why* changes are needed
+- Explain _why_ changes are needed
 - Acknowledge good work
 - Suggest improvements, don't demand them
 - Approve quickly when appropriate

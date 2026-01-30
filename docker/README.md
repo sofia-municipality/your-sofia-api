@@ -42,38 +42,48 @@ docker-compose -f docker/docker-compose.prod.yml --env-file .env.production --pr
 ## Files
 
 ### `Dockerfile`
+
 Multi-stage production Docker image:
+
 - **base**: Node 22.12.0-alpine with pnpm 9.15.4
 - **deps**: Installs dependencies
 - **builder**: Builds Next.js application
 - **runner**: Minimal production image with standalone output
 
 **Key features:**
+
 - Uses `output: 'standalone'` from next.config.js for minimal image size
 - Runs as non-root user (nextjs:nodejs)
 - Includes source files and node_modules for `pnpm payload migrate` at runtime
 
 ### `docker-compose.prod.yml`
+
 Production deployment with:
+
 - **PostgreSQL**: PostGIS 16-3.5 with health checks, volume persistence, backups
 - **Payload API**: Built from Dockerfile, runs migrations on startup via `command` override
 - **Nginx** (optional): Reverse proxy with SSL, rate limiting, security headers
 
 **Environment variables:**
+
 - Database: `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB`
 - Payload: `PAYLOAD_SECRET`, `CRON_SECRET`, `PREVIEW_SECRET`
 - Public: `NEXT_PUBLIC_SERVER_URL`
 
 **Key configuration:**
+
 - `build.network: host` - Allows database access during build phase
 - `command: sh -c "pnpm payload migrate && node server.js"` - Runs migrations before startup
 - `depends_on.postgres.condition: service_healthy` - Waits for database
 
 ### `docker-compose.postgres.yml`
+
 Simplified PostgreSQL setup for local development. Starts only the database without the API.
 
 ### `nginx/nginx.conf`
+
 Production-ready Nginx configuration:
+
 - HTTP → HTTPS redirect
 - Rate limiting (10 req/s, different limits for admin vs API)
 - Security headers (X-Frame-Options, CSP, etc.)
@@ -82,14 +92,18 @@ Production-ready Nginx configuration:
 - SSL/TLS configuration (TLSv1.2, TLSv1.3)
 
 ### `scripts/backup-db.sh`
+
 Automated PostgreSQL backup script:
+
 - Creates timestamped pg_dump with gzip compression
 - Deletes old backups based on `BACKUP_RETENTION_DAYS` (default 30)
 - Loads configuration from `.env.production`
 - Stores backups in `../backups/` directory
 
 ### `scripts/restore-db.sh`
+
 Database restoration script:
+
 - Validates backup file exists
 - Requires confirmation before restore
 - Gunzips and restores via psql
@@ -124,17 +138,20 @@ Database restoration script:
 ## Troubleshooting
 
 **Build fails with database connection error:**
+
 - Ensure PostgreSQL is running: `docker-compose -f docker/docker-compose.prod.yml up -d postgres`
 - Wait for health check: `docker ps` (should show "healthy")
 - Build with `network: host` allows access to `127.0.0.1:5432`
 
 **Container won't start:**
+
 ```bash
 docker-compose -f docker/docker-compose.prod.yml logs payload
 docker-compose -f docker/docker-compose.prod.yml config
 ```
 
 **Migrations fail:**
+
 - Check `DATABASE_URI` is correct
 - Verify PostgreSQL is healthy
 - Review migration logs in container output

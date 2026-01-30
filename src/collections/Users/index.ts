@@ -1,6 +1,6 @@
 import type { CollectionConfig } from 'payload'
 
-import { deleteAccount } from '../../endpoints/deleteAccount' 
+import { deleteAccount } from '../../endpoints/deleteAccount'
 
 export const Users: CollectionConfig = {
   slug: 'users',
@@ -66,7 +66,7 @@ export const Users: CollectionConfig = {
         },
         update: ({ req: { user } }) => {
           return user?.role === 'admin'
-        }
+        },
       },
       options: [
         {

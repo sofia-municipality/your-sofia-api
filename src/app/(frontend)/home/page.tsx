@@ -1,7 +1,7 @@
 import React from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import {Metadata} from 'next'
+import { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'Your Sofia - Mobile App for Sofia Citizens',
@@ -28,7 +28,7 @@ export default function HomePage() {
           {/* Title */}
           <h1 className="text-5xl font-bold text-gray-900 mb-2">Твоята София</h1>
           <h2 className="text-2xl text-gray-600 mb-2">градът е твой</h2>
-          
+
           {/* Alpha Label */}
           <div className="inline-block mb-4">
             <span className="bg-yellow-300 text-yellow-900 px-4 py-2 rounded-full text-sm font-semibold shadow-md">
@@ -41,8 +41,8 @@ export default function HomePage() {
             <p className="text-lg text-gray-700 leading-relaxed mb-4">
               <strong>Твоята София</strong> е мобилно приложение, създадено да свърже жителите на
               Столична община с основните градски услуги. Докладвайте проблеми, проследявайте
-              събирането на отпадъци, получавайте градска информация и бъдете в крак със
-              събитията и новините - всичко на едно място.
+              събирането на отпадъци, получавайте градска информация и бъдете в крак със събитията и
+              новините - всичко на едно място.
             </p>
           </div>
 
@@ -105,9 +105,7 @@ export default function HomePage() {
 
           {/* Footer */}
           <div className="mt-16 pt-8 border-t border-gray-200">
-            <p className="text-gray-500">
-              © 2025 Sofia Municipality | Столична община
-            </p>
+            <p className="text-gray-500">© 2025 Sofia Municipality | Столична община</p>
             <Link
               href="/terms-of-use"
               className="text-sm text-gray-500 hover:text-gray-700 transition-colors"

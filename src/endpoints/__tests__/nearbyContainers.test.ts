@@ -7,7 +7,7 @@ describe('nearbyContainers endpoint (unit)', () => {
   it('returns 400 for missing coordinates', async () => {
     // Mock the db-postgres module to prevent ESM parse errors
     jest.doMock('@payloadcms/db-postgres', () => ({ sql: jest.fn() }))
-    const { nearbyContainers } = require('../nearbyContainers')
+    const { nearbyContainers } = await import('../nearbyContainers')
 
     const mockReq: any = {
       query: {},
@@ -22,7 +22,7 @@ describe('nearbyContainers endpoint (unit)', () => {
 
   it('queries db and returns containers on success', async () => {
     jest.doMock('@payloadcms/db-postgres', () => ({ sql: jest.fn() }))
-    const { nearbyContainers } = require('../nearbyContainers')
+    const { nearbyContainers } = await import('../nearbyContainers')
 
     const row = {
       id: 1,

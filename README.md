@@ -4,7 +4,7 @@
 [![Build Docker Image](https://github.com/sofia-municipality/your-sofia-api/actions/workflows/docker-build.yml/badge.svg)](https://github.com/sofia-municipality/your-sofia-api/actions/workflows/docker-build.yml)
 [![Payload CMS](https://img.shields.io/badge/Payload%20CMS-3.59-000000)](https://payloadcms.com/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-17-336791?logo=postgresql)](https://www.postgresql.org/)
-[![Next.js](https://img.shields.io/badge/Next.js-20-000000?logo=next.js)](https://nextjs.org/) 
+[![Next.js](https://img.shields.io/badge/Next.js-20-000000?logo=next.js)](https://nextjs.org/)
 
 The backend API for **Your Sofia** mobile application. Built with Payload CMS 3.0, this bilingual (Bulgarian/English) content management system powers city services, news, and civic engagement features for Sofia residents.
 
@@ -33,6 +33,7 @@ The backend API for **Your Sofia** mobile application. Built with Payload CMS 3.
 - **Caring for efficient city administration** through internal interfaces for easier citizen service, signal processing, and notification management
 
 Guiding Rules:
+
 - **Open Source First**: Every line of code is open for inspection, improvement, and contribution
 - **Citizen-Centric**: We prioritize the real needs of city residents
 - **Privacy-Respecting**: We don't require personal data for functionalities that can work without them. We don't require registration if we can work with anonymous unique identifiers. For functionalities working with personal data, we encrypt and don't store anything in plain text
@@ -65,7 +66,7 @@ Guiding Rules:
 
 - 🛠️ **Content Management**: Admin panel for news and media
 - 🌐 **Localization Support**: Creating content in Bulgarian and English
--  **Access Control**: Support for different administrator role types
+- **Access Control**: Support for different administrator role types
 - � **Spatial Data Integrations**: PostgreSQL with PostGIS for spatial data
 
 ---

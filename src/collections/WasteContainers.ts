@@ -146,7 +146,8 @@ export const WasteContainers: CollectionConfig = {
       type: 'text',
       required: false,
       admin: {
-        description: 'How often the container is serviced (e.g., "Daily", "Every Monday and Thursday", "Twice a week")',
+        description:
+          'How often the container is serviced (e.g., "Daily", "Every Monday and Thursday", "Twice a week")',
       },
     },
     {

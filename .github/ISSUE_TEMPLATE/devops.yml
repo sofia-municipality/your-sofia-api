@@ -1,7 +1,7 @@
 name: 🚀 DevOps/Infrastructure
 description: DevOps-related issues, CI/CD, infrastructure, monitoring, or deployment problems
-title: "[DevOps]: "
-labels: ["devops", "needs-triage"]
+title: '[DevOps]: '
+labels: ['devops', 'needs-triage']
 assignees: []
 body:
   - type: markdown

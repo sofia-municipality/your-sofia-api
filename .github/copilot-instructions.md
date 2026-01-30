@@ -5,9 +5,11 @@
 **Do not generate summaries of completed work.** The user can see changes in the diff/file changes. Only provide summaries if explicitly requested.
 
 ### Use repository agent skills
+
 This repository contains role-specific agent guidance in `.github/agents/` (e.g., `.github/agents/expert-nextjs-developer.agent.md`). Before proposing code changes or patterns, consult the appropriate agent skill file and follow its recommended practices (Next.js App Router, cache components, Turbopack, response style) when applicable. Treat these agent skill docs as authoritative for implementation patterns and response style unless the user specifies otherwise.
 
 ## Project Overview
+
 A bilingual (Bulgarian/English) backend API built with Payload CMS 3.0, providing content management and services for the Your Sofia mobile application. Powers city services, news, civic engagement features, and push notifications for Sofia residents.
 
 **Sister Repository**: [your-sofia-mobile](https://github.com/sofia-municipality/your-sofia-mobile) - React Native mobile app
@@ -15,6 +17,7 @@ A bilingual (Bulgarian/English) backend API built with Payload CMS 3.0, providin
 ## Architecture
 
 ### Tech Stack
+
 - **CMS Framework**: Payload CMS 3.0 (Next.js 15 based)
 - **Database**: PostgreSQL 17 with PostGIS extension
 - **Language**: TypeScript
@@ -23,6 +26,7 @@ A bilingual (Bulgarian/English) backend API built with Payload CMS 3.0, providin
 - **API**: REST + GraphQL endpoints
 
 ### Key Features
+
 - Bilingual content (Bulgarian/English) via Payload localization
 - Geolocation support with PostGIS for news and events
 - Push notification management for civic engagement
@@ -32,6 +36,7 @@ A bilingual (Bulgarian/English) backend API built with Payload CMS 3.0, providin
 ## Critical Workflows
 
 ### Development Commands
+
 ```bash
 # Start PostgreSQL with PostGIS
 docker-compose -f docker-compose.postgres.yml up -d
@@ -48,6 +53,7 @@ pnpm payload migrate:create
 ```
 
 ### Environment Setup
+
 - Admin Panel: http://localhost:3000/admin
 - API Endpoints: http://localhost:3000/api
 - GraphQL Playground: http://localhost:3000/api/graphql
@@ -57,20 +63,25 @@ pnpm payload migrate:create
 ## Project-Specific Conventions
 
 ### Content Localization
+
 **Bulgarian is the default language**, not English. All content collections support bilingual content:
+
 - Localized fields: `title`, `description`, `content`, etc.
 - Locale codes: `bg` (Bulgarian, default), `en` (English)
 - API requests: Include `?locale=bg` or `?locale=en` query parameter
 - Admin UI: Switch languages in the editor for each localized field
 
 **CRITICAL: Content guidelines**
+
 - ❌ NEVER create content in only one language
 - ✅ ALWAYS provide both Bulgarian and English versions
 - **Bulgarian content is the source of truth** - create it first, then translate to English
 - **Always use "Твоята София" when referencing "Your Sofia" in Bulgarian content**
 
 ### Collections Structure
+
 Located in `src/collections/`:
+
 - **News**: City news and announcements with geolocation, topics, and publish dates
 - **Media**: Image and file uploads with automatic optimization
 - **Pages**: Static content pages (About, Privacy Policy, etc.)
@@ -78,15 +89,18 @@ Located in `src/collections/`:
 - **Users**: Admin and editor accounts with role-based access
 
 ### Access Control
+
 - **Public Read**: Published content accessible without authentication
 - **Authenticated Write**: Only logged-in users can create/edit
 - **Admin Only**: User management, settings, and sensitive operations
 - Pattern: Define in collection's `access` property
 
 ### Payload CMS Patterns
+
 **Collection definition:**
+
 ```typescript
-import type { CollectionConfig } from 'payload';
+import type { CollectionConfig } from 'payload'
 
 export const News: CollectionConfig = {
   slug: 'news',
@@ -105,11 +119,13 @@ export const News: CollectionConfig = {
     },
     // More fields...
   ],
-};
+}
 ```
 
 ### PostGIS Integration
+
 For geolocation features (news locations, events, etc.):
+
 ```typescript
 {
   name: 'location',
@@ -130,7 +146,9 @@ For geolocation features (news locations, events, etc.):
 ```
 
 ### Hooks Pattern
+
 For business logic (push notifications, data transformation, etc.):
+
 ```typescript
 hooks: {
   afterChange: [
@@ -161,16 +179,20 @@ hooks: {
 ## Integration Points
 
 ### API Endpoints
+
 **REST API:**
+
 - News: `GET /api/news?locale=bg&where[status][equals]=published`
 - Single news: `GET /api/news/{id}?locale=bg`
 - Media: `GET /api/media`
 - All collections follow pattern: `/api/{collection-slug}`
 
 **GraphQL:**
+
 - Endpoint: `POST /api/graphql`
 - Playground: http://localhost:3000/api/graphql
 - Query example:
+
 ```graphql
 query {
   News(locale: "bg", where: { status: { equals: "published" } }) {
@@ -185,13 +207,16 @@ query {
 ```
 
 ### Mobile App Integration
+
 The your-sofia-mobile app consumes this API:
+
 - Fetches news with locale parameter
 - Registers push tokens for notifications
 - Uploads media (profile images, signal reports)
 - Authenticates users (future feature)
 
 ### Push Notifications
+
 - Collection: `pushTokens` stores device tokens with reporterUniqueId
 - Hook: News `afterChange` sends targeted notifications
 - Payload: Includes news title, description, and ID
@@ -207,6 +232,7 @@ The your-sofia-mobile app consumes this API:
 7. **Environment Variables**: Never commit `.env` file with secrets
 
 ## Testing & Debugging
+
 - Admin Panel: http://localhost:3000/admin - Create test content
 - API Testing: http://localhost:3000/api/news - Direct REST endpoint access
 - GraphQL Playground: Test queries and mutations
@@ -214,6 +240,7 @@ The your-sofia-mobile app consumes this API:
 - Logs: Payload logs appear in terminal running `pnpm dev`
 
 ## Key Files for Context
+
 - `src/payload.config.ts` - Main Payload configuration with localization
 - `src/collections/News.ts` - News collection schema with push notifications
 - `src/collections/Users.ts` - User authentication and roles

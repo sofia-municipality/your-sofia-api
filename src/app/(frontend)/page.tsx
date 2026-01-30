@@ -1,5 +1,5 @@
-import HomePage, {metadata} from './home/page'
+import HomePage, { metadata } from './home/page'
 
 export default HomePage
 
-export {metadata}
+export { metadata }

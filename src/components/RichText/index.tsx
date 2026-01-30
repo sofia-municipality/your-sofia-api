@@ -73,7 +73,7 @@ export default function RichText(props: Props) {
           'max-w-none': !enableGutter,
           'mx-auto prose md:prose-md dark:prose-invert': enableProse,
         },
-        className,
+        className
       )}
       {...rest}
     />

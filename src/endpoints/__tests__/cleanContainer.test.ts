@@ -11,7 +11,12 @@ describe('cleanContainer endpoint (unit)', () => {
       ],
     }
 
-    const updatedContainer = { ...mockContainer, status: 'active', lastCleaned: new Date().toISOString(), state: [] }
+    const updatedContainer = {
+      ...mockContainer,
+      status: 'active',
+      lastCleaned: new Date().toISOString(),
+      state: [],
+    }
 
     const mockPayload: any = {
       findByID: jest.fn(async ({ collection, id }) => {
@@ -54,11 +59,15 @@ describe('cleanContainer endpoint (unit)', () => {
 
     // Ensure signals were updated
     expect(mockPayload.update).toHaveBeenCalled()
-    const signalUpdates = mockPayload.update.mock.calls.filter((c: any[]) => c[0].collection === 'signals')
+    const signalUpdates = mockPayload.update.mock.calls.filter(
+      (c: any[]) => c[0].collection === 'signals'
+    )
     expect(signalUpdates.length).toBe(signals.docs.length)
 
     // Ensure container was updated
-    expect(mockPayload.update).toHaveBeenCalledWith(expect.objectContaining({ collection: 'waste-containers' }))
+    expect(mockPayload.update).toHaveBeenCalledWith(
+      expect.objectContaining({ collection: 'waste-containers' })
+    )
   })
 
   it('returns 401 when unauthenticated', async () => {

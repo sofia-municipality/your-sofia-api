@@ -25,10 +25,7 @@ export const deleteAccount: Endpoint = {
 
       // Check if user has admin role - admins cannot delete their accounts
       if (userDoc.role === 'admin') {
-        return Response.json(
-          { error: 'Admin accounts cannot be deleted' },
-          { status: 403 }
-        )
+        return Response.json({ error: 'Admin accounts cannot be deleted' }, { status: 403 })
       }
 
       // Update user account: disable it and anonymize personal data
@@ -39,7 +36,8 @@ export const deleteAccount: Endpoint = {
           name: 'Deleted Account',
           email: `deleted-${userId}@deleted.account`,
           // Disable the account by setting a random password that cannot be used to login
-          password: Math.random().toString(36).substring(2) + Math.random().toString(36).substring(2),
+          password:
+            Math.random().toString(36).substring(2) + Math.random().toString(36).substring(2),
           // Note: Payload's auth system doesn't have a built-in "disabled" field,
           // but changing email to a non-existent one effectively prevents login
         },

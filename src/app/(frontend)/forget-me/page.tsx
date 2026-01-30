@@ -71,9 +71,7 @@ export default function ForgetMePage() {
                 </div>
 
                 <section>
-                  <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                    Какво ще бъде изтрито?
-                  </h2>
+                  <h2 className="text-2xl font-bold text-gray-900 mb-4">Какво ще бъде изтрито?</h2>
                   <p className="text-gray-700 mb-4">
                     При изтриване на вашия акаунт, следната информация ще бъде окончателно
                     премахната от нашите системи:
@@ -117,8 +115,8 @@ export default function ForgetMePage() {
                             Отворете мобилното приложение <strong>&quot;Твоята София&quot;</strong>
                           </li>
                           <li>
-                            Отидете на раздел <strong>&quot;Профил&quot;</strong> (долната дясна икона в
-                            навигацията)
+                            Отидете на раздел <strong>&quot;Профил&quot;</strong> (долната дясна
+                            икона в навигацията)
                           </li>
                           <li>
                             Влезте във вашия акаунт, ако още не сте го направили (бутон{' '}
@@ -129,11 +127,10 @@ export default function ForgetMePage() {
                             <strong>&quot;Забрави ме&quot;</strong>
                           </li>
                           <li>Натиснете бутона и прочетете тази информация отново</li>
+                          <li>Ще бъдете помолени да потвърдите решението си</li>
                           <li>
-                            Ще бъдете помолени да потвърдите решението си
-                          </li>
-                          <li>
-                            След потвърждение, акаунтът ще бъде изтрит автоматично и няма да можете да влезете отново
+                            След потвърждение, акаунтът ще бъде изтрит автоматично и няма да можете
+                            да влезете отново
                           </li>
                         </ol>
                       </div>
@@ -146,18 +143,10 @@ export default function ForgetMePage() {
                     Какво става след изтриването?
                   </h2>
                   <ul className="list-disc pl-6 text-gray-700 space-y-2 mb-4">
-                    <li>
-                      Вашият акаунт ще бъде деактивиран незабавно и няма да можете да влезете
-                    </li>
-                    <li>
-                      Личните ви данни ще бъдат изтрити от нашите системи
-                    </li>
-                    <li>
-                      Няма да получавате известия или комуникация от приложението
-                    </li>
-                    <li>
-                      Няма да можете да възстановите данните или историята си
-                    </li>
+                    <li>Вашият акаунт ще бъде деактивиран незабавно и няма да можете да влезете</li>
+                    <li>Личните ви данни ще бъдат изтрити от нашите системи</li>
+                    <li>Няма да получавате известия или комуникация от приложението</li>
+                    <li>Няма да можете да възстановите данните или историята си</li>
                     <li>
                       Ако решите да използвате приложението отново, ще трябва да създадете нов
                       акаунт
@@ -197,7 +186,8 @@ export default function ForgetMePage() {
                       <div>
                         <p className="text-gray-700 mb-4">
                           Съгласно Общия регламент за защита на данните (GDPR), вие имате право да
-                          поискате изтриване на вашите лични данни (&quot;правото да бъдете забравен&quot;).
+                          поискате изтриване на вашите лични данни (&quot;правото да бъдете
+                          забравен&quot;).
                         </p>
                         <p className="text-gray-700 mb-4">
                           Столична община се ангажира да защитава вашите лични данни и да спазва
@@ -235,14 +225,14 @@ export default function ForgetMePage() {
                     Ако имате въпроси относно изтриването на акаунт или нуждата от помощ, можете да
                     се свържете с нас, като посетите:&nbsp;
                     <a
-                    href="https://call.sofia.bg"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-600 hover:underline"
+                      href="https://call.sofia.bg"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:underline"
                     >
-                    call.sofia.bg
+                      call.sofia.bg
                     </a>
-                    </p>
+                  </p>
                 </section>
               </div>
             ) : (
@@ -306,8 +296,8 @@ export default function ForgetMePage() {
                             Open the mobile application <strong>&quot;Your Sofia&quot;</strong>
                           </li>
                           <li>
-                            Go to the <strong>&quot;Profile&quot;</strong> section (bottom right icon in
-                            navigation)
+                            Go to the <strong>&quot;Profile&quot;</strong> section (bottom right
+                            icon in navigation)
                           </li>
                           <li>
                             Log in to your account if you haven&apos;t already (
@@ -320,7 +310,8 @@ export default function ForgetMePage() {
                           <li>Press the button and read this information again</li>
                           <li>You will be asked to confirm your decision</li>
                           <li>
-                            After confirming, the account will be deleted automatically and you will not be able to login again
+                            After confirming, the account will be deleted automatically and you will
+                            not be able to login again
                           </li>
                         </ol>
                       </div>
@@ -329,12 +320,15 @@ export default function ForgetMePage() {
                 </section>
 
                 <section>
-                  <h2 className="text-2xl font-bold text-gray-900 mb-4">What Happens After Deletion?</h2>
+                  <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                    What Happens After Deletion?
+                  </h2>
                   <ul className="list-disc pl-6 text-gray-700 space-y-2 mb-4">
-                    <li>Your account will be deactivated immediately and you won&apos;t be able to log in</li>
                     <li>
-                      Your personal data will be deleted from our systems
+                      Your account will be deactivated immediately and you won&apos;t be able to log
+                      in
                     </li>
+                    <li>Your personal data will be deleted from our systems</li>
                     <li>You will not receive notifications or communication from the app</li>
                     <li>You will not be able to recover your data or history</li>
                     <li>
@@ -366,14 +360,17 @@ export default function ForgetMePage() {
                 </section>
 
                 <section>
-                  <h2 className="text-2xl font-bold text-gray-900 mb-4">Legal Information (GDPR)</h2>
+                  <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                    Legal Information (GDPR)
+                  </h2>
                   <div className="bg-gray-50 border border-gray-200 rounded-lg p-6">
                     <div className="flex items-start gap-4">
                       <Info size={24} className="text-gray-600 flex-shrink-0 mt-1" />
                       <div>
                         <p className="text-gray-700 mb-4">
                           According to the General Data Protection Regulation (GDPR), you have the
-                          right to request deletion of your personal data (&quot;right to be forgotten&quot;).
+                          right to request deletion of your personal data (&quot;right to be
+                          forgotten&quot;).
                         </p>
                         <p className="text-gray-700 mb-4">
                           Sofia Municipality is committed to protecting your personal data and
@@ -382,22 +379,22 @@ export default function ForgetMePage() {
                         </p>
                         <ul className="list-none pl-0 text-gray-700 space-y-2">
                           <li>
-                            <a
+                            <Link
                               href="/terms-of-use"
                               className="text-blue-600 hover:underline inline-flex items-center gap-2"
                             >
                               Terms of Use and Privacy Policy
-                            </a>
+                            </Link>
                           </li>
                           <li>
-                            <a
+                            <Link
                               href="https://www.sofia.bg/en/protection-of-personal-data"
                               target="_blank"
                               rel="noopener noreferrer"
                               className="text-blue-600 hover:underline inline-flex items-center gap-2"
                             >
                               Personal Data Protection - Sofia.bg
-                            </a>
+                            </Link>
                           </li>
                         </ul>
                       </div>
@@ -411,14 +408,14 @@ export default function ForgetMePage() {
                     If you have questions about account deletion or need assistance, you can contact
                     us by visiting:&nbsp;
                     <a
-                    href="https://call.sofia.bg"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-600 hover:underline"
+                      href="https://call.sofia.bg"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:underline"
                     >
-                    call.sofia.bg
+                      call.sofia.bg
                     </a>
-                    </p>
+                  </p>
                 </section>
               </div>
             )}

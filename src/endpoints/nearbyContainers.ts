@@ -15,7 +15,14 @@ export const nearbyContainers: Endpoint = {
     const wasteType = req.query?.wasteType as string // Optional: filter by waste type
     const limit = parseInt((req.query?.limit as string) || '100', 10)
 
-    console.log('[nearbyContainers] Request params:', { latitude, longitude, radius, status, wasteType, limit })
+    console.log('[nearbyContainers] Request params:', {
+      latitude,
+      longitude,
+      radius,
+      status,
+      wasteType,
+      limit,
+    })
 
     // Validate required parameters
     if (isNaN(latitude) || isNaN(longitude)) {
@@ -33,10 +40,7 @@ export const nearbyContainers: Endpoint = {
     }
 
     if (radius <= 0 || radius > 10000) {
-      return Response.json(
-        { error: 'Radius must be between 0 and 10000 meters' },
-        { status: 400 }
-      )
+      return Response.json({ error: 'Radius must be between 0 and 10000 meters' }, { status: 400 })
     }
 
     try {
@@ -77,13 +81,22 @@ export const nearbyContainers: Endpoint = {
         ORDER BY distance ASC
         LIMIT ${limit}
       `
-      
-      console.log('[nearbyContainers] Executing PostGIS query:', { longitude, latitude, radius, limit })
+
+      console.log('[nearbyContainers] Executing PostGIS query:', {
+        longitude,
+        latitude,
+        radius,
+        limit,
+      })
 
       // Execute the query
       const result = await db.drizzle.execute(query)
-      
-      console.log('[nearbyContainers] Query executed successfully, rows:', result.rows.length, result.rows[0])
+
+      console.log(
+        '[nearbyContainers] Query executed successfully, rows:',
+        result.rows.length,
+        result.rows[0]
+      )
 
       // Transform the results to match the WasteContainer type
       const containers = result.rows.map((row: any) => ({
@@ -129,15 +142,15 @@ export const nearbyContainers: Endpoint = {
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error'
       const errorStack = error instanceof Error ? error.stack : ''
-      
+
       payload.logger.error(`Error fetching nearby containers: ${errorMessage}`)
       payload.logger.error(`Stack trace: ${errorStack}`)
-      
+
       return Response.json(
-        { 
+        {
           error: 'Failed to fetch nearby containers',
           details: errorMessage,
-          params: { latitude, longitude, radius, status, wasteType, limit }
+          params: { latitude, longitude, radius, status, wasteType, limit },
         },
         { status: 500 }
       )

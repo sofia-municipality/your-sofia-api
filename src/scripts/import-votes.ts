@@ -7,11 +7,11 @@ import * as migration from '../migrations/20251025_import_votes'
 
 async function importVotes() {
   console.log('Initializing Payload...')
-  
+
   const payload = await getPayload({ config })
 
   console.log('Running votes import migration...')
-  
+
   try {
     await migration.down({ payload } as any)
     await migration.up({ payload } as any)

@@ -28,6 +28,7 @@ nano .env.production
 ```
 
 **Important:** Update these values:
+
 - `POSTGRES_PASSWORD` - Strong password for PostgreSQL
 - `PAYLOAD_SECRET` - Random 32+ character string
 - `CRON_SECRET` - Random 32+ character string
@@ -35,6 +36,7 @@ nano .env.production
 - `NEXT_PUBLIC_SERVER_URL` - Your domain (e.g., `https://your.sofia.bg`)
 
 Generate secrets:
+
 ```bash
 openssl rand -base64 32
 ```
@@ -42,12 +44,14 @@ openssl rand -base64 32
 ### 3. Set Up SSL Certificates
 
 Place your SSL certificates in:
+
 ```
 docker/nginx/ssl/cert.pem
 docker/nginx/ssl/key.pem
 ```
 
 Or use Let's Encrypt:
+
 ```bash
 # Install certbot
 sudo apt-get update
@@ -79,6 +83,7 @@ docker-compose -f docker/docker-compose.prod.yml --env-file .env.production up -
 ```
 
 **With Nginx:**
+
 ```bash
 # After postgres and payload are running
 docker-compose -f docker/docker-compose.prod.yml --env-file .env.production --profile with-nginx up -d
@@ -122,6 +127,7 @@ chmod +x docker/scripts/restore-db.sh
 ### Set Up Automated Backups
 
 Add to crontab:
+
 ```bash
 crontab -e
 
@@ -243,20 +249,22 @@ du -sh ./public/media
 ### PostgreSQL
 
 Edit `docker/docker-compose.prod.yml` and add to postgres service:
+
 ```yaml
 command:
-  - "postgres"
-  - "-c"
-  - "max_connections=200"
-  - "-c"
-  - "shared_buffers=256MB"
-  - "-c"
-  - "effective_cache_size=1GB"
+  - 'postgres'
+  - '-c'
+  - 'max_connections=200'
+  - '-c'
+  - 'shared_buffers=256MB'
+  - '-c'
+  - 'effective_cache_size=1GB'
 ```
 
 ### Node.js
 
 Adjust memory limits in `docker/docker-compose.prod.yml`:
+
 ```yaml
 payload:
   environment:
@@ -266,6 +274,7 @@ payload:
 ## Support
 
 For issues and questions:
+
 - GitHub Issues: https://github.com/sofia-municipality/your-sofia-api/issues
 - Documentation: https://github.com/sofia-municipality/your-sofia-api
 

@@ -1,14 +1,14 @@
-import type {CollectionConfig} from 'payload'
+import type { CollectionConfig } from 'payload'
 
 export const WasteContainerObservations: CollectionConfig = {
   slug: 'waste-container-observations',
   access: {
-    create: ({req: {user}}) => !!user,
+    create: ({ req: { user } }) => !!user,
     read: () => true,
-    update: ({req: {user}}) => user?.role === 'admin',
-    delete: ({req: {user}}) => user?.role === 'admin',
+    update: ({ req: { user } }) => user?.role === 'admin',
+    delete: ({ req: { user } }) => user?.role === 'admin',
   },
-  admin: {group: 'City Infrastructure'} ,
+  admin: { group: 'City Infrastructure' },
   fields: [
     {
       name: 'container',
@@ -45,7 +45,7 @@ export const WasteContainerObservations: CollectionConfig = {
   ],
   hooks: {
     beforeChange: [
-      ({req, data}) => {
+      ({ req, data }) => {
         if (req.user && !data.cleanedBy) {
           data.cleanedBy = req.user.id
         }

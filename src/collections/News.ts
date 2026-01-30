@@ -143,14 +143,9 @@ export const News: CollectionConfig = {
         if (doc.status === 'published' && doc.pushNotification) {
           try {
             req.payload.logger.info(`Sending push notification for news: ${doc.title}`)
-            
-            await sendNewsNotification(
-              req.payload,
-              doc.id,
-              doc.title,
-              doc.description,
-            )
-            
+
+            await sendNewsNotification(req.payload, doc.id, doc.title, doc.description)
+
             req.payload.logger.info(`Push notification sent successfully for news: ${doc.title}`)
           } catch (error) {
             req.payload.logger.error(`Failed to send push notification: ${error}`)

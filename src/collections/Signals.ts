@@ -6,12 +6,7 @@ import { randomUUID } from 'crypto'
  * Calculate distance between two coordinates using Haversine formula
  * Returns distance in meters
  */
-function calculateDistance(
-  lat1: number,
-  lon1: number,
-  lat2: number,
-  lon2: number
-): number {
+function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
   const R = 6371e3 // Earth's radius in meters
   const φ1 = (lat1 * Math.PI) / 180
   const φ2 = (lat2 * Math.PI) / 180
@@ -64,11 +59,7 @@ export const Signals: CollectionConfig = {
 
               if (containers.docs.length > 0) {
                 const container = containers.docs[0]
-                if (
-                  container &&
-                  container.location?.latitude &&
-                  container.location?.longitude
-                ) {
+                if (container && container.location?.latitude && container.location?.longitude) {
                   const distance = calculateDistance(
                     data.location.latitude,
                     data.location.longitude,
@@ -95,9 +86,7 @@ export const Signals: CollectionConfig = {
                 throw error
               }
               // For other errors, log and continue (fail-open)
-              req.payload.logger.error(
-                `Error checking proximity: ${error}`
-              )
+              req.payload.logger.error(`Error checking proximity: ${error}`)
             }
           }
         }
@@ -121,7 +110,7 @@ export const Signals: CollectionConfig = {
               data: {
                 publicNumber,
                 status: 'active',
-                source : 'community',
+                source: 'community',
                 wasteType: 'general',
                 capacitySize: 'standard',
                 capacityVolume: 3,
@@ -132,7 +121,7 @@ export const Signals: CollectionConfig = {
                 },
                 notes: `Auto-created from signal. ${data.cityObject.name || 'New container'}`,
               },
-              draft: false
+              draft: false,
             })
 
             // Update the signal data with the new container reference
@@ -142,9 +131,7 @@ export const Signals: CollectionConfig = {
               `Auto-created waste container ${publicNumber} (ID: ${newContainer.id}) from signal`
             )
           } catch (error) {
-            req.payload.logger.error(
-              `Failed to auto-create waste container: ${error}`
-            )
+            req.payload.logger.error(`Failed to auto-create waste container: ${error}`)
             // Re-throw error to fail signal creation
             throw new APIError(
               `Failed to create new waste container: ${error instanceof Error ? error.message : 'Unknown error'}`,
@@ -196,7 +183,7 @@ export const Signals: CollectionConfig = {
                 req.payload.logger.warn(
                   `Duplicate signal attempt: Reporter ${data.reporterUniqueId} already has active signal #${existingSignal.id} for container ${data.cityObject.referenceId}`
                 )
-                
+
                 throw new APIError(
                   `Signal for same object already exists. Signal ID: ${existingSignal.id}`,
                   403
@@ -209,9 +196,7 @@ export const Signals: CollectionConfig = {
               throw error
             }
             // For other errors, log and continue (fail-open)
-            req.payload.logger.error(
-              `Error checking for duplicate signals: ${error}`
-            )
+            req.payload.logger.error(`Error checking for duplicate signals: ${error}`)
           }
         }
 
@@ -244,7 +229,7 @@ export const Signals: CollectionConfig = {
             if (containers.docs.length > 0 && containers.docs[0]) {
               const container = containers.docs[0]
               const updateData: any = {}
-              
+
               // Update container status to "full" if signal reports it as full
               if (Array.isArray(doc.containerState) && doc.containerState.length > 0) {
                 if (container.status !== 'full') {
@@ -256,10 +241,10 @@ export const Signals: CollectionConfig = {
               if (Array.isArray(doc.containerState) && doc.containerState.length > 0) {
                 // Get existing states or empty array
                 const existingStates = Array.isArray(container.state) ? container.state : []
-                
+
                 // Merge states (add new ones, remove duplicates)
                 const mergedStates = [...new Set([...existingStates, ...doc.containerState])]
-                
+
                 updateData.state = mergedStates
               }
 
@@ -277,9 +262,7 @@ export const Signals: CollectionConfig = {
               }
             }
           } catch (error) {
-            req.payload.logger.error(
-              `Failed to update container for signal ${doc.id}: ${error}`
-            )
+            req.payload.logger.error(`Failed to update container for signal ${doc.id}: ${error}`)
           }
         }
 
@@ -296,7 +279,7 @@ export const Signals: CollectionConfig = {
     // Update: Allow if user is admin OR if reporterUniqueId matches
     update: async ({ req, data, id }) => {
       // Admins can always update
-      if (req.user) return true;
+      if (req.user) return true
 
       // For non-admin updates, verify reporterUniqueId
       if (data && data.reporterUniqueId && id) {
@@ -305,19 +288,19 @@ export const Signals: CollectionConfig = {
           const existingSignal = await req.payload.findByID({
             collection: 'signals',
             id: id.toString(),
-          });
+          })
 
           // Check if the reporterUniqueId matches
           if (existingSignal.reporterUniqueId === data.reporterUniqueId) {
-            return true;
+            return true
           }
         } catch (error) {
-          req.payload.logger.error(`Error verifying reporterUniqueId: ${error}`);
-          return false;
+          req.payload.logger.error(`Error verifying reporterUniqueId: ${error}`)
+          return false
         }
       }
 
-      return false;
+      return false
     },
     // Only admins can delete
     delete: ({ req: { user } }) => Boolean(user),
@@ -441,7 +424,9 @@ export const Signals: CollectionConfig = {
       admin: {
         description: 'State of the waste container (only for waste container signals)',
         condition: (data, siblingData) => {
-          return data?.category === 'waste-container' || data?.cityObject?.type === 'waste-container'
+          return (
+            data?.category === 'waste-container' || data?.cityObject?.type === 'waste-container'
+          )
         },
       },
       options: [

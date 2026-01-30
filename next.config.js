@@ -31,11 +31,15 @@ const nextConfig = {
   reactStrictMode: true,
   redirects,
   output: 'standalone', // Enable for Docker deployment
-  webpack: (config) => { // Replace chunkhash with contenthash for consistent hashing 
+  webpack: (config) => {
+    // Replace chunkhash with contenthash for consistent hashing
     // https://www.reddit.com/r/nextjs/comments/1o4a0fv/deploying_payload_cms_3x_with_docker_compose/
     config.output.filename = config.output.filename.replace('[chunkhash]', '[contenthash]')
-    config.output.chunkFilename = config.output.chunkFilename.replace('[chunkhash]', '[contenthash]')
+    config.output.chunkFilename = config.output.chunkFilename.replace(
+      '[chunkhash]',
+      '[contenthash]'
+    )
     return config
-  }
+  },
 }
 export default withPayload(nextConfig, { devBundleServerPackages: false })

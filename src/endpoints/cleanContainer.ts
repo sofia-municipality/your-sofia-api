@@ -33,7 +33,7 @@ export const cleanContainer: Endpoint = {
       const formData = await req.formData()
       const notes = formData.get('notes') as string | null
       const photoFile = formData.get('photo') as File | null
-      
+
       // Find the container
       const container = await payload.findByID({
         collection: 'waste-containers',
