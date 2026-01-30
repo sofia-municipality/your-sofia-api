@@ -4,6 +4,9 @@
 
 **Do not generate summaries of completed work.** The user can see changes in the diff/file changes. Only provide summaries if explicitly requested.
 
+### Use repository agent skills
+This repository contains role-specific agent guidance in `.github/agents/` (e.g., `.github/agents/expert-nextjs-developer.agent.md`). Before proposing code changes or patterns, consult the appropriate agent skill file and follow its recommended practices (Next.js App Router, cache components, Turbopack, response style) when applicable. Treat these agent skill docs as authoritative for implementation patterns and response style unless the user specifies otherwise.
+
 ## Project Overview
 A bilingual (Bulgarian/English) backend API built with Payload CMS 3.0, providing content management and services for the Your Sofia mobile application. Powers city services, news, civic engagement features, and push notifications for Sofia residents.
 
