@@ -4,6 +4,7 @@
   "description": "YourSofia Mobile Application Backend and Administrative UI built using Payload CMS",
   "license": "EUPL-1.2",
   "type": "module",
+  "packageManager": "pnpm@10.0.0",
   "scripts": {
     "build": "cross-env NODE_OPTIONS=--no-deprecation next build",
     "postbuild": "next-sitemap --config next-sitemap.config.cjs",
