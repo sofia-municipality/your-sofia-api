@@ -77,6 +77,7 @@ export interface Config {
     'waste-containers': WasteContainer;
     'waste-container-observations': WasteContainerObservation;
     signals: Signal;
+    assignments: Assignment;
     redirects: Redirect;
     forms: Form;
     'form-submissions': FormSubmission;
@@ -100,6 +101,7 @@ export interface Config {
     'waste-containers': WasteContainersSelect<false> | WasteContainersSelect<true>;
     'waste-container-observations': WasteContainerObservationsSelect<false> | WasteContainerObservationsSelect<true>;
     signals: SignalsSelect<false> | SignalsSelect<true>;
+    assignments: AssignmentsSelect<false> | AssignmentsSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
     'form-submissions': FormSubmissionsSelect<false> | FormSubmissionsSelect<true>;
@@ -990,6 +992,47 @@ export interface Signal {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "assignments".
+ */
+export interface Assignment {
+  id: number;
+  /**
+   * Title of the cleaning assignment
+   */
+  title: string;
+  /**
+   * Additional notes or instructions for this assignment
+   */
+  description?: string | null;
+  /**
+   * Select multiple containers for this cleaning assignment
+   */
+  containers: (number | WasteContainer)[];
+  /**
+   * User responsible for completing this assignment
+   */
+  assignedTo: number | User;
+  /**
+   * Types of cleaning/maintenance activities to be performed
+   */
+  activities: ('full' | 'dirty' | 'damaged' | 'leaves' | 'maintenance' | 'bagged' | 'fallen' | 'bulkyWaste')[];
+  /**
+   * Current status of the assignment
+   */
+  status: 'pending' | 'in-progress' | 'completed' | 'cancelled';
+  /**
+   * When this assignment should be completed
+   */
+  dueDate?: string | null;
+  /**
+   * When this assignment was marked as completed
+   */
+  completedAt?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "redirects".
  */
 export interface Redirect {
@@ -1254,6 +1297,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'signals';
         value: number | Signal;
+      } | null)
+    | ({
+        relationTo: 'assignments';
+        value: number | Assignment;
       } | null)
     | ({
         relationTo: 'redirects';
@@ -1724,6 +1771,22 @@ export interface SignalsSelect<T extends boolean = true> {
   status?: T;
   adminNotes?: T;
   reporterUniqueId?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "assignments_select".
+ */
+export interface AssignmentsSelect<T extends boolean = true> {
+  title?: T;
+  description?: T;
+  containers?: T;
+  assignedTo?: T;
+  activities?: T;
+  status?: T;
+  dueDate?: T;
+  completedAt?: T;
   updatedAt?: T;
   createdAt?: T;
 }

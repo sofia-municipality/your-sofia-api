@@ -19,6 +19,7 @@ import { PushTokens } from './collections/PushTokens'
 import { WasteContainers } from './collections/WasteContainers'
 import { WasteContainerObservations } from './collections/WasteContainerObservations'
 import { Signals } from './collections/Signals'
+import { Assignments } from './collections/Assignments'
 import { Footer } from './Footer/config'
 import { Header } from './Header/config'
 import { plugins } from './plugins'
@@ -95,6 +96,7 @@ export default buildConfig({
     WasteContainers,
     WasteContainerObservations,
     Signals,
+    Assignments,
   ],
   cors: [getServerSideURL()].filter(Boolean),
   endpoints: [healthCheck],
