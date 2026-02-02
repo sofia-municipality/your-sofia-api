@@ -878,7 +878,7 @@ export interface WasteContainer {
   /**
    * Type of waste this container accepts
    */
-  wasteType: 'general' | 'recyclables' | 'organic' | 'glass' | 'paper' | 'plastic' | 'metal';
+  wasteType: 'general' | 'recyclables' | 'organic' | 'glass' | 'paper' | 'plastic' | 'metal' | 'trashCan';
   /**
    * Source of the container data
    */

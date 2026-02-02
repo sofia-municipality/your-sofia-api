@@ -193,6 +193,10 @@ export const WasteContainers: CollectionConfig = {
           label: 'Metal',
           value: 'metal',
         },
+        {
+          label: 'Trash Can',
+          value: 'trashCan',
+        },
       ],
       defaultValue: 'general',
       admin: {
