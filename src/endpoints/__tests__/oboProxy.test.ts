@@ -114,11 +114,23 @@ describe('updates proxy endpoints (unit)', () => {
     expect(await res.json()).toEqual({ error: 'Missing required query parameter: id' })
   })
 
-  it('returns 400 when id is not a string for updates-by-id', async () => {
+  it('accepts array id values for updates-by-id by using first valid entry', async () => {
+    ;(global.fetch as jest.Mock).mockResolvedValue(
+      new Response(JSON.stringify({ message: { id: 'm-1' } }), {
+        status: 200,
+        headers: {
+          'content-type': 'application/json',
+        },
+      })
+    )
+
     const res = await updatesById.handler({ query: { id: ['m-1'] } } as any)
 
-    expect(res.status).toBe(400)
-    expect(await res.json()).toEqual({ error: 'Missing required query parameter: id' })
+    expect(global.fetch).toHaveBeenCalledTimes(1)
+    const calledUrl = String((global.fetch as jest.Mock).mock.calls[0][0])
+    expect(calledUrl).toContain('https://obo.example.com/api/v1/messages/by-id?id=m-1')
+    expect(res.status).toBe(200)
+    expect(await res.json()).toEqual({ message: { id: 'm-1' } })
   })
 
   it('proxies update-by-id when id is provided', async () => {
@@ -167,6 +179,31 @@ describe('updates proxy endpoints (unit)', () => {
 
     expect(res.status).toBe(200)
     expect(await res.json()).toEqual({ message: { id: 'm-1' } })
+  })
+
+  it('extracts loose id from raw URL when query parsing is incomplete', async () => {
+    ;(global.fetch as jest.Mock).mockResolvedValue(
+      new Response(JSON.stringify({ message: { id: 'aHR0cHM6Ly9leGFtcGxlLmNvbS8_-1' } }), {
+        status: 200,
+        headers: {
+          'content-type': 'application/json',
+        },
+      })
+    )
+
+    const res = await updatesById.handler({
+      query: {},
+      url: '/api/updates/by-id?id=aHR0cHM6Ly9leGFtcGxlLmNvbS8_-1',
+    } as any)
+
+    expect(global.fetch).toHaveBeenCalledTimes(1)
+    const calledUrl = String((global.fetch as jest.Mock).mock.calls[0][0])
+    expect(calledUrl).toContain(
+      'https://obo.example.com/api/v1/messages/by-id?id=aHR0cHM6Ly9leGFtcGxlLmNvbS8_-1'
+    )
+
+    expect(res.status).toBe(200)
+    expect(await res.json()).toEqual({ message: { id: 'aHR0cHM6Ly9leGFtcGxlLmNvbS8_-1' } })
   })
 
   it('returns 500 when OBOAPP_UPDATES_BASE_URL is not configured', async () => {
