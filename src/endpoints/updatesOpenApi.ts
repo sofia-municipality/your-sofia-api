@@ -113,6 +113,35 @@ export const updatesOpenApi: Endpoint = {
             },
           },
         },
+        '/api/updates/sources': {
+          get: {
+            summary: 'Proxy update sources metadata from upstream public API',
+            responses: {
+              '200': {
+                description: 'Sources metadata response proxied from upstream public API',
+              },
+              '400': {
+                description: 'Upstream bad request response (passed through)',
+              },
+              '401': {
+                description: 'Upstream unauthorized response (passed through)',
+              },
+              '403': {
+                description: 'Upstream forbidden response (passed through)',
+              },
+              '404': {
+                description: 'Upstream not found response (passed through)',
+              },
+              '500': {
+                description:
+                  'Proxy configuration error (missing/invalid OBOAPP_UPDATES_BASE_URL or missing OBOAPP_API_KEY)',
+              },
+              '502': {
+                description: 'Upstream communication failure or timeout',
+              },
+            },
+          },
+        },
       },
     })
   },

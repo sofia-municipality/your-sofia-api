@@ -1,6 +1,7 @@
 import { updates } from '../updates'
 import { updatesById } from '../updatesById'
 import { updatesOpenApi } from '../updatesOpenApi'
+import { updatesSources } from '../updatesSources'
 
 describe('updates proxy endpoints (unit)', () => {
   const originalBaseUrl = process.env.OBOAPP_UPDATES_BASE_URL
@@ -287,6 +288,29 @@ describe('updates proxy endpoints (unit)', () => {
     expect(calledUrl).toContain('https://obo.example.com/api/v1/messages')
     expect(calledUrl).not.toContain('/api/v1//messages')
   })
+
+  it('proxies updates sources metadata', async () => {
+    ;(global.fetch as jest.Mock).mockResolvedValue(
+      new Response(JSON.stringify({ sources: [{ id: 'sofia-bg', name: 'Столична община' }] }), {
+        status: 200,
+        headers: {
+          'content-type': 'application/json',
+        },
+      })
+    )
+
+    const res = await updatesSources.handler({ query: {} } as any)
+
+    expect(global.fetch).toHaveBeenCalledTimes(1)
+    const calledUrl = String((global.fetch as jest.Mock).mock.calls[0][0])
+    expect(calledUrl).toContain('https://obo.example.com/api/v1/sources')
+    expect((global.fetch as jest.Mock).mock.calls[0][1]?.headers).toMatchObject({
+      'X-Api-Key': 'test-api-key',
+    })
+
+    expect(res.status).toBe(200)
+    expect(await res.json()).toEqual({ sources: [{ id: 'sofia-bg', name: 'Столична община' }] })
+  })
 })
 
 describe('updates openapi endpoint (unit)', () => {
@@ -299,6 +323,7 @@ describe('updates openapi endpoint (unit)', () => {
     expect(body).toHaveProperty('openapi', '3.1.0')
     expect(body.paths).toHaveProperty('/api/updates')
     expect(body.paths).toHaveProperty('/api/updates/by-id')
+    expect(body.paths).toHaveProperty('/api/updates/sources')
     expect(body.paths['/api/updates'].get.responses).toHaveProperty('400')
     expect(body.paths['/api/updates'].get.responses).toHaveProperty('401')
     expect(body.paths['/api/updates'].get.responses).toHaveProperty('403')
@@ -310,6 +335,11 @@ describe('updates openapi endpoint (unit)', () => {
     expect(body.paths['/api/updates/by-id'].get.responses).toHaveProperty('404')
     expect(body.paths['/api/updates/by-id'].get.responses).toHaveProperty('500')
     expect(body.paths['/api/updates/by-id'].get.responses).toHaveProperty('502')
+    expect(body.paths['/api/updates/sources'].get.responses).toHaveProperty('401')
+    expect(body.paths['/api/updates/sources'].get.responses).toHaveProperty('403')
+    expect(body.paths['/api/updates/sources'].get.responses).toHaveProperty('404')
+    expect(body.paths['/api/updates/sources'].get.responses).toHaveProperty('500')
+    expect(body.paths['/api/updates/sources'].get.responses).toHaveProperty('502')
     expect(body.paths).not.toHaveProperty('/api/obo/messages')
     expect(body.paths).not.toHaveProperty('/api/obo/messages/by-id')
   })

@@ -28,6 +28,7 @@ import { healthCheck } from './endpoints/health'
 import { updates } from './endpoints/updates'
 import { updatesById } from './endpoints/updatesById'
 import { updatesOpenApi } from './endpoints/updatesOpenApi'
+import { updatesSources } from './endpoints/updatesSources'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -100,7 +101,7 @@ export default buildConfig({
     Signals,
   ],
   cors: [getServerSideURL()].filter(Boolean),
-  endpoints: [healthCheck, updates, updatesById, updatesOpenApi],
+  endpoints: [healthCheck, updates, updatesById, updatesSources, updatesOpenApi],
   globals: [Header, Footer],
   i18n: {
     supportedLanguages: { en, bg },
