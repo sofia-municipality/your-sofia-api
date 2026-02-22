@@ -5,6 +5,8 @@ declare global {
       DATABASE_URI: string
       NEXT_PUBLIC_SERVER_URL: string
       VERCEL_PROJECT_PRODUCTION_URL: string
+      OBOAPP_UPDATES_BASE_URL: string
+      OBOAPP_API_KEY: string
     }
   }
 }

@@ -25,6 +25,9 @@ import { plugins } from './plugins'
 import { defaultLexical } from '@/fields/defaultLexical'
 import { getServerSideURL } from './utilities/getURL'
 import { healthCheck } from './endpoints/health'
+import { updates } from './endpoints/updates'
+import { updatesById } from './endpoints/updatesById'
+import { updatesOpenApi } from './endpoints/updatesOpenApi'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -97,7 +100,7 @@ export default buildConfig({
     Signals,
   ],
   cors: [getServerSideURL()].filter(Boolean),
-  endpoints: [healthCheck],
+  endpoints: [healthCheck, updates, updatesById, updatesOpenApi],
   globals: [Header, Footer],
   i18n: {
     supportedLanguages: { en, bg },
