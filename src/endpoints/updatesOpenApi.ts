@@ -32,6 +32,13 @@ const listParameters = [
     schema: { type: 'string' },
     description: 'Comma-separated OboApp category ids',
   },
+  {
+    name: 'timespanEndGte',
+    in: 'query',
+    schema: { type: 'string', format: 'date-time' },
+    description:
+      'ISO timestamp lower bound for message timespan end. Defaults to today start when omitted.',
+  },
 ]
 
 export const updatesOpenApi: Endpoint = {

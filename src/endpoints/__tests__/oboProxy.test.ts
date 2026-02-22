@@ -97,6 +97,46 @@ describe('updates proxy endpoints (unit)', () => {
     expect(await res.json()).toEqual({ messages: [] })
   })
 
+  it('adds default timespanEndGte filter when missing', async () => {
+    ;(global.fetch as jest.Mock).mockResolvedValue(
+      new Response(JSON.stringify({ messages: [] }), {
+        status: 200,
+        headers: {
+          'content-type': 'application/json',
+        },
+      })
+    )
+
+    const res = await updates.handler({ query: {} } as any)
+
+    expect(global.fetch).toHaveBeenCalledTimes(1)
+    const calledUrl = new URL(String((global.fetch as jest.Mock).mock.calls[0][0]))
+    const timespanEndGte = calledUrl.searchParams.get('timespanEndGte')
+
+    expect(timespanEndGte).toBeTruthy()
+    expect(Number.isNaN(Date.parse(timespanEndGte!))).toBe(false)
+    expect(res.status).toBe(200)
+  })
+
+  it('preserves provided timespanEndGte filter', async () => {
+    ;(global.fetch as jest.Mock).mockResolvedValue(
+      new Response(JSON.stringify({ messages: [] }), {
+        status: 200,
+        headers: {
+          'content-type': 'application/json',
+        },
+      })
+    )
+
+    const providedFilter = '2026-02-23T00:00:00.000Z'
+    const res = await updates.handler({ query: { timespanEndGte: providedFilter } } as any)
+
+    expect(global.fetch).toHaveBeenCalledTimes(1)
+    const calledUrl = new URL(String((global.fetch as jest.Mock).mock.calls[0][0]))
+    expect(calledUrl.searchParams.get('timespanEndGte')).toBe(providedFilter)
+    expect(res.status).toBe(200)
+  })
+
   it('returns 400 when id is missing for updates-by-id', async () => {
     const res = await updatesById.handler({ query: {} } as any)
 
