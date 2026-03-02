@@ -91,12 +91,6 @@ export const nearbyContainers: Endpoint = {
       // Execute the query
       const result = await db.drizzle.execute(query)
 
-      console.log(
-        '[nearbyContainers] Query executed successfully, rows:',
-        result.rows.length,
-        result.rows[0]
-      )
-
       // Transform the results to match the WasteContainer type
       const containers = result.rows.map((row: any) => ({
         id: row.id,
