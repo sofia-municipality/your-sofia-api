@@ -1,4 +1,5 @@
-import type { CollectionConfig, Access } from 'payload'
+import type { CollectionConfig, Access, PayloadRequest } from 'payload'
+import type { WasteContainer } from '@/payload-types'
 import { APIError } from 'payload'
 import { randomUUID } from 'crypto'
 
@@ -21,7 +22,7 @@ function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: numbe
   return R * c // Distance in meters
 }
 
-const isAdmin = ({ req: { user } }: { req: any }): boolean => user?.role === 'admin'
+const isAdmin = ({ req: { user } }: { req: PayloadRequest }): boolean => user?.role === 'admin'
 
 const canUpdate: Access = async ({ req, data, id }) => {
   // Admins can always update
@@ -265,7 +266,7 @@ export const Signals: CollectionConfig = {
 
             if (containers.docs.length > 0 && containers.docs[0]) {
               const container = containers.docs[0]
-              const updateData: any = {}
+              const updateData: Partial<Pick<WasteContainer, 'status' | 'state'>> = {}
 
               // Update container status to "full" if signal reports it as full
               if (Array.isArray(doc.containerState) && doc.containerState.length > 0) {
@@ -282,7 +283,7 @@ export const Signals: CollectionConfig = {
                 // Merge states (add new ones, remove duplicates)
                 const mergedStates = [...new Set([...existingStates, ...doc.containerState])]
 
-                updateData.state = mergedStates
+                updateData.state = mergedStates as WasteContainer['state']
               }
 
               // Only update if there's something to update
@@ -398,7 +399,7 @@ export const Signals: CollectionConfig = {
       hasMany: true,
       admin: {
         description: 'State of the waste container (only for waste container signals)',
-        condition: (data, siblingData) => {
+        condition: (data, _siblingData) => {
           return (
             data?.category === 'waste-container' || data?.cityObject?.type === 'waste-container'
           )

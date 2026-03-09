@@ -2,7 +2,7 @@
 
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
-import React, { useEffect } from 'react'
+import React from 'react'
 import { MapContainer, Marker, TileLayer, useMapEvents } from 'react-leaflet'
 
 // Fix Leaflet's broken default marker icons when bundled with webpack/Next.js

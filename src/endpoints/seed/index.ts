@@ -45,9 +45,7 @@ export const seed = async ({
     globals.map((global) =>
       payload.updateGlobal({
         slug: global,
-        data: {
-          navItems: [],
-        },
+        data: { navItems: [] } as Record<string, unknown>,
         depth: 0,
         context: {
           disableRevalidate: true,
@@ -98,10 +96,12 @@ export const seed = async ({
   const [demoAuthor, image1Doc, image2Doc, image3Doc, imageHomeDoc] = await Promise.all([
     payload.create({
       collection: 'users',
+      draft: false,
       data: {
         name: 'Demo Author',
         email: 'demo-author@example.com',
         password: 'password',
+        role: 'user',
       },
     }),
     payload.create({

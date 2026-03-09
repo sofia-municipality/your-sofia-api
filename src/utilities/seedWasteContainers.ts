@@ -186,13 +186,20 @@ export async function seedWasteContainers(payload: Payload): Promise<void> {
         continue
       }
 
-      // Create the container
+      // Create the container (location must be [longitude, latitude] for Payload point field)
+      const { location: loc, ...containerData } = container
       await payload.create({
         collection: 'waste-containers',
-        data: container,
+        draft: false,
+        data: {
+          source: 'official',
+          ...containerData,
+          location: [loc.longitude, loc.latitude] as [number, number],
+          address: loc.address,
+        },
       })
 
-      console.log(`✅ Created container ${container.publicNumber} at ${container.location.address}`)
+      console.log(`✅ Created container ${container.publicNumber} at ${loc.address}`)
       created++
     } catch (error) {
       console.error(`❌ Error creating container ${container.publicNumber}:`, error)

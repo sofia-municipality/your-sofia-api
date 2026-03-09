@@ -92,5 +92,5 @@ export const plugins: Plugin[] = [
     },
   }),
   payloadCloudPlugin(),
-  importExportPlugin({}),
+  importExportPlugin({ collections: [] }),
 ]

@@ -39,7 +39,6 @@ const handler: TaskHandler<'processWasteCollectionEvents'> = async ({ input, req
 
   // ── T2: For each firm, fetch collection events for the time window ─────────────────
   for (const firmId of firmIds) {
-    let collectionSpots = 0
     let containersUpdated = 0
     let missingContainers = 0
     let observationsCreated = 0
@@ -70,7 +69,6 @@ const handler: TaskHandler<'processWasteCollectionEvents'> = async ({ input, req
     // Multiple consecutive Shooter=true pings at the same location represent
     // the truck emptying several bins at one container stop.
     const spots = groupIntoSpots(shooterEvents, SPOT_CLUSTER_RADIUS_METERS)
-    collectionSpots = spots.length
     totalCollectionSpots += spots.length
 
     // ── Step 2: match each spot to the nearest container within 25 m ──────────

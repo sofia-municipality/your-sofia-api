@@ -49,8 +49,8 @@ export const containersWithSignalCount: Endpoint = {
 
       const resultRows = await db.drizzle.execute(query)
 
-      const rows = resultRows.rows as any[]
-      const totalDocs = rows[0]?.total_count || 0
+      const rows = resultRows.rows as Record<string, unknown>[]
+      const totalDocs = Number(rows[0]?.total_count ?? 0)
       const totalPages = Math.ceil(totalDocs / limit)
 
       // Transform to match Payload response format

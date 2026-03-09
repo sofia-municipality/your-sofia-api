@@ -44,7 +44,7 @@ describe('cleanContainer endpoint (unit)', () => {
       user: { id: 'u1', role: 'containerAdmin', email: 'admin@test' },
       routeParams: { id: '1' },
       formData: async () => ({
-        get: (key: string) => null,
+        get: (_key: string) => null,
       }),
     }
 

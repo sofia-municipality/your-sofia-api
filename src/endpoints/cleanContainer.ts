@@ -1,4 +1,5 @@
 import type { Endpoint } from 'payload'
+import type { User } from '@/payload-types'
 
 export const cleanContainer: Endpoint = {
   path: '/:id/clean',
@@ -13,7 +14,7 @@ export const cleanContainer: Endpoint = {
     }
 
     // Check if user has containerAdmin or admin role
-    const userRole = (user as any).role
+    const userRole = (user as User).role
     if (userRole !== 'containerAdmin' && userRole !== 'admin') {
       return Response.json(
         { error: 'Forbidden: Only Container Admins can clean containers' },
@@ -69,13 +70,13 @@ export const cleanContainer: Endpoint = {
       })
 
       // Update all active signals to resolved
-      const updatePromises = signals.docs.map((signal: any) =>
+      const updatePromises = signals.docs.map((signal) =>
         payload.update({
           collection: 'signals',
           id: signal.id,
           data: {
             status: 'resolved',
-            adminNotes: `Container cleaned by ${(user as any).name || (user as any).email} on ${new Date().toISOString()}`,
+            adminNotes: `Container cleaned by ${(user as User).name || (user as User).email} on ${new Date().toISOString()}`,
           },
         })
       )
@@ -130,7 +131,7 @@ export const cleanContainer: Endpoint = {
 
           observationId = observation.id
           payload.logger.info(
-            `Photo observation created for container ${container.publicNumber} by ${(user as any).email}`
+            `Photo observation created for container ${container.publicNumber} by ${(user as User).email}`
           )
         } catch (photoError) {
           payload.logger.error(`Error uploading photo for container ${id}: ${photoError}`)
@@ -139,7 +140,7 @@ export const cleanContainer: Endpoint = {
       }
 
       payload.logger.info(
-        `Container ${container.publicNumber} cleaned by ${(user as any).email}. Resolved ${signals.docs.length} signals.`
+        `Container ${container.publicNumber} cleaned by ${(user as User).email}. Resolved ${signals.docs.length} signals.`
       )
 
       return Response.json(

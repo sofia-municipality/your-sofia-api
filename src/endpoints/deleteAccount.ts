@@ -14,7 +14,7 @@ export const deleteAccount: Endpoint = {
     // Security: Only allow users to delete their own account
     // The userId comes from the JWT token, not from request parameters
     // This ensures a user can only delete their own account
-    const userId = (user as any).id
+    const userId = user.id
 
     try {
       // Fetch user from database to verify current role

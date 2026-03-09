@@ -1,7 +1,6 @@
 'use client'
 
 import React, { useState } from 'react'
-import { Metadata } from 'next'
 import Link from 'next/link'
 
 export default function TermsOfUsePage() {
