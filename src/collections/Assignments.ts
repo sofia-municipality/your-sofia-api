@@ -1,6 +1,6 @@
-import type { CollectionConfig } from 'payload'
+import type { CollectionConfig, Access } from 'payload'
 
-const canEditAssignments = ({ req: { user } }: any) => {
+const canEditAssignments: Access = ({ req: { user } }) => {
   return user?.role === 'containerAdmin' || user?.role === 'admin'
 }
 

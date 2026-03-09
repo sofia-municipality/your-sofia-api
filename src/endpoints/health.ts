@@ -3,7 +3,7 @@ import type { Endpoint } from 'payload'
 export const healthCheck: Endpoint = {
   path: '/health',
   method: 'get',
-  handler: async (req) => {
+  handler: async (_req) => {
     try {
       // Basic health check - API is responding
       return Response.json(

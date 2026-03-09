@@ -91,14 +91,30 @@ export const nearbyContainers: Endpoint = {
       // Execute the query
       const result = await db.drizzle.execute(query)
 
+      type ContainerRow = {
+        id: number
+        public_number: string
+        location: { coordinates: [number, number] }
+        address: string
+        capacity_volume: string
+        capacity_size: string
+        service_interval: string
+        serviced_by: string
+        waste_type: string
+        status: string
+        state: string[]
+        notes: string
+        last_cleaned: Date
+        created_at: Date
+        updated_at: Date
+        distance: number
+      }
+
       // Transform the results to match the WasteContainer type
-      const containers = result.rows.map((row: any) => ({
+      const containers = (result.rows as ContainerRow[]).map((row) => ({
         id: row.id,
         publicNumber: row.public_number,
-        location: [
-          parseFloat(row.location.coordinates[0]),
-          parseFloat(row.location.coordinates[1]),
-        ] as [number, number],
+        location: [row.location.coordinates[0], row.location.coordinates[1]] as [number, number],
         address: row.address,
         capacityVolume: parseFloat(row.capacity_volume),
         capacitySize: row.capacity_size,
@@ -111,7 +127,7 @@ export const nearbyContainers: Endpoint = {
         lastCleaned: row.last_cleaned,
         createdAt: row.created_at,
         updatedAt: row.updated_at,
-        distance: Math.round(parseFloat(row.distance)), // Distance in meters, rounded
+        distance: Math.round(row.distance), // Distance in meters, rounded
       }))
 
       // If we need to populate image relationships, we can do additional queries

@@ -7,7 +7,7 @@ const expo = new Expo()
 interface PushNotificationData {
   title: string
   body: string
-  data?: Record<string, any>
+  data?: Record<string, unknown>
 }
 
 /**

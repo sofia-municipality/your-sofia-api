@@ -138,7 +138,7 @@ export const News: CollectionConfig = {
   ],
   hooks: {
     afterChange: [
-      async ({ doc, req, operation, previousDoc }) => {
+      async ({ doc, req, operation: _operation, previousDoc: _previousDoc }) => {
         // Send push notification if enabled and status is published
         if (doc.status === 'published' && doc.pushNotification) {
           try {
