@@ -46,22 +46,24 @@ export async function up({ payload }: MigrateUpArgs): Promise<void> {
         }
 
         // Map vote_type to containerState
-        let containerState: ('full' | 'dirty' | 'damaged' | 'empty' | 'forCollection' | 'broken')[]
+        let containerState:
+          | ('full' | 'maintenance' | 'dirty' | 'damaged' | 'leaves' | 'bagged' | 'fallen' | 'bulkyWaste')[]
+          | undefined
         switch (vote.vote_type) {
           case 'full':
             containerState = ['full']
             break
           case 'empty':
-            containerState = ['empty']
+            containerState = undefined
             break
           case 'broken':
-            containerState = ['broken']
+            containerState = ['damaged']
             break
           case 'dirty':
             containerState = ['dirty']
             break
           case 'ready_for_collection':
-            containerState = ['forCollection']
+            containerState = ['full']
             break
           default:
             console.warn(`Unknown vote_type: ${vote.vote_type}`)

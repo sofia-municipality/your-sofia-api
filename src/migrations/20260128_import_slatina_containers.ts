@@ -32,10 +32,7 @@ export async function up({ payload }: MigrateUpArgs): Promise<void> {
           collection: 'waste-containers',
           data: {
             publicNumber,
-            location: {
-              latitude,
-              longitude,
-            },
+            location: [longitude, latitude],
             capacityVolume: 1.1,
             capacitySize: 'standard',
             binCount: binCount || 1,

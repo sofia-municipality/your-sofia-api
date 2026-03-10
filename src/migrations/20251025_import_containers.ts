@@ -51,10 +51,7 @@ export async function up({ payload }: MigrateUpArgs): Promise<void> {
           data: {
             legacyId: container.id,
             publicNumber,
-            location: {
-              latitude: container.lat,
-              longitude: container.lng,
-            },
+            location: [container.lng, container.lat],
             capacityVolume: 3, // Default 3m³ as specified
             capacitySize: container.is_collection_point ? 'industrial' : 'standard', // Industrial for collection points, Standard otherwise
             wasteType,
