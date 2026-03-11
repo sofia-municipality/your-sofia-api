@@ -98,6 +98,7 @@ const handler: TaskHandler<'processWasteCollectionEvents'> = async ({ input, req
           data: {
             publicNumber: `NEW-${spot.latestEvent.VehicleId}-${Date.now()}`,
             location: [spot.centroidLng, spot.centroidLat],
+            district: String(spot.latestEvent.Region) as any,
             status: 'pending',
             state: [],
             capacityVolume: 1.1,
@@ -115,6 +116,13 @@ const handler: TaskHandler<'processWasteCollectionEvents'> = async ({ input, req
 
       const containerId = String((result.rows[0] as { id: unknown }).id)
       try {
+        // Fetch existing container to check if district is already set
+        const existing = await payload.findByID({
+          collection: 'waste-containers',
+          id: containerId,
+          overrideAccess: true,
+        })
+
         await payload.update({
           collection: 'waste-containers',
           id: containerId,
@@ -123,6 +131,8 @@ const handler: TaskHandler<'processWasteCollectionEvents'> = async ({ input, req
             state: [],
             lastCleaned: new Date(spot.events[0].GpsTime).toISOString(),
             servicedBy: `FirmId: ${firmId}`,
+            // Only populate district if not already set
+            ...(existing.district == null && { district: String(spot.latestEvent.Region) as any }),
           },
           overrideAccess: true,
           context: { skipGpsSyncHooks: true },

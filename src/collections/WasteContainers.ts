@@ -2,6 +2,7 @@ import type { CollectionConfig, Access } from 'payload'
 import { cleanContainer } from '../endpoints/cleanContainer'
 import { nearbyContainers } from '../endpoints/nearbyContainers'
 import { containersWithSignalCount } from '@/endpoints/containers-with-signals'
+import { collectionMetrics } from '@/endpoints/collection-metrics'
 import { locationMapField } from '@/fields/locationMap'
 
 const canEditContainers: Access = ({ req: { user } }) => {
@@ -21,7 +22,7 @@ export const WasteContainers: CollectionConfig = {
     description: 'Manage waste containers across the city',
     listSearchableFields: ['publicNumber', 'legacyId'],
   },
-  endpoints: [cleanContainer, nearbyContainers, containersWithSignalCount],
+  endpoints: [cleanContainer, nearbyContainers, containersWithSignalCount, collectionMetrics],
   access: {
     admin: ({ req: { user } }) => user?.role === 'admin',
     read: () => true,
@@ -48,6 +49,18 @@ export const WasteContainers: CollectionConfig = {
       label: 'Address',
       admin: {
         description: 'Human-readable address (e.g., "ul. Vitosha 1, Sofia")',
+        position: 'sidebar',
+      },
+    },
+    {
+      name: 'district',
+      label: 'Administrative District',
+      type: 'relationship',
+      relationTo: 'city-districts',
+      required: false,
+      index: true,
+      admin: {
+        description: 'Sofia administrative district (populated from GPS data going forward)',
         position: 'sidebar',
       },
     },

@@ -16,8 +16,10 @@ import { Pages } from './collections/Pages'
 import { Posts } from './collections/Posts'
 import { Users } from './collections/Users'
 import { PushTokens } from './collections/PushTokens'
+import { CityDistricts } from './collections/CityDistricts'
 import { WasteContainers } from './collections/WasteContainers'
 import { WasteContainerObservations } from './collections/WasteContainerObservations'
+import { WasteCollectionZones } from './collections/WasteCollectionZones'
 import { Signals } from './collections/Signals'
 import { Assignments } from './collections/Assignments'
 import { Footer } from './Footer/config'
@@ -44,6 +46,13 @@ export default buildConfig({
       // The `BeforeDashboard` component renders the 'welcome' block that you see after logging into your admin panel.
       // Feel free to delete this at any time. Simply remove the line below and the import `BeforeDashboard` statement on line 15.
       beforeDashboard: ['@/components/BeforeDashboard'],
+      afterNavLinks: ['@/components/MetricsDashboard/NavLink'],
+      views: {
+        metricsView: {
+          Component: '@/components/MetricsDashboard/index',
+          path: '/metrics',
+        },
+      },
     },
     importMap: {
       baseDir: path.resolve(dirname),
@@ -78,7 +87,7 @@ export default buildConfig({
     pool: {
       connectionString: process.env.DATABASE_URI || '',
     },
-    push: process.env.NODE_ENV === 'development', // Enable push only in development environment
+    push: false, //process.env.NODE_ENV === 'development', // Enable push only in development environment
     extensions: ['postgis'], // Enable PostGIS extension
     tablesFilter: [
       '!spatial_ref_sys',
@@ -98,8 +107,10 @@ export default buildConfig({
     Categories,
     Users,
     PushTokens,
+    CityDistricts,
     WasteContainers,
     WasteContainerObservations,
+    WasteCollectionZones,
     Signals,
     Assignments,
   ],

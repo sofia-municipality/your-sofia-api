@@ -26,6 +26,7 @@ import * as migration_20260209_223000_add_spatial_indexes from './20260209_22300
 import * as migration_20260302_134729_import_vitosha_ilinden_oborishte from './20260302_134729_import_vitosha_ilinden_oborishte';
 import * as migration_20260308_135208_container_cleanup_job from './20260308_135208_container_cleanup_job';
 import * as migration_20260308_135243_added_pending_container from './20260308_135243_added_pending_container';
+import * as migration_20260311_070751_districs_and_zones from './20260311_070751_districs_and_zones';
 
 export const migrations = [
   {
@@ -166,6 +167,11 @@ export const migrations = [
   {
     up: migration_20260308_135243_added_pending_container.up,
     down: migration_20260308_135243_added_pending_container.down,
-    name: '20260308_135243_added_pending_container'
+    name: '20260308_135243_added_pending_container',
+  },
+  {
+    up: migration_20260311_070751_districs_and_zones.up,
+    down: migration_20260311_070751_districs_and_zones.down,
+    name: '20260311_070751_districs_and_zones'
   },
 ];

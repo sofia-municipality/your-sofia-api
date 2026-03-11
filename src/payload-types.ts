@@ -74,8 +74,10 @@ export interface Config {
     categories: Category;
     users: User;
     'push-tokens': PushToken;
+    'city-districts': CityDistrict;
     'waste-containers': WasteContainer;
     'waste-container-observations': WasteContainerObservation;
+    'waste-collection-zones': WasteCollectionZone;
     signals: Signal;
     assignments: Assignment;
     redirects: Redirect;
@@ -99,8 +101,10 @@ export interface Config {
     categories: CategoriesSelect<false> | CategoriesSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
     'push-tokens': PushTokensSelect<false> | PushTokensSelect<true>;
+    'city-districts': CityDistrictsSelect<false> | CityDistrictsSelect<true>;
     'waste-containers': WasteContainersSelect<false> | WasteContainersSelect<true>;
     'waste-container-observations': WasteContainerObservationsSelect<false> | WasteContainerObservationsSelect<true>;
+    'waste-collection-zones': WasteCollectionZonesSelect<false> | WasteCollectionZonesSelect<true>;
     signals: SignalsSelect<false> | SignalsSelect<true>;
     assignments: AssignmentsSelect<false> | AssignmentsSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
@@ -835,6 +839,56 @@ export interface PushToken {
   createdAt: string;
 }
 /**
+ * Sofia administrative districts (1–24)
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "city-districts".
+ */
+export interface CityDistrict {
+  id: number;
+  /**
+   * Numeric district identifier (1–24)
+   */
+  districtId: number;
+  /**
+   * Name of the Sofia administrative district
+   */
+  name: string;
+  /**
+   * Three-letter uppercase code: R + first two letters of the name, or R + initials for multi-word names (e.g. RKP for Krasna Polyana)
+   */
+  code: string;
+  /**
+   * The waste collection zone this district belongs to
+   */
+  wasteCollectionZone?: (number | null) | WasteCollectionZone;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Maps collection zones to their administrative districts and service companies
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "waste-collection-zones".
+ */
+export interface WasteCollectionZone {
+  id: number;
+  /**
+   * Zone number 1–10
+   */
+  number: number;
+  /**
+   * Display name (e.g. "Зона 1")
+   */
+  name: string;
+  /**
+   * Numeric ID of the waste collection company responsible for this zone
+   */
+  serviceCompanyId?: number | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * Manage waste containers across the city
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -850,6 +904,10 @@ export interface WasteContainer {
    * Human-readable address (e.g., "ul. Vitosha 1, Sofia")
    */
   address?: string | null;
+  /**
+   * Sofia administrative district (populated from GPS data going forward)
+   */
+  district?: (number | null) | CityDistrict;
   /**
    * Source of the container data
    */
@@ -1377,12 +1435,20 @@ export interface PayloadLockedDocument {
         value: number | PushToken;
       } | null)
     | ({
+        relationTo: 'city-districts';
+        value: number | CityDistrict;
+      } | null)
+    | ({
         relationTo: 'waste-containers';
         value: number | WasteContainer;
       } | null)
     | ({
         relationTo: 'waste-container-observations';
         value: number | WasteContainerObservation;
+      } | null)
+    | ({
+        relationTo: 'waste-collection-zones';
+        value: number | WasteCollectionZone;
       } | null)
     | ({
         relationTo: 'signals';
@@ -1790,11 +1856,24 @@ export interface PushTokensSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "city-districts_select".
+ */
+export interface CityDistrictsSelect<T extends boolean = true> {
+  districtId?: T;
+  name?: T;
+  code?: T;
+  wasteCollectionZone?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "waste-containers_select".
  */
 export interface WasteContainersSelect<T extends boolean = true> {
   legacyId?: T;
   address?: T;
+  district?: T;
   source?: T;
   publicNumber?: T;
   image?: T;
@@ -1825,6 +1904,17 @@ export interface WasteContainerObservationsSelect<T extends boolean = true> {
   collectionCount?: T;
   cleanedAt?: T;
   notes?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "waste-collection-zones_select".
+ */
+export interface WasteCollectionZonesSelect<T extends boolean = true> {
+  number?: T;
+  name?: T;
+  serviceCompanyId?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -2366,8 +2456,10 @@ export interface TaskCreateCollectionExport {
       | 'categories'
       | 'users'
       | 'push-tokens'
+      | 'city-districts'
       | 'waste-containers'
       | 'waste-container-observations'
+      | 'waste-collection-zones'
       | 'signals'
       | 'assignments'
       | 'redirects'
