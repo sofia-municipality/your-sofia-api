@@ -27,6 +27,7 @@ import * as migration_20260302_134729_import_vitosha_ilinden_oborishte from './2
 import * as migration_20260308_135208_container_cleanup_job from './20260308_135208_container_cleanup_job';
 import * as migration_20260308_135243_added_pending_container from './20260308_135243_added_pending_container';
 import * as migration_20260311_070751_districs_and_zones from './20260311_070751_districs_and_zones';
+import * as migration_20260312_201438_add_unique_observation from './20260312_201438_add_unique_observation';
 
 export const migrations = [
   {
@@ -172,6 +173,11 @@ export const migrations = [
   {
     up: migration_20260311_070751_districs_and_zones.up,
     down: migration_20260311_070751_districs_and_zones.down,
-    name: '20260311_070751_districs_and_zones'
+    name: '20260311_070751_districs_and_zones',
+  },
+  {
+    up: migration_20260312_201438_add_unique_observation.up,
+    down: migration_20260312_201438_add_unique_observation.down,
+    name: '20260312_201438_add_unique_observation'
   },
 ];

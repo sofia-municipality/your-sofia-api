@@ -80,6 +80,12 @@ export const WasteContainerObservations: CollectionConfig = {
       type: 'textarea',
     },
   ],
+  indexes: [
+    {
+      fields: ['container', 'cleanedAt'],
+      unique: true,
+    },
+  ],
   hooks: {
     beforeChange: [
       ({ req, data }) => {

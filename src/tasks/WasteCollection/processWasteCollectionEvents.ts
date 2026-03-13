@@ -1,6 +1,11 @@
 import type { TaskConfig, TaskHandler } from 'payload'
 import { sql } from '@payloadcms/db-postgres'
-import { type WasteCollectionEvent, groupIntoSpots } from './gpsCollectionHelpers'
+import {
+  type WasteCollectionEvent,
+  buildSyncWindow,
+  groupIntoSpots,
+  parseGpsTime,
+} from './gpsCollectionHelpers'
 
 export { buildSyncWindow } from './gpsCollectionHelpers'
 
@@ -18,9 +23,9 @@ const handler: TaskHandler<'processWasteCollectionEvents'> = async ({ input, req
   const apiKey = process.env.INSPECTORAT_GPS_API_KEY ?? ''
   const gpsHeaders = { 'X-API-KEY': apiKey }
 
-  payload.logger.info(
-    `[processWasteCollectionEvents] Starting sync. Window: ${input.from} → ${input.to}`
-  )
+  const { from, to } = input?.from && input?.to ? input : buildSyncWindow(1)
+
+  payload.logger.info(`[processWasteCollectionEvents] Starting sync. Window: ${from} → ${to}`)
 
   // ── Build Region → city-district Payload ID lookup ─────────────────────────
   // CityDistrict.districtId matches the GPS API Region field (1–24).
@@ -60,8 +65,8 @@ const handler: TaskHandler<'processWasteCollectionEvents'> = async ({ input, req
     const vehicleUrl =
       `${baseUrl}/get_vehicle.php` +
       `?f=${firmId}` +
-      `&from=${encodeURIComponent(input.from)}` +
-      `&to=${encodeURIComponent(input.to)}`
+      `&from=${encodeURIComponent(from)}` +
+      `&to=${encodeURIComponent(to)}`
 
     const vehicleResponse = await fetch(vehicleUrl, { headers: gpsHeaders })
     if (!vehicleResponse.ok) {
@@ -87,7 +92,7 @@ const handler: TaskHandler<'processWasteCollectionEvents'> = async ({ input, req
 
     for (const spot of spots) {
       const nearestQuery = sql`
-        SELECT wc.id
+        SELECT wc.id, wc.district_id
         FROM waste_containers wc
         WHERE ST_DWithin(
           ST_MakePoint(${spot.centroidLng}, ${spot.centroidLat})::geography,
@@ -102,10 +107,12 @@ const handler: TaskHandler<'processWasteCollectionEvents'> = async ({ input, req
       `
 
       const result = await payload.db.drizzle.execute(nearestQuery)
+      let containerId = result?.rows?.[0]?.id as number | undefined
+      const districtExists = result?.rows?.[0]?.district as number | undefined
 
-      if (!result?.rows?.length) {
+      if (!containerId) {
         //insert container on the missing spot and mark it prending for approval
-        await payload.create({
+        const newContainer = await payload.create({
           collection: 'waste-containers',
           data: {
             publicNumber: `${districtCodeByRegion.get(spot.latestEvent.Region) ?? 'NEW'}-${Date.now()}`,
@@ -118,54 +125,49 @@ const handler: TaskHandler<'processWasteCollectionEvents'> = async ({ input, req
             binCount: 1,
             wasteType: 'general',
             source: `third_party`,
-            lastCleaned: new Date(spot.events[0].GpsTime).toISOString(),
+            lastCleaned: parseGpsTime(spot.events[0].GpsTime).toISOString(),
             notes: `Auto-created from GPS data. FirmId: ${firmId}, VehicleId: ${spot.latestEvent.VehicleId}. Please verify location and details before activating.`,
           },
         })
         missingContainers++
-        continue
+        containerId = newContainer.id
+      } else {
+        //container exists, but we can update its lastCleaned and servicedBy fields based on the GPS event
+        try {
+          await payload.update({
+            collection: 'waste-containers',
+            id: containerId,
+            data: {
+              status: 'active',
+              state: [],
+              lastCleaned: parseGpsTime(spot.events[0].GpsTime).toISOString(),
+              servicedBy: `FirmId: ${firmId}`,
+              district: !districtExists ? spot.latestEvent.Region : undefined, //update district only if it was missing before
+            },
+            overrideAccess: true,
+            context: { skipGpsSyncHooks: true },
+          })
+
+          containersUpdated++
+        } catch (err) {
+          payload.logger.error(
+            `[processWasteCollectionEvents] Failed to update container ${containerId}: ${String(err)}`
+          )
+          continue
+        }
       }
 
-      const containerId = String((result.rows[0] as { id: unknown }).id)
       try {
-        // Fetch existing container to check if district is already set
-        const existing = await payload.findByID({
-          collection: 'waste-containers',
-          id: containerId,
-          overrideAccess: true,
-        })
-
-        await payload.update({
-          collection: 'waste-containers',
-          id: containerId,
-          data: {
-            status: 'active',
-            state: [],
-            lastCleaned: new Date(spot.events[0].GpsTime).toISOString(),
-            servicedBy: `FirmId: ${firmId}`,
-            // Only populate district if not already set
-            ...(existing.district == null && {
-              district: districtIdByRegion.get(spot.latestEvent.Region) ?? null,
-            }),
-          },
-          overrideAccess: true,
-          context: { skipGpsSyncHooks: true },
-        })
-
-        containersUpdated++
-
-        // Create a ContainerObservation for audit history (no photo/user for GPS sync).
-        await payload.create({
-          collection: 'waste-container-observations',
-          data: {
-            container: Number(containerId),
-            cleanedAt: new Date(spot.events[0].GpsTime).toISOString(),
-            vehicleId: spot.events[0].VehicleId,
-            firmId: spot.events[0].FirmId,
-            collectionCount: spot.events.length,
-          },
-          overrideAccess: true,
-        })
+        // Upsert a ContainerObservation for audit history (no photo/user for GPS sync).
+        await payload.db.drizzle.execute(sql`
+          INSERT INTO waste_container_observations
+            (container_id, cleaned_at, vehicle_id, firm_id, collection_count, updated_at, created_at)
+          VALUES
+            (${Number(containerId)}, ${parseGpsTime(spot.events[0].GpsTime).toISOString()},
+             ${spot.events[0].VehicleId}, ${spot.events[0].FirmId}, ${spot.events.length}, NOW(), NOW())
+          ON CONFLICT (container_id, cleaned_at)
+          DO NOTHING
+        `)
 
         observationsCreated++
       } catch (err) {
@@ -210,8 +212,7 @@ export const processWasteCollectionEvents: TaskConfig<'processWasteCollectionEve
   slug: 'processWasteCollectionEvents',
   label: 'Process Waste Collection Events',
   schedule: [
-    { cron: '0 7 * * *', queue: 'default' },
-    { cron: '0 19 * * *', queue: 'default' },
+    { cron: '02 * * * *', queue: 'default' }, // Run at 2 minutes past every hour
   ],
   inputSchema: [
     { name: 'from', type: 'text', required: true },

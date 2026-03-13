@@ -23,7 +23,7 @@ function parseArgs(): { from: string; to: string } {
     console.error('Error: --from and --to must both be provided, or neither.')
     process.exit(1)
   }
-  return from && to ? { from, to } : buildSyncWindow()
+  return from && to ? { from, to } : buildSyncWindow(1)
 }
 
 async function main() {
