@@ -99,7 +99,7 @@ export function groupIntoSpots(
           nearest.events.reduce((s, e) => s + e.Longitude, 0) / nearest.events.length
         nearest.centroidLat =
           nearest.events.reduce((s, e) => s + e.Latitude, 0) / nearest.events.length
-        if (new Date(collectionEvent.GpsTime) > new Date(nearest.latestEvent.GpsTime)) {
+        if (parseGpsTime(collectionEvent.GpsTime) > parseGpsTime(nearest.latestEvent.GpsTime)) {
           nearest.latestEvent = collectionEvent
         }
       } else {
@@ -120,6 +120,19 @@ export function groupIntoSpots(
 // Date/time helpers
 // ─────────────────────────────────────────────────────────────────────────────
 
+/**
+ * Parse a GpsTime string from the API as UTC.
+ * The API returns times without a timezone suffix (e.g. "2026-03-13 17:53:17"),
+ * so we normalise the string to ISO 8601 UTC before parsing.
+ */
+export function parseGpsTime(gpsTime: string): Date {
+  // If already has offset/Z, parse as-is; otherwise treat as UTC.
+  const normalised = /[Z+\-]\d*$/.test(gpsTime.trim())
+    ? gpsTime
+    : gpsTime.trim().replace(' ', 'T') + 'Z'
+  return new Date(normalised)
+}
+
 /** Format a Date as the GPS API expects: "YYYY-MM-DD HH:MM" (local time) */
 export function formatApiDate(date: Date): string {
   const pad = (n: number) => String(n).padStart(2, '0')
@@ -129,9 +142,12 @@ export function formatApiDate(date: Date): string {
   )
 }
 
-/** Compute from/to strings for one 12-hour sync window ending at `now`. */
-export function buildSyncWindow(now: Date = new Date()): { from: string; to: string } {
+/** Compute from/to strings for the given interval sync window ending at `now`. */
+export function buildSyncWindow(
+  hoursInterval: number = 1,
+  now: Date = new Date()
+): { from: string; to: string } {
   const to = new Date(now)
-  const from = new Date(now.getTime() - 12 * 60 * 60 * 1000)
+  const from = new Date(now.getTime() - hoursInterval * 60 * 60 * 1000)
   return { from: formatApiDate(from), to: formatApiDate(to) }
 }
