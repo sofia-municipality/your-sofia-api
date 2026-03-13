@@ -28,6 +28,7 @@ import * as migration_20260308_135208_container_cleanup_job from './20260308_135
 import * as migration_20260308_135243_added_pending_container from './20260308_135243_added_pending_container';
 import * as migration_20260311_070751_districs_and_zones from './20260311_070751_districs_and_zones';
 import * as migration_20260312_201438_add_unique_observation from './20260312_201438_add_unique_observation';
+import * as migration_20260313_000000_import_containers_10_districts from './20260313_000000_import_containers_10_districts';
 
 export const migrations = [
   {
@@ -178,6 +179,11 @@ export const migrations = [
   {
     up: migration_20260312_201438_add_unique_observation.up,
     down: migration_20260312_201438_add_unique_observation.down,
-    name: '20260312_201438_add_unique_observation'
+    name: '20260312_201438_add_unique_observation',
+  },
+  {
+    up: migration_20260313_000000_import_containers_10_districts.up,
+    down: migration_20260313_000000_import_containers_10_districts.down,
+    name: '20260313_000000_import_containers_10_districts',
   },
 ];
