@@ -108,9 +108,8 @@ export const collectionMetrics: Endpoint = {
         WITH last_coll AS (
           SELECT
             wc.id AS container_id,
-            MAX(wco.cleaned_at) AS last_cleaned_at
+            MAX(wc.last_cleaned) AS last_cleaned_at
           FROM waste_containers wc
-          LEFT JOIN waste_container_observations wco ON wco.container_id = wc.id
           GROUP BY wc.id
         )
         SELECT
@@ -124,13 +123,13 @@ export const collectionMetrics: Endpoint = {
             ELSE '14+'
           END AS bucket,
           CASE
-            WHEN EXTRACT(EPOCH FROM (NOW() - last_cleaned_at)) / 3600 < 24  THEN 1
-            WHEN EXTRACT(EPOCH FROM (NOW() - last_cleaned_at)) / 3600 < 48  THEN 2
-            WHEN EXTRACT(EPOCH FROM (NOW() - last_cleaned_at)) / 3600 < 72  THEN 3
-            WHEN EXTRACT(EPOCH FROM (NOW() - last_cleaned_at)) / 3600 < 168 THEN 4
-            WHEN EXTRACT(EPOCH FROM (NOW() - last_cleaned_at)) / 3600 < 336 THEN 5
+            WHEN EXTRACT(EPOCH FROM (NOW() - last_cleaned_at)) / 3600 < 24  THEN 0
+            WHEN EXTRACT(EPOCH FROM (NOW() - last_cleaned_at)) / 3600 < 48  THEN 1
+            WHEN EXTRACT(EPOCH FROM (NOW() - last_cleaned_at)) / 3600 < 72  THEN 2
+            WHEN EXTRACT(EPOCH FROM (NOW() - last_cleaned_at)) / 3600 < 168 THEN 3
+            WHEN EXTRACT(EPOCH FROM (NOW() - last_cleaned_at)) / 3600 < 336 THEN 4
             WHEN last_cleaned_at IS NULL                                    THEN 10
-            ELSE 6
+            ELSE 5
           END AS bucket_order,
           COUNT(*)::int AS container_count
         FROM last_coll
