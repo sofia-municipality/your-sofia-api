@@ -80,6 +80,7 @@ export interface Config {
     'waste-collection-zones': WasteCollectionZone;
     signals: Signal;
     assignments: Assignment;
+    'geocode-addresses': GeocodeAddress;
     redirects: Redirect;
     forms: Form;
     'form-submissions': FormSubmission;
@@ -107,6 +108,7 @@ export interface Config {
     'waste-collection-zones': WasteCollectionZonesSelect<false> | WasteCollectionZonesSelect<true>;
     signals: SignalsSelect<false> | SignalsSelect<true>;
     assignments: AssignmentsSelect<false> | AssignmentsSelect<true>;
+    'geocode-addresses': GeocodeAddressesSelect<false> | GeocodeAddressesSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
     'form-submissions': FormSubmissionsSelect<false> | FormSubmissionsSelect<true>;
@@ -141,6 +143,7 @@ export interface Config {
   jobs: {
     tasks: {
       processWasteCollectionEvents: TaskProcessWasteCollectionEvents;
+      syncWasteCollectionSchedules: TaskSyncWasteCollectionSchedules;
       createCollectionExport: TaskCreateCollectionExport;
       createCollectionImport: TaskCreateCollectionImport;
       schedulePublish: TaskSchedulePublish;
@@ -944,6 +947,18 @@ export interface WasteContainer {
    */
   serviceInterval?: string | null;
   /**
+   * ISO weekday numbers (1=Mon, 7=Sun) from schedule import
+   */
+  collectionDaysOfWeek?: ('1' | '2' | '3' | '4' | '5' | '6' | '7')[] | null;
+  /**
+   * How many times per day this container is collected (1 or 2)
+   */
+  collectionTimesPerDay?: number | null;
+  /**
+   * e.g. "2026-02/TRIADICA/1100" — populated by import task
+   */
+  scheduleSource?: string | null;
+  /**
    * Name of the company or service responsible for collection
    */
   servicedBy?: string | null;
@@ -1117,6 +1132,32 @@ export interface Assignment {
    * When this assignment was marked as completed
    */
   completedAt?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Street address geocoding cache. Missing coordinates = OpenStreetMap Nominatim API returned no results.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "geocode-addresses".
+ */
+export interface GeocodeAddress {
+  id: number;
+  /**
+   * Normalized street address (without street-type prefix)
+   */
+  address: string;
+  /**
+   * District code passed to Nominatim (e.g. TRIADICA)
+   */
+  districtHint: string;
+  /**
+   * Coordinates — missing means address was not found
+   *
+   * @minItems 2
+   * @maxItems 2
+   */
+  location?: [number, number] | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -1340,6 +1381,7 @@ export interface PayloadJob {
         taskSlug:
           | 'inline'
           | 'processWasteCollectionEvents'
+          | 'syncWasteCollectionSchedules'
           | 'createCollectionExport'
           | 'createCollectionImport'
           | 'schedulePublish';
@@ -1379,6 +1421,7 @@ export interface PayloadJob {
     | (
         | 'inline'
         | 'processWasteCollectionEvents'
+        | 'syncWasteCollectionSchedules'
         | 'createCollectionExport'
         | 'createCollectionImport'
         | 'schedulePublish'
@@ -1457,6 +1500,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'assignments';
         value: number | Assignment;
+      } | null)
+    | ({
+        relationTo: 'geocode-addresses';
+        value: number | GeocodeAddress;
       } | null)
     | ({
         relationTo: 'redirects';
@@ -1882,6 +1929,9 @@ export interface WasteContainersSelect<T extends boolean = true> {
   capacitySize?: T;
   binCount?: T;
   serviceInterval?: T;
+  collectionDaysOfWeek?: T;
+  collectionTimesPerDay?: T;
+  scheduleSource?: T;
   servicedBy?: T;
   wasteType?: T;
   status?: T;
@@ -1956,6 +2006,17 @@ export interface AssignmentsSelect<T extends boolean = true> {
   status?: T;
   dueDate?: T;
   completedAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "geocode-addresses_select".
+ */
+export interface GeocodeAddressesSelect<T extends boolean = true> {
+  address?: T;
+  districtHint?: T;
+  location?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -2441,6 +2502,25 @@ export interface TaskProcessWasteCollectionEvents {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TaskSyncWasteCollectionSchedules".
+ */
+export interface TaskSyncWasteCollectionSchedules {
+  input: {
+    year?: number | null;
+    month?: number | null;
+    district?: string | null;
+    size?: string | null;
+  };
+  output: {
+    districtsProcessed: number;
+    filesDownloaded: number;
+    streetsMatched: number;
+    containersUpdated: number;
+    streetsUnmatched: number;
+  };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "TaskCreateCollectionExport".
  */
 export interface TaskCreateCollectionExport {
@@ -2462,6 +2542,7 @@ export interface TaskCreateCollectionExport {
       | 'waste-collection-zones'
       | 'signals'
       | 'assignments'
+      | 'geocode-addresses'
       | 'redirects'
       | 'forms'
       | 'form-submissions'

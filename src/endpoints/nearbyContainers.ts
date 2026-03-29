@@ -65,12 +65,19 @@ export const nearbyContainers: Endpoint = {
           wc.created_at,
           wc.updated_at,
           COALESCE(json_agg(wcs.value) FILTER (WHERE wcs.value IS NOT NULL), '[]'::json) as state,
+          COALESCE(
+            json_agg(wcdow.value ORDER BY wcdow."order") FILTER (WHERE wcdow.value IS NOT NULL),
+            '[]'::json
+          ) as collection_days_of_week,
+          wc.collection_times_per_day,
+          wc.schedule_source,
           ST_Distance(
             ST_MakePoint(${longitude}, ${latitude})::geography,
             wc.location
           ) as distance
         FROM waste_containers wc
         LEFT JOIN waste_containers_state wcs ON wcs.parent_id = wc.id
+        LEFT JOIN waste_containers_collection_days_of_week wcdow ON wcdow.parent_id = wc.id
         WHERE ST_DWithin(
           ST_MakePoint(${longitude}, ${latitude})::geography,
           wc.location,
@@ -105,6 +112,9 @@ export const nearbyContainers: Endpoint = {
         state: string[]
         notes: string
         last_cleaned: Date
+        collection_days_of_week: string[] | null
+        collection_times_per_day: number | null
+        schedule_source: string | null
         created_at: Date
         updated_at: Date
         distance: number
@@ -125,6 +135,9 @@ export const nearbyContainers: Endpoint = {
         state: Array.isArray(row.state) ? row.state : [],
         notes: row.notes,
         lastCleaned: row.last_cleaned,
+        collectionDaysOfWeek: row.collection_days_of_week ?? [],
+        collectionTimesPerDay: row.collection_times_per_day ?? 1,
+        scheduleSource: row.schedule_source ?? null,
         createdAt: row.created_at,
         updatedAt: row.updated_at,
         distance: Math.round(row.distance), // Distance in meters, rounded

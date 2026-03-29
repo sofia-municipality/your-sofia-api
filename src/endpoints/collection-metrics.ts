@@ -146,12 +146,45 @@ export const collectionMetrics: Endpoint = {
         containerCount: row.container_count,
       }))
 
+      // ── Schedule compliance ─────────────────────────────────────────────────
+      // Counts containers scheduled for today that are delayed (>24h) or missed (>36h).
+      // Uses Sofia local time (Europe/Sofia = UTC+2/+3) to avoid day boundary mismatch.
+      const complianceQuery = sql`
+        SELECT
+          COUNT(DISTINCT wc.id) FILTER (
+            WHERE wcdow.value::text = EXTRACT(ISODOW FROM NOW() AT TIME ZONE 'Europe/Sofia')::int::text
+          )::int AS scheduled_today,
+          COUNT(DISTINCT wc.id) FILTER (
+            WHERE wcdow.value::text = EXTRACT(ISODOW FROM NOW() AT TIME ZONE 'Europe/Sofia')::int::text
+            AND (wc.last_cleaned IS NULL OR wc.last_cleaned < NOW() - INTERVAL '24 hours')
+          )::int AS delayed,
+          COUNT(DISTINCT wc.id) FILTER (
+            WHERE wcdow.value::text = EXTRACT(ISODOW FROM NOW() AT TIME ZONE 'Europe/Sofia')::int::text
+            AND (wc.last_cleaned IS NULL OR wc.last_cleaned < NOW() - INTERVAL '36 hours')
+          )::int AS missed
+        FROM waste_containers wc
+        LEFT JOIN waste_containers_collection_days_of_week wcdow ON wcdow.parent_id = wc.id
+        WHERE wc.status = 'active'
+      `
+
+      const complianceResult = await payload.db.drizzle.execute(complianceQuery)
+      const complianceRow = (
+        complianceResult.rows as { scheduled_today: number; delayed: number; missed: number }[]
+      )[0] ?? { scheduled_today: 0, delayed: 0, missed: 0 }
+
+      const scheduleCompliance = {
+        scheduledToday: complianceRow.scheduled_today,
+        delayed: complianceRow.delayed,
+        missed: complianceRow.missed,
+      }
+
       return Response.json({
         from: fromIso,
         to: toIso,
         byDistrict,
         byZone,
         byTimeSinceCollection,
+        scheduleCompliance,
       })
     } catch (error) {
       console.error('Error fetching collection metrics:', error)

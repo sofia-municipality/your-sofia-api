@@ -19,6 +19,7 @@
     "reinstall": "cross-env NODE_OPTIONS=--no-deprecation rm -rf node_modules && rm pnpm-lock.yaml && pnpm --ignore-workspace install",
     "seed:waste-containers": "cross-env NODE_OPTIONS=--no-deprecation payload run ./src/scripts/seedWasteContainers.ts",
     "migrate:run": "cross-env NODE_OPTIONS=--no-deprecation payload run ./src/scripts/run-migration.ts",
+    "sync:schedules": "cross-env NODE_OPTIONS=--no-deprecation tsx --env-file=.env src/scripts/runScheduleSync.ts",
     "start": "cross-env NODE_OPTIONS=--no-deprecation next start",
     "test": "jest",
     "test:watch": "jest --watch",
@@ -64,7 +65,8 @@
     "recharts": "^3.8.0",
     "sharp": "0.32.6",
     "tailwind-merge": "^2.6.0",
-    "tailwindcss-animate": "^1.0"
+    "tailwindcss-animate": "^1.0",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.3",

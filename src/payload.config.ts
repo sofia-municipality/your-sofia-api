@@ -22,6 +22,7 @@ import { WasteContainerObservations } from './collections/WasteContainerObservat
 import { WasteCollectionZones } from './collections/WasteCollectionZones'
 import { Signals } from './collections/Signals'
 import { Assignments } from './collections/Assignments'
+import { GeocodeAddresses } from './collections/GeocodeAddresses'
 import { Footer } from './Footer/config'
 import { Header } from './Header/config'
 import { plugins } from './plugins'
@@ -33,6 +34,7 @@ import { updatesById } from './endpoints/updatesById'
 import { updatesOpenApi } from './endpoints/updatesOpenApi'
 import { updatesSources } from './endpoints/updatesSources'
 import { processWasteCollectionEvents } from './tasks/WasteCollection/processWasteCollectionEvents'
+import { syncWasteCollectionSchedules } from './tasks/WasteCollection/syncWasteCollectionSchedules'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -113,6 +115,7 @@ export default buildConfig({
     WasteCollectionZones,
     Signals,
     Assignments,
+    GeocodeAddresses,
   ],
   cors: [getServerSideURL()].filter(Boolean),
   endpoints: [healthCheck, updates, updatesById, updatesSources, updatesOpenApi],
@@ -156,7 +159,7 @@ export default buildConfig({
         return authHeader === `Bearer ${process.env.CRON_SECRET}`
       },
     },
-    tasks: [processWasteCollectionEvents],
+    tasks: [processWasteCollectionEvents, syncWasteCollectionSchedules],
     autoRun: [
       {
         cron: '*/5 * * * *', // Check every 5 minutes

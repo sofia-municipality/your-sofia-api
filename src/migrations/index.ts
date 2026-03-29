@@ -29,6 +29,8 @@ import * as migration_20260308_135243_added_pending_container from './20260308_1
 import * as migration_20260311_070751_districs_and_zones from './20260311_070751_districs_and_zones';
 import * as migration_20260312_201438_add_unique_observation from './20260312_201438_add_unique_observation';
 import * as migration_20260313_000000_import_containers_10_districts from './20260313_000000_import_containers_10_districts';
+import * as migration_20260329_122904 from './20260329_122904';
+import * as migration_20260329_163904_geocode_address_cache from './20260329_163904_geocode_address_cache';
 
 export const migrations = [
   {
@@ -185,5 +187,15 @@ export const migrations = [
     up: migration_20260313_000000_import_containers_10_districts.up,
     down: migration_20260313_000000_import_containers_10_districts.down,
     name: '20260313_000000_import_containers_10_districts',
+  },
+  {
+    up: migration_20260329_122904.up,
+    down: migration_20260329_122904.down,
+    name: '20260329_122904',
+  },
+  {
+    up: migration_20260329_163904_geocode_address_cache.up,
+    down: migration_20260329_163904_geocode_address_cache.down,
+    name: '20260329_163904_geocode_address_cache'
   },
 ];
