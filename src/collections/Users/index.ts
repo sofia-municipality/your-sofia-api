@@ -73,6 +73,14 @@ export const Users: CollectionConfig = {
           label: 'Container Admin',
           value: 'containerAdmin',
         },
+        {
+          label: 'Inspector',
+          value: 'inspector',
+        },
+        {
+          label: 'Waste Collector',
+          value: 'wasteCollector',
+        },
       ],
       admin: {
         description: 'User role determines access permissions',
