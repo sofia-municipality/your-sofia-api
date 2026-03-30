@@ -1,5 +1,6 @@
 import type { CollectionConfig } from 'payload'
 import { cityInfrastructureAdmin } from '@/access/cityInfrastructureAdmin'
+import { isAdmin } from '@/access/isAdmin'
 
 export const WasteContainerObservations: CollectionConfig = {
   slug: 'waste-container-observations',
@@ -7,8 +8,8 @@ export const WasteContainerObservations: CollectionConfig = {
     admin: cityInfrastructureAdmin,
     create: ({ req: { user } }) => !!user,
     read: () => true,
-    update: ({ req: { user } }) => user?.role === 'admin',
-    delete: ({ req: { user } }) => user?.role === 'admin',
+    update: isAdmin,
+    delete: isAdmin,
   },
   admin: {
     group: 'City Infrastructure',

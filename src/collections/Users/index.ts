@@ -1,20 +1,15 @@
 import type { CollectionConfig } from 'payload'
 
 import { deleteAccount } from '../../endpoints/deleteAccount'
+import { isAdmin } from '@/access/isAdmin'
 
 export const Users: CollectionConfig = {
   slug: 'users',
   endpoints: [deleteAccount],
   access: {
-    admin: ({ req: { user } }) => {
-      // Only admin role can access the admin panel
-      return user?.role === 'admin'
-    },
+    admin: isAdmin,
     create: () => true,
-    delete: ({ req: { user } }) => {
-      // Only admins can delete users
-      return user?.role === 'admin'
-    },
+    delete: isAdmin,
     read: ({ req: { user } }) => {
       // Admins can read all users
       if (user?.role === 'admin') {
@@ -61,12 +56,9 @@ export const Users: CollectionConfig = {
       required: true,
       defaultValue: 'user',
       access: {
-        create: ({ req: { user } }) => {
-          return user?.role === 'admin'
-        },
-        update: ({ req: { user } }) => {
-          return user?.role === 'admin'
-        },
+        create: isAdmin,
+        update: isAdmin,
+        read: () => true, // Everyone can see the role field
       },
       options: [
         {

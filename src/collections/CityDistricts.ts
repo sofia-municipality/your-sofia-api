@@ -1,5 +1,6 @@
 import type { CollectionConfig } from 'payload'
 import { cityInfrastructureAdmin } from '@/access/cityInfrastructureAdmin'
+import { isAdmin } from '@/access/isAdmin'
 
 export const CityDistricts: CollectionConfig = {
   slug: 'city-districts',
@@ -16,9 +17,9 @@ export const CityDistricts: CollectionConfig = {
   access: {
     admin: cityInfrastructureAdmin,
     read: () => true,
-    create: ({ req: { user } }) => user?.role === 'admin',
-    update: ({ req: { user } }) => user?.role === 'admin',
-    delete: ({ req: { user } }) => user?.role === 'admin',
+    create: isAdmin,
+    update: isAdmin,
+    delete: isAdmin,
   },
   defaultSort: 'districtId',
   fields: [

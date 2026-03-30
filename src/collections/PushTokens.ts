@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload'
+import { isAdmin } from '@/access/isAdmin'
 
 export const PushTokens: CollectionConfig = {
   slug: 'push-tokens',
@@ -9,7 +10,7 @@ export const PushTokens: CollectionConfig = {
   },
   access: {
     // Only admin role can access the admin panel
-    admin: ({ req: { user } }) => user?.role === 'admin',
+    admin: isAdmin,
     // Anyone can create (register device)
     create: () => true,
     // Only admins can read/update/delete

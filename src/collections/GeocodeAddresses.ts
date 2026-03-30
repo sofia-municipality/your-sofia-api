@@ -1,6 +1,7 @@
 import type { CollectionConfig } from 'payload'
 import { locationMapField } from '@/fields/locationMap'
 import { cityInfrastructureAdmin } from '@/access/cityInfrastructureAdmin'
+import { isAdmin } from '@/access/isAdmin'
 
 export const GeocodeAddresses: CollectionConfig = {
   slug: 'geocode-addresses',
@@ -15,10 +16,10 @@ export const GeocodeAddresses: CollectionConfig = {
   timestamps: true,
   access: {
     admin: cityInfrastructureAdmin,
-    read: ({ req: { user } }) => user?.role === 'admin',
-    create: ({ req: { user } }) => user?.role === 'admin',
-    update: ({ req: { user } }) => user?.role === 'admin',
-    delete: ({ req: { user } }) => user?.role === 'admin',
+    read: isAdmin,
+    create: isAdmin,
+    update: isAdmin,
+    delete: isAdmin,
   },
   fields: [
     {

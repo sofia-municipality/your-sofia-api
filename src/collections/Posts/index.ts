@@ -26,11 +26,12 @@ import {
   PreviewField,
 } from '@payloadcms/plugin-seo/fields'
 import { slugField } from '@/fields/slug'
+import { isAdmin } from '@/access/isAdmin'
 
 export const Posts: CollectionConfig<'posts'> = {
   slug: 'posts',
   access: {
-    admin: ({ req: { user } }) => user?.role === 'admin',
+    admin: isAdmin,
     create: authenticated,
     delete: authenticated,
     read: authenticatedOrPublished,

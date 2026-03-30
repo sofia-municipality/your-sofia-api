@@ -3,11 +3,12 @@ import type { CollectionConfig } from 'payload'
 import { anyone } from '../access/anyone'
 import { authenticated } from '../access/authenticated'
 import { slugField } from '@/fields/slug'
+import { isAdmin } from '@/access/isAdmin'
 
 export const Categories: CollectionConfig = {
   slug: 'categories',
   access: {
-    admin: ({ req: { user } }) => user?.role === 'admin',
+    admin: isAdmin,
     create: authenticated,
     delete: authenticated,
     read: anyone,

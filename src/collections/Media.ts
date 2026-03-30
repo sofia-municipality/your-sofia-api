@@ -10,6 +10,7 @@ import { fileURLToPath } from 'url'
 
 import { anyone } from '../access/anyone'
 import { authenticated } from '../access/authenticated'
+import { isAdmin } from '@/access/isAdmin'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -17,16 +18,16 @@ const dirname = path.dirname(filename)
 export const Media: CollectionConfig = {
   slug: 'media',
   access: {
-    admin: ({ req: { user } }) => user?.role === 'admin',
+    admin: isAdmin,
     create: ({ req, data }) => {
       // Allow registered users to upload without reporterUniqueId
       if (authenticated({ req })) return true
       // Require reporterUniqueId for public uploads
       return !!data?.reporterUniqueId
     },
-    delete: ({ req: { user } }) => user?.role === 'admin',
+    delete: isAdmin,
     read: anyone,
-    update: ({ req: { user } }) => user?.role === 'admin',
+    update: isAdmin,
   },
   fields: [
     {

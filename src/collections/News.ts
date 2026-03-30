@@ -1,5 +1,6 @@
 import type { CollectionConfig } from 'payload'
 import { sendNewsNotification } from '../utilities/pushNotifications'
+import { isAdmin } from '@/access/isAdmin'
 
 export const News: CollectionConfig = {
   slug: 'news',
@@ -9,7 +10,7 @@ export const News: CollectionConfig = {
   },
   access: {
     // Only admin role can access the admin panel
-    admin: ({ req: { user } }) => user?.role === 'admin',
+    admin: isAdmin,
     // Anyone can read published news
     read: ({ req: { user } }) => {
       if (user) return true // Admins can see all

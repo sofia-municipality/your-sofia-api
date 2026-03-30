@@ -20,11 +20,12 @@ import {
   OverviewField,
   PreviewField,
 } from '@payloadcms/plugin-seo/fields'
+import { isAdmin } from '@/access/isAdmin'
 
 export const Pages: CollectionConfig<'pages'> = {
   slug: 'pages',
   access: {
-    admin: ({ req: { user } }) => user?.role === 'admin',
+    admin: isAdmin,
     create: authenticated,
     delete: authenticated,
     read: authenticatedOrPublished,
