@@ -1,11 +1,14 @@
+import Link from 'next/link'
 import React from 'react'
 
 const BeforeLogin: React.FC = () => {
   return (
     <div>
       <p>
-        <b>Welcome to your dashboard!</b>
-        {' This is where site admins will log in to manage your website.'}
+        Добре дошли в административния панел на <b>Твоята София</b>.
+      </p>
+      <p>
+        Нямате профил? <Link href="/admin/register">Регистрирайте се</Link>
       </p>
     </div>
   )

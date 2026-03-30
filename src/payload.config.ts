@@ -122,6 +122,14 @@ export default buildConfig({
   globals: [Header, Footer],
   i18n: {
     supportedLanguages: { en, bg },
+    fallbackLanguage: 'bg',
+    translations: {
+      bg: {
+        authentication: {
+          login: 'Влез',
+        },
+      },
+    },
   },
   localization: {
     locales: [
