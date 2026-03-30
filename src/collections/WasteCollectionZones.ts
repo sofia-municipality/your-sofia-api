@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload'
+import { cityInfrastructureAdmin } from '@/access/cityInfrastructureAdmin'
 
 export const WasteCollectionZones: CollectionConfig = {
   slug: 'waste-collection-zones',
@@ -13,6 +14,7 @@ export const WasteCollectionZones: CollectionConfig = {
     description: 'Maps collection zones to their administrative districts and service companies',
   },
   access: {
+    admin: cityInfrastructureAdmin,
     read: () => true,
     create: ({ req: { user } }) => user?.role === 'admin',
     update: ({ req: { user } }) => user?.role === 'admin',

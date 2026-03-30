@@ -462,7 +462,7 @@ export interface User {
   /**
    * User role determines access permissions
    */
-  role: 'user' | 'admin' | 'containerAdmin';
+  role: 'user' | 'admin' | 'containerAdmin' | 'inspector' | 'wasteCollector';
   updatedAt: string;
   createdAt: string;
   email: string;

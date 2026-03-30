@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload'
+import { cityInfrastructureAdmin } from '@/access/cityInfrastructureAdmin'
 
 export const CityDistricts: CollectionConfig = {
   slug: 'city-districts',
@@ -13,6 +14,7 @@ export const CityDistricts: CollectionConfig = {
     description: 'Sofia administrative districts (1–24)',
   },
   access: {
+    admin: cityInfrastructureAdmin,
     read: () => true,
     create: ({ req: { user } }) => user?.role === 'admin',
     update: ({ req: { user } }) => user?.role === 'admin',

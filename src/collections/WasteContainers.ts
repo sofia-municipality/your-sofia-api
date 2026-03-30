@@ -4,6 +4,7 @@ import { nearbyContainers } from '../endpoints/nearbyContainers'
 import { containersWithSignalCount } from '@/endpoints/containers-with-signals'
 import { collectionMetrics } from '@/endpoints/collection-metrics'
 import { locationMapField } from '@/fields/locationMap'
+import { cityInfrastructureAdmin } from '@/access/cityInfrastructureAdmin'
 
 const canEditContainers: Access = ({ req: { user } }) => {
   return user?.role === 'containerAdmin' || user?.role === 'admin'
@@ -24,7 +25,7 @@ export const WasteContainers: CollectionConfig = {
   },
   endpoints: [cleanContainer, nearbyContainers, containersWithSignalCount, collectionMetrics],
   access: {
-    admin: ({ req: { user } }) => user?.role === 'admin',
+    admin: cityInfrastructureAdmin,
     read: () => true,
     create: canEditContainers,
     update: canEditContainers,

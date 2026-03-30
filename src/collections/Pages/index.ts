@@ -24,6 +24,7 @@ import {
 export const Pages: CollectionConfig<'pages'> = {
   slug: 'pages',
   access: {
+    admin: ({ req: { user } }) => user?.role === 'admin',
     create: authenticated,
     delete: authenticated,
     read: authenticatedOrPublished,
