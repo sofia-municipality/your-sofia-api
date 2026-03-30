@@ -1,6 +1,6 @@
 import type { CollectionConfig } from 'payload'
 import { locationMapField } from '@/fields/locationMap'
-import { cityInfrastructureAdmin } from '@/access/cityInfrastructureAdmin'
+import { canViewCityInfrastructure } from '@/access/cityInfrastructureAdmin'
 import { isAdmin } from '@/access/isAdmin'
 
 export const GeocodeAddresses: CollectionConfig = {
@@ -15,8 +15,8 @@ export const GeocodeAddresses: CollectionConfig = {
   },
   timestamps: true,
   access: {
-    admin: cityInfrastructureAdmin,
-    read: isAdmin,
+    admin: canViewCityInfrastructure,
+    read: canViewCityInfrastructure,
     create: isAdmin,
     update: isAdmin,
     delete: isAdmin,

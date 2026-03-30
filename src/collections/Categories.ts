@@ -4,6 +4,7 @@ import { anyone } from '../access/anyone'
 import { authenticated } from '../access/authenticated'
 import { slugField } from '@/fields/slug'
 import { isAdmin } from '@/access/isAdmin'
+import { adminOnly } from '@/access/adminOnly'
 
 export const Categories: CollectionConfig = {
   slug: 'categories',
@@ -16,6 +17,7 @@ export const Categories: CollectionConfig = {
   },
   admin: {
     useAsTitle: 'title',
+    hidden: adminOnly,
   },
   fields: [
     {

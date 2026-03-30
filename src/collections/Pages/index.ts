@@ -12,6 +12,7 @@ import { slugField } from '@/fields/slug'
 import { populatePublishedAt } from '../../hooks/populatePublishedAt'
 import { generatePreviewPath } from '../../utilities/generatePreviewPath'
 import { revalidateDelete, revalidatePage } from './hooks/revalidatePage'
+import { adminOnly } from '@/access/adminOnly'
 
 import {
   MetaDescriptionField,
@@ -40,6 +41,7 @@ export const Pages: CollectionConfig<'pages'> = {
   },
   admin: {
     defaultColumns: ['title', 'slug', 'updatedAt'],
+    hidden: adminOnly,
     livePreview: {
       url: ({ data, req }) => {
         const path = generatePreviewPath({

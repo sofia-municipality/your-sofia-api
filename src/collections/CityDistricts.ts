@@ -1,5 +1,5 @@
 import type { CollectionConfig } from 'payload'
-import { cityInfrastructureAdmin } from '@/access/cityInfrastructureAdmin'
+import { canViewCityInfrastructure } from '@/access/cityInfrastructureAdmin'
 import { isAdmin } from '@/access/isAdmin'
 
 export const CityDistricts: CollectionConfig = {
@@ -15,7 +15,7 @@ export const CityDistricts: CollectionConfig = {
     description: 'Sofia administrative districts (1–24)',
   },
   access: {
-    admin: cityInfrastructureAdmin,
+    admin: canViewCityInfrastructure,
     read: () => true,
     create: isAdmin,
     update: isAdmin,

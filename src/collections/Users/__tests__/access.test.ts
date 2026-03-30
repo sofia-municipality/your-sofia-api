@@ -24,25 +24,25 @@ describe('Users collection access', () => {
     })
   })
 
-  describe('access.admin', () => {
+  describe('access.admin (panel entry gate)', () => {
     it('returns true for admin', () => {
       expect(Users.access!.admin!(makeReq('admin'))).toBe(true)
     })
 
-    it('returns false for user', () => {
+    it('returns true for containerAdmin', () => {
+      expect(Users.access!.admin!(makeReq('containerAdmin'))).toBe(true)
+    })
+
+    it('returns true for inspector', () => {
+      expect(Users.access!.admin!(makeReq('inspector'))).toBe(true)
+    })
+
+    it('returns true for wasteCollector', () => {
+      expect(Users.access!.admin!(makeReq('wasteCollector'))).toBe(true)
+    })
+
+    it('returns false for plain user role', () => {
       expect(Users.access!.admin!(makeReq('user'))).toBe(false)
-    })
-
-    it('returns false for containerAdmin', () => {
-      expect(Users.access!.admin!(makeReq('containerAdmin'))).toBe(false)
-    })
-
-    it('returns false for inspector', () => {
-      expect(Users.access!.admin!(makeReq('inspector'))).toBe(false)
-    })
-
-    it('returns false for wasteCollector', () => {
-      expect(Users.access!.admin!(makeReq('wasteCollector'))).toBe(false)
     })
 
     it('returns false for unauthenticated', () => {

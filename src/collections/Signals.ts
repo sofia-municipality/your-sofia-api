@@ -2,7 +2,7 @@ import type { CollectionConfig, Access, PayloadRequest } from 'payload'
 import type { WasteContainer } from '@/payload-types'
 import { APIError } from 'payload'
 import { randomUUID } from 'crypto'
-import { cityInfrastructureAdmin } from '@/access/cityInfrastructureAdmin'
+import { canViewCityInfrastructure } from '@/access/cityInfrastructureAdmin'
 
 /**
  * Calculate distance between two coordinates using Haversine formula
@@ -308,7 +308,7 @@ export const Signals: CollectionConfig = {
     ],
   },
   access: {
-    admin: cityInfrastructureAdmin,
+    admin: canViewCityInfrastructure,
     read: () => true,
     create: () => true,
     update: canUpdate,

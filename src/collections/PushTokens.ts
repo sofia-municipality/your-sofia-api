@@ -1,12 +1,15 @@
 import type { CollectionConfig } from 'payload'
 import { isAdmin } from '@/access/isAdmin'
+import { adminOnly } from '@/access/adminOnly'
 
 export const PushTokens: CollectionConfig = {
   slug: 'push-tokens',
   admin: {
     useAsTitle: 'token',
+    group: 'City Infrastructure',
     defaultColumns: ['token', 'device', 'createdAt'],
     description: 'Expo push notification tokens from mobile devices',
+    hidden: adminOnly,
   },
   access: {
     // Only admin role can access the admin panel

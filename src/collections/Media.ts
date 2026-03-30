@@ -17,6 +17,9 @@ const dirname = path.dirname(filename)
 
 export const Media: CollectionConfig = {
   slug: 'media',
+  admin: {
+    hidden: ({ user }: { user: unknown }) => (user as { role?: string } | null)?.role !== 'admin',
+  },
   access: {
     admin: isAdmin,
     create: ({ req, data }) => {

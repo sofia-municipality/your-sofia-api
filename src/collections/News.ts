@@ -1,12 +1,14 @@
 import type { CollectionConfig } from 'payload'
 import { sendNewsNotification } from '../utilities/pushNotifications'
 import { isAdmin } from '@/access/isAdmin'
+import { adminOnly } from '@/access/adminOnly'
 
 export const News: CollectionConfig = {
   slug: 'news',
   admin: {
     useAsTitle: 'title',
     defaultColumns: ['title', 'topic', 'publishedAt', 'status'],
+    hidden: adminOnly,
   },
   access: {
     // Only admin role can access the admin panel

@@ -2,12 +2,13 @@ import type { CollectionConfig } from 'payload'
 
 import { deleteAccount } from '../../endpoints/deleteAccount'
 import { isAdmin } from '@/access/isAdmin'
+import { hasAdminPanelAccess } from '@/access/hasAdminPanelAccess'
 
 export const Users: CollectionConfig = {
   slug: 'users',
   endpoints: [deleteAccount],
   access: {
-    admin: isAdmin,
+    admin: hasAdminPanelAccess,
     create: () => true,
     delete: isAdmin,
     read: ({ req: { user } }) => {
@@ -38,6 +39,7 @@ export const Users: CollectionConfig = {
   admin: {
     defaultColumns: ['name', 'email'],
     useAsTitle: 'name',
+    hidden: ({ user }: { user: unknown }) => (user as { role?: string } | null)?.role !== 'admin',
   },
   auth: {
     //verify: process.env.NODE_ENV === 'production',

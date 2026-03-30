@@ -1,8 +1,15 @@
 import type { CollectionConfig, Access } from 'payload'
-import { cityInfrastructureAdmin } from '@/access/cityInfrastructureAdmin'
+import {
+  canViewCityInfrastructure,
+  cityInfrastructureAdmin,
+} from '@/access/cityInfrastructureAdmin'
 
 const canEditAssignments: Access = ({ req: { user } }) => {
   return user?.role === 'containerAdmin' || user?.role === 'admin'
+}
+
+const canReadAssignments: Access = ({ req: { user } }) => {
+  return canEditAssignments({ req: { user } } as any) || user?.role === 'wasteCollector'
 }
 
 export const Assignments: CollectionConfig = {
@@ -13,10 +20,8 @@ export const Assignments: CollectionConfig = {
     group: 'City Infrastructure',
   },
   access: {
-    // inspector, wasteCollector, containerAdmin, and admin can access this in the admin panel
-    admin: cityInfrastructureAdmin,
-    // Only containerAdmin and admin can read/create/update/delete
-    read: canEditAssignments,
+    admin: canViewCityInfrastructure,
+    read: canReadAssignments,
     create: canEditAssignments,
     update: canEditAssignments,
     delete: canEditAssignments,

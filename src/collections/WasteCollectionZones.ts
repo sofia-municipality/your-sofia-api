@@ -1,6 +1,8 @@
-import type { CollectionConfig } from 'payload'
-import { cityInfrastructureAdmin } from '@/access/cityInfrastructureAdmin'
-import { isAdmin } from '@/access/isAdmin'
+import type { Access, CollectionConfig } from 'payload'
+import { canViewCityInfrastructure } from '@/access/cityInfrastructureAdmin'
+
+const canEditZones: Access = ({ req: { user } }) =>
+  user?.role === 'admin' || user?.role === 'containerAdmin'
 
 export const WasteCollectionZones: CollectionConfig = {
   slug: 'waste-collection-zones',
@@ -15,11 +17,11 @@ export const WasteCollectionZones: CollectionConfig = {
     description: 'Maps collection zones to their administrative districts and service companies',
   },
   access: {
-    admin: cityInfrastructureAdmin,
+    admin: canViewCityInfrastructure,
     read: () => true,
-    create: isAdmin,
-    update: isAdmin,
-    delete: isAdmin,
+    create: canEditZones,
+    update: canEditZones,
+    delete: canEditZones,
   },
   defaultSort: 'number',
   fields: [

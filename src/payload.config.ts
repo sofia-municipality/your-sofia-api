@@ -35,6 +35,7 @@ import { updatesOpenApi } from './endpoints/updatesOpenApi'
 import { updatesSources } from './endpoints/updatesSources'
 import { processWasteCollectionEvents } from './tasks/WasteCollection/processWasteCollectionEvents'
 import { syncWasteCollectionSchedules } from './tasks/WasteCollection/syncWasteCollectionSchedules'
+import { adminOnly } from '@/access/adminOnly'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -180,7 +181,7 @@ export default buildConfig({
         defaultJobsCollection.admin = {}
       }
 
-      defaultJobsCollection.admin.hidden = false
+      defaultJobsCollection.admin.hidden = adminOnly
       return defaultJobsCollection
     },
   },
