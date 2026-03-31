@@ -1,13 +1,10 @@
-import type { CollectionConfig, Access, PayloadRequest } from 'payload'
+import type { CollectionConfig, Access } from 'payload'
 import type { WasteContainer } from '@/payload-types'
 import { APIError } from 'payload'
 import { randomUUID } from 'crypto'
 import { canViewCityInfrastructure } from '@/access/cityInfrastructureAdmin'
+import { isAdmin } from '@/access/isAdmin'
 
-/**
- * Calculate distance between two coordinates using Haversine formula
- * Returns distance in meters
- */
 function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
   const R = 6371e3 // Earth's radius in meters
   const φ1 = (lat1 * Math.PI) / 180
@@ -24,8 +21,7 @@ function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: numbe
 }
 
 const canUpdate: Access = async ({ req, data, id }) => {
-  // Admins can always update
-  if (req.user) return true
+  if (canViewCityInfrastructure({ req })) return true
 
   // For non-admin updates, verify reporterUniqueId
   if (data && data.reporterUniqueId && id) {
@@ -312,7 +308,7 @@ export const Signals: CollectionConfig = {
     read: () => true,
     create: () => true,
     update: canUpdate,
-    delete: ({ req: { user } }) => Boolean(user),
+    delete: isAdmin,
   },
   fields: [
     {
