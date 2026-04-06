@@ -81,6 +81,7 @@ export interface Config {
     signals: Signal;
     assignments: Assignment;
     'geocode-addresses': GeocodeAddress;
+    subscriptions: Subscription;
     redirects: Redirect;
     forms: Form;
     'form-submissions': FormSubmission;
@@ -109,6 +110,7 @@ export interface Config {
     signals: SignalsSelect<false> | SignalsSelect<true>;
     assignments: AssignmentsSelect<false> | AssignmentsSelect<true>;
     'geocode-addresses': GeocodeAddressesSelect<false> | GeocodeAddressesSelect<true>;
+    subscriptions: SubscriptionsSelect<false> | SubscriptionsSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
     'form-submissions': FormSubmissionsSelect<false> | FormSubmissionsSelect<true>;
@@ -204,6 +206,14 @@ export interface News {
   };
   status: 'draft' | 'published';
   publishedAt?: string | null;
+  /**
+   * Categories for targeted push notifications. Leave empty to broadcast to all subscribers.
+   */
+  categories?: (number | Category)[] | null;
+  /**
+   * Administrative district this news item applies to. Used to filter location-based subscriptions.
+   */
+  district?: (number | null) | CityDistrict;
   /**
    * Send push notification when published
    */
@@ -306,6 +316,77 @@ export interface Media {
       filename?: string | null;
     };
   };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "categories".
+ */
+export interface Category {
+  id: number;
+  title: string;
+  slug?: string | null;
+  slugLock?: boolean | null;
+  parent?: (number | null) | Category;
+  breadcrumbs?:
+    | {
+        doc?: (number | null) | Category;
+        url?: string | null;
+        label?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Административни райони на София (1–24)
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "city-districts".
+ */
+export interface CityDistrict {
+  id: number;
+  /**
+   * Цифров идентификатор на района (1–24)
+   */
+  districtId: number;
+  /**
+   * Наименование на административния район на София
+   */
+  name: string;
+  /**
+   * Тризначен код: R + първите две букви, или R + инициали за многоименни райони (напр. RKP за Красна поляна)
+   */
+  code: string;
+  /**
+   * Зоната за събиране на отпадъци, към която принадлежи районът
+   */
+  wasteCollectionZone?: (number | null) | WasteCollectionZone;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Карта на зоните за събиране към административните райони и обслужващите фирми
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "waste-collection-zones".
+ */
+export interface WasteCollectionZone {
+  id: number;
+  /**
+   * Номер на зоната 1–10
+   */
+  number: number;
+  /**
+   * Показвано наименование (напр. "Зона 1")
+   */
+  name: string;
+  /**
+   * Цифров идентификатор на фирмата, отговорна за тази зона
+   */
+  serviceCompanyId?: number | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -430,27 +511,6 @@ export interface Post {
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "categories".
- */
-export interface Category {
-  id: number;
-  title: string;
-  slug?: string | null;
-  slugLock?: boolean | null;
-  parent?: (number | null) | Category;
-  breadcrumbs?:
-    | {
-        doc?: (number | null) | Category;
-        url?: string | null;
-        label?: string | null;
-        id?: string | null;
-      }[]
-    | null;
-  updatedAt: string;
-  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -835,59 +895,13 @@ export interface PushToken {
    */
   active?: boolean | null;
   /**
+   * Linked user account (optional — anonymous tokens have no user)
+   */
+  user?: (number | null) | User;
+  /**
    * Last time this token was verified
    */
   lastUsed?: string | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * Административни райони на София (1–24)
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "city-districts".
- */
-export interface CityDistrict {
-  id: number;
-  /**
-   * Цифров идентификатор на района (1–24)
-   */
-  districtId: number;
-  /**
-   * Наименование на административния район на София
-   */
-  name: string;
-  /**
-   * Тризначен код: R + първите две букви, или R + инициали за многоименни райони (напр. RKP за Красна поляна)
-   */
-  code: string;
-  /**
-   * Зоната за събиране на отпадъци, към която принадлежи районът
-   */
-  wasteCollectionZone?: (number | null) | WasteCollectionZone;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * Карта на зоните за събиране към административните райони и обслужващите фирми
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "waste-collection-zones".
- */
-export interface WasteCollectionZone {
-  id: number;
-  /**
-   * Номер на зоната 1–10
-   */
-  number: number;
-  /**
-   * Показвано наименование (напр. "Зона 1")
-   */
-  name: string;
-  /**
-   * Цифров идентификатор на фирмата, отговорна за тази зона
-   */
-  serviceCompanyId?: number | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -1160,6 +1174,69 @@ export interface GeocodeAddress {
    * @maxItems 2
    */
   location?: [number, number] | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Push notification subscriptions per device — categories + location filters
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "subscriptions".
+ */
+export interface Subscription {
+  id: number;
+  /**
+   * The Expo push token that owns this subscription
+   */
+  pushToken: number | PushToken;
+  /**
+   * Linked user account. Populated on login so preferences can sync across devices.
+   */
+  user?: (number | null) | User;
+  /**
+   * Categories the subscriber wants to receive notifications for.
+   */
+  categories?: (number | Category)[] | null;
+  /**
+   * Location constraints. Notification is delivered when ANY filter matches the news item location.
+   */
+  locationFilters?:
+    | {
+        /**
+         * Type of location filter
+         */
+        filterType: 'all' | 'district' | 'point' | 'area';
+        /**
+         * Administrative district (shown when filterType = district)
+         */
+        district?: (number | null) | CityDistrict;
+        /**
+         * Center latitude (shown when filterType = point)
+         */
+        latitude?: number | null;
+        /**
+         * Center longitude (shown when filterType = point)
+         */
+        longitude?: number | null;
+        /**
+         * Radius in metres (shown when filterType = point)
+         */
+        radius?: number | null;
+        /**
+         * GeoJSON Polygon geometry: { type: "Polygon", coordinates: [[[lng,lat],...]] }
+         */
+        polygon?:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+        id?: string | null;
+      }[]
+    | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -1508,6 +1585,10 @@ export interface PayloadLockedDocument {
         value: number | GeocodeAddress;
       } | null)
     | ({
+        relationTo: 'subscriptions';
+        value: number | Subscription;
+      } | null)
+    | ({
         relationTo: 'redirects';
         value: number | Redirect;
       } | null)
@@ -1583,6 +1664,8 @@ export interface NewsSelect<T extends boolean = true> {
       };
   status?: T;
   publishedAt?: T;
+  categories?: T;
+  district?: T;
   pushNotification?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -1899,6 +1982,7 @@ export interface PushTokensSelect<T extends boolean = true> {
   token?: T;
   device?: T;
   active?: T;
+  user?: T;
   lastUsed?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -2019,6 +2103,28 @@ export interface GeocodeAddressesSelect<T extends boolean = true> {
   address?: T;
   districtHint?: T;
   location?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "subscriptions_select".
+ */
+export interface SubscriptionsSelect<T extends boolean = true> {
+  pushToken?: T;
+  user?: T;
+  categories?: T;
+  locationFilters?:
+    | T
+    | {
+        filterType?: T;
+        district?: T;
+        latitude?: T;
+        longitude?: T;
+        radius?: T;
+        polygon?: T;
+        id?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
 }
@@ -2545,6 +2651,7 @@ export interface TaskCreateCollectionExport {
       | 'signals'
       | 'assignments'
       | 'geocode-addresses'
+      | 'subscriptions'
       | 'redirects'
       | 'forms'
       | 'form-submissions'

@@ -1,5 +1,6 @@
 import { Expo, ExpoPushMessage, ExpoPushTicket } from 'expo-server-sdk'
 import type { Payload } from 'payload'
+import { matchSubscriptions } from './matchSubscriptions'
 
 // Create a new Expo SDK client
 const expo = new Expo()
@@ -92,20 +93,86 @@ export async function sendPushNotifications(
 }
 
 /**
- * Send a push notification for a specific news item
+ * Send a push notification for a specific news item.
+ *
+ * If the news item has one or more categories, only matching subscribers
+ * receive the notification.  If no categories are set, the notification is
+ * broadcast to all active tokens (legacy behaviour).
  */
 export async function sendNewsNotification(
   payload: Payload,
-  newsId: string | number,
-  title: string,
-  description: string
+  newsDoc: {
+    id: string | number
+    title: string
+    description: string
+    categories?: unknown[] | null
+    district?: unknown
+    location?: { latitude?: number | null; longitude?: number | null } | null
+  }
 ): Promise<void> {
-  await sendPushNotifications(payload, {
-    title,
-    body: description,
+  const notification = {
+    title: newsDoc.title,
+    body: newsDoc.description,
     data: {
       type: 'news',
-      newsId: String(newsId),
+      newsId: String(newsDoc.id),
     },
-  })
+  }
+
+  const hasCategories = Array.isArray(newsDoc.categories) && newsDoc.categories.length > 0
+
+  if (!hasCategories) {
+    // Broadcast to all active tokens (legacy behaviour)
+    await sendPushNotifications(payload, notification)
+    return
+  }
+
+  // Targeted send: resolve matching push token strings
+  const tokenStrings = await matchSubscriptions(payload, newsDoc as any)
+
+  if (tokenStrings.length === 0) {
+    payload.logger.info(`No matching subscriptions for news ${newsDoc.id}`)
+    return
+  }
+
+  payload.logger.info(
+    `Sending targeted notification to ${tokenStrings.length} subscribers for news ${newsDoc.id}`
+  )
+
+  await sendPushNotificationsToTokens(payload, tokenStrings, notification)
+}
+
+/**
+ * Send push notifications to a specific list of Expo push token strings.
+ */
+export async function sendPushNotificationsToTokens(
+  payload: Payload,
+  tokenStrings: string[],
+  notification: PushNotificationData
+): Promise<void> {
+  const messages: ExpoPushMessage[] = tokenStrings
+    .filter((t) => Expo.isExpoPushToken(t))
+    .map((token) => ({
+      to: token,
+      sound: 'default' as const,
+      title: notification.title,
+      body: notification.body,
+      data: notification.data ?? {},
+      priority: 'high' as const,
+    }))
+
+  if (messages.length === 0) {
+    payload.logger.info('No valid push tokens to send to')
+    return
+  }
+
+  const chunks = expo.chunkPushNotifications(messages)
+
+  for (const chunk of chunks) {
+    try {
+      await expo.sendPushNotificationsAsync(chunk)
+    } catch (error) {
+      payload.logger.error(`Error sending push notification chunk: ${error}`)
+    }
+  }
 }

@@ -59,6 +59,15 @@ export const PushTokens: CollectionConfig = {
       },
     },
     {
+      name: 'user',
+      type: 'relationship',
+      relationTo: 'users',
+      hasMany: false,
+      admin: {
+        description: 'Linked user account (optional — anonymous tokens have no user)',
+      },
+    },
+    {
       name: 'lastUsed',
       type: 'date',
       admin: {

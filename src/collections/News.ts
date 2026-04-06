@@ -130,6 +130,28 @@ export const News: CollectionConfig = {
       },
     },
     {
+      name: 'categories',
+      type: 'relationship',
+      relationTo: 'categories',
+      hasMany: true,
+      admin: {
+        position: 'sidebar',
+        description:
+          'Categories for targeted push notifications. Leave empty to broadcast to all subscribers.',
+      },
+    },
+    {
+      name: 'district',
+      type: 'relationship',
+      relationTo: 'city-districts',
+      hasMany: false,
+      admin: {
+        position: 'sidebar',
+        description:
+          'Administrative district this news item applies to. Used to filter location-based subscriptions.',
+      },
+    },
+    {
       name: 'pushNotification',
       type: 'checkbox',
       defaultValue: false,
@@ -147,7 +169,7 @@ export const News: CollectionConfig = {
           try {
             req.payload.logger.info(`Sending push notification for news: ${doc.title}`)
 
-            await sendNewsNotification(req.payload, doc.id, doc.title, doc.description)
+            await sendNewsNotification(req.payload, doc)
 
             req.payload.logger.info(`Push notification sent successfully for news: ${doc.title}`)
           } catch (error) {

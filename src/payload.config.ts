@@ -23,6 +23,7 @@ import { WasteCollectionZones } from './collections/WasteCollectionZones'
 import { Signals } from './collections/Signals'
 import { Assignments } from './collections/Assignments'
 import { GeocodeAddresses } from './collections/GeocodeAddresses'
+import { Subscriptions } from './collections/Subscriptions'
 import { Footer } from './Footer/config'
 import { Header } from './Header/config'
 import { plugins } from './plugins'
@@ -33,6 +34,7 @@ import { updates } from './endpoints/updates'
 import { updatesById } from './endpoints/updatesById'
 import { updatesOpenApi } from './endpoints/updatesOpenApi'
 import { updatesSources } from './endpoints/updatesSources'
+import { subscriptionMine } from './endpoints/subscriptionMine'
 import { processWasteCollectionEvents } from './tasks/WasteCollection/processWasteCollectionEvents'
 import { syncWasteCollectionSchedules } from './tasks/WasteCollection/syncWasteCollectionSchedules'
 import { adminOnly } from '@/access/adminOnly'
@@ -117,9 +119,10 @@ export default buildConfig({
     Signals,
     Assignments,
     GeocodeAddresses,
+    Subscriptions,
   ],
   cors: [getServerSideURL()].filter(Boolean),
-  endpoints: [healthCheck, updates, updatesById, updatesSources, updatesOpenApi],
+  endpoints: [healthCheck, updates, updatesById, updatesSources, updatesOpenApi, subscriptionMine],
   globals: [Header, Footer],
   i18n: {
     supportedLanguages: { en, bg },
