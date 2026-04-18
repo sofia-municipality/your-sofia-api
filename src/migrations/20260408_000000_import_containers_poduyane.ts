@@ -73,12 +73,22 @@ export async function up({ db, payload }: MigrateUpArgs): Promise<void> {
       )
     `)
 
-    const deleted = await payload.delete({
+    const {docs: toDelete} = await payload.find({
       collection: 'waste-containers',
-      where: { publicNumber: { like: `${prefix}-%` } },
+      where: {publicNumber: {like: `${prefix}-%`}},
+      limit: 10000,
+      pagination: false,
       overrideAccess: true,
     })
-    console.log(`Deleted ${deleted.docs.length} containers with prefix ${prefix}`)
+    let deletedCount = 0
+    for (let i = 0; i < toDelete.length; i += 10) {
+      const batch = toDelete.slice(i, i + 10)
+      for (const c of batch) {
+        await payload.delete({collection: 'waste-containers', id: c.id, overrideAccess: true})
+      }
+      deletedCount += batch.length
+    }
+    console.log(`Deleted ${deletedCount} containers with prefix ${prefix}`)
   }
 
   const poduyane = await payload.find({
