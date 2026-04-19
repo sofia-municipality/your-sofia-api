@@ -35,6 +35,7 @@ import * as migration_20260329_163904_geocode_address_cache from './20260329_163
 import * as migration_20260331_165728 from './20260331_165728';
 import * as migration_20260401_162923 from './20260401_162923';
 import * as migration_20260419_000000_fix_observation_fk_cascade from './20260419_000000_fix_observation_fk_cascade';
+import * as migration_20260419_000001_seed_categories from './20260419_000001_seed_categories';
 
 export const migrations = [
   {
@@ -221,5 +222,10 @@ export const migrations = [
     up: migration_20260408_000000_import_containers_poduyane.up,
     down: migration_20260408_000000_import_containers_poduyane.down,
     name: '20260408_000000_import_containers_poduyane',
+  },
+  {
+    up: migration_20260419_000001_seed_categories.up,
+    down: migration_20260419_000001_seed_categories.down,
+    name: '20260419_000001_seed_categories',
   },
 ];

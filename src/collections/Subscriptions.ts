@@ -1,4 +1,5 @@
 import type { CollectionConfig, Access } from 'payload'
+import { subscriptionMine, subscriptionMinePatch } from '../endpoints/subscriptionMine'
 
 /**
  * Admins can access all subscriptions.
@@ -134,4 +135,5 @@ export const Subscriptions: CollectionConfig = {
     },
   ],
   timestamps: true,
+  endpoints: [subscriptionMine, subscriptionMinePatch],
 }
