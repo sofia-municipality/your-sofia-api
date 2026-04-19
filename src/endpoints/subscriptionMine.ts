@@ -2,9 +2,9 @@
  * GET  /api/subscriptions/mine?token=<ExponentPushToken[...]>
  * PATCH /api/subscriptions/mine?token=<ExponentPushToken[...]>
  *
+ * Defined as collection-level endpoints on the Subscriptions collection so they
+ * take priority over Payload's auto-generated GET /api/subscriptions/:id route.
  * The push token string acts as the bearer credential for anonymous devices.
- * Authenticated users should continue to use the standard Payload REST API
- * (PATCH /api/subscriptions/:id with JWT) — that path is also preserved.
  */
 import type { Endpoint } from 'payload'
 
@@ -15,7 +15,7 @@ function resolveTokenFromRequest(req: Parameters<Endpoint['handler']>[0]): strin
 }
 
 export const subscriptionMine: Endpoint = {
-  path: '/subscriptions/mine',
+  path: '/mine',
   method: 'get',
   handler: async (req) => {
     const tokenString = resolveTokenFromRequest(req)
@@ -57,7 +57,7 @@ export const subscriptionMine: Endpoint = {
 }
 
 export const subscriptionMinePatch: Endpoint = {
-  path: '/subscriptions/mine',
+  path: '/mine',
   method: 'patch',
   handler: async (req) => {
     const tokenString = resolveTokenFromRequest(req)
@@ -86,19 +86,45 @@ export const subscriptionMinePatch: Endpoint = {
       limit: 1,
     } as any)
 
-    if (subResult.totalDocs === 0 || !subResult.docs[0]) {
-      return Response.json({ error: 'Subscription not found' }, { status: 404 })
+    // 3. Parse body
+    let body: Record<string, any> = {}
+    try {
+      body = await req.json()
+    } catch (e) {
+      return Response.json({ error: 'Invalid JSON body' }, { status: 400 })
     }
 
-    const subId = subResult.docs[0].id
+    // 4. Resolve category slugs → IDs (mobile sends slug strings; Payload needs numeric IDs)
+    if (Array.isArray(body.categories) && body.categories.length > 0) {
+      const allStrings = body.categories.every((c: unknown) => typeof c === 'string')
+      if (allStrings) {
+        const catResult = await req.payload.find({
+          collection: 'categories',
+          where: { slug: { in: body.categories } },
+          limit: body.categories.length,
+          pagination: false,
+        } as any)
+        body.categories = catResult.docs.map((doc: { id: number | string }) => doc.id)
+      }
+    }
 
-    // 3. Parse body and apply update via the local Payload API (bypasses REST access control)
-    const body = req.json ? await req.json() : {}
+    // 5. Upsert — create if no subscription exists yet, otherwise patch
+    // depth: 1 ensures categories are returned as populated objects (not raw IDs)
+    // so the mobile client can read .slug without an extra fetch.
+    if (subResult.totalDocs === 0 || !subResult.docs[0]) {
+      const created = await req.payload.create({
+        collection: 'subscriptions',
+        data: { ...body, pushToken: pushTokenDoc.id },
+        depth: 1,
+      } as any)
+      return Response.json({ doc: created }, { status: 201 })
+    }
 
     const updated = await req.payload.update({
       collection: 'subscriptions',
-      id: subId,
+      id: subResult.docs[0].id,
       data: body,
+      depth: 1,
     } as any)
 
     return Response.json({ doc: updated }, { status: 200 })
