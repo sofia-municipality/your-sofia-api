@@ -1,4 +1,4 @@
-import { MigrateUpArgs, MigrateDownArgs, sql } from '@payloadcms/db-postgres'
+import { MigrateUpArgs, MigrateDownArgs } from '@payloadcms/db-postgres'
 import * as fs from 'fs'
 import * as path from 'path'
 import { fileURLToPath } from 'url'
@@ -61,18 +61,11 @@ function getCapacity(type: number): {
   }
 }
 
-export async function up({ db, payload }: MigrateUpArgs): Promise<void> {
+export async function up({ payload }: MigrateUpArgs): Promise<void> {
   console.log('Starting Poduyane (RPD) container import migration (20260408)...')
 
-  // Delete existing containers (and their observations) for ealry imported SOF and SPD prefixes
+  // Delete existing containers for early imported SOF and SPD prefixes
   for (const prefix of ['SOF', 'SPD']) {
-    await db.execute(sql`
-      DELETE FROM waste_container_observations
-      WHERE container_id IN (
-        SELECT id FROM waste_containers WHERE public_number LIKE ${prefix + '-%'}
-      )
-    `)
-
     const {docs: toDelete} = await payload.find({
       collection: 'waste-containers',
       where: {publicNumber: {like: `${prefix}-%`}},
@@ -144,15 +137,8 @@ export async function up({ db, payload }: MigrateUpArgs): Promise<void> {
   console.log(`Total Errors: ${errors}`)
 }
 
-export async function down({ db, payload }: MigrateDownArgs): Promise<void> {
+export async function down({ payload }: MigrateDownArgs): Promise<void> {
   console.log('Rolling back Poduyane (SPD) container import (20260408)...')
-
-  await db.execute(sql`
-    DELETE FROM waste_container_observations
-    WHERE container_id IN (
-      SELECT id FROM waste_containers WHERE public_number LIKE 'RPD-%'
-    )
-  `)
 
   const result = await payload.delete({
     collection: 'waste-containers',
