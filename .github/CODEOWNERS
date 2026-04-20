@@ -1,0 +1,22 @@
+# CODEOWNERS — all paths require review from at least one owner before merge.
+
+# Default: all files require code owner review
+* @sofia-municipality/your-sofia-maintainers
+
+# CI/CD workflows — any change requires maintainer sign-off
+.github/workflows/**           @sofia-municipality/your-sofia-maintainers
+.github/agents/**              @sofia-municipality/your-sofia-maintainers
+
+# Security-critical: access control + collection configs
+src/access/**                  @sofia-municipality/your-sofia-maintainers
+src/collections/**             @sofia-municipality/your-sofia-maintainers
+src/payload.config.ts          @sofia-municipality/your-sofia-maintainers
+
+# Infrastructure configs
+docker/**                      @sofia-municipality/your-sofia-maintainers
+nginx/**                       @sofia-municipality/your-sofia-maintainers
+k8s/**                         @sofia-municipality/your-sofia-maintainers
+
+# Dependency manifests
+package.json                   @sofia-municipality/your-sofia-maintainers
+pnpm-lock.yaml                 @sofia-municipality/your-sofia-maintainers
