@@ -72,6 +72,7 @@ export const subscriptionMinePatch: Endpoint = {
         collection: 'push-tokens',
         where: { token: { equals: tokenString } },
         limit: 1,
+        overrideAccess: true,
       } as any)
 
       if (tokenResult.totalDocs === 0 || !tokenResult.docs[0]) {
