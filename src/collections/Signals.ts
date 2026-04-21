@@ -4,6 +4,7 @@ import { APIError } from 'payload'
 import { randomUUID } from 'crypto'
 import { canViewCityInfrastructure } from '@/access/cityInfrastructureAdmin'
 import { isAdmin } from '@/access/isAdmin'
+import { sendPushNotificationsToTokens } from '@/utilities/pushNotifications'
 
 function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
   const R = 6371e3 // Earth's radius in meters
@@ -298,6 +299,54 @@ export const Signals: CollectionConfig = {
             }
           } catch (error) {
             req.payload.logger.error(`Failed to update container for signal ${doc.id}: ${error}`)
+          }
+        }
+
+        return doc
+      },
+      async ({ doc, req, previousDoc, operation }) => {
+        // Only notify when a signal transitions to a closed status
+        if (operation === 'create') return doc
+
+        const closedStatuses = ['resolved', 'rejected']
+        const statusChanged = previousDoc?.status !== doc.status
+        const isClosed = closedStatuses.includes(doc.status)
+
+        if (statusChanged && isClosed && doc.reporterUniqueId) {
+          const statusLabel = doc.status === 'resolved' ? 'разрешен' : 'отхвърлен'
+          try {
+            const tokenResult = await req.payload.find({
+              collection: 'push-tokens',
+              where: {
+                and: [
+                  { reporterUniqueId: { equals: doc.reporterUniqueId } },
+                  { active: { equals: true } },
+                ],
+              },
+              limit: 10,
+              overrideAccess: true,
+            })
+
+            const tokenStrings = tokenResult.docs.map((t) => t.token as string).filter(Boolean)
+
+            if (tokenStrings.length === 0) {
+              req.payload.logger.info(
+                `[Signals] No active push token for reporterUniqueId ${doc.reporterUniqueId} — skipping notification`
+              )
+            } else {
+              await sendPushNotificationsToTokens(req.payload, tokenStrings, {
+                title: 'Сигналът ви беше затворен',
+                body: `Вашият сигнал "${doc.title}" беше ${statusLabel}.`,
+                data: { type: 'signal-closed', signalId: String(doc.id), status: doc.status },
+              })
+              req.payload.logger.info(
+                `[Signals] Sent signal-closed notification for signal ${doc.id} to ${tokenStrings.length} token(s)`
+              )
+            }
+          } catch (err) {
+            req.payload.logger.error(
+              `[Signals] Failed to send signal-closed notification for signal ${doc.id}: ${err}`
+            )
           }
         }
 

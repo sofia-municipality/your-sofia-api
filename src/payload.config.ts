@@ -26,6 +26,7 @@ import { GeocodeAddresses } from './collections/GeocodeAddresses'
 import { Subscriptions } from './collections/Subscriptions'
 import { Footer } from './Footer/config'
 import { Header } from './Header/config'
+import { NotificationSettings } from './globals/NotificationSettings'
 import { plugins } from './plugins'
 import { defaultLexical } from '@/fields/defaultLexical'
 import { getServerSideURL } from './utilities/getURL'
@@ -36,6 +37,7 @@ import { updatesOpenApi } from './endpoints/updatesOpenApi'
 import { updatesSources } from './endpoints/updatesSources'
 import { processWasteCollectionEvents } from './tasks/WasteCollection/processWasteCollectionEvents'
 import { syncWasteCollectionSchedules } from './tasks/WasteCollection/syncWasteCollectionSchedules'
+import { sendUpdatesNotifications } from './tasks/Notifications/sendUpdatesNotifications'
 import { adminOnly } from '@/access/adminOnly'
 
 const filename = fileURLToPath(import.meta.url)
@@ -122,7 +124,7 @@ export default buildConfig({
   ],
   cors: [getServerSideURL()].filter(Boolean),
   endpoints: [healthCheck, updates, updatesById, updatesSources, updatesOpenApi],
-  globals: [Header, Footer],
+  globals: [Header, Footer, NotificationSettings],
   i18n: {
     supportedLanguages: { en, bg },
     fallbackLanguage: 'bg',
@@ -170,7 +172,7 @@ export default buildConfig({
         return authHeader === `Bearer ${process.env.CRON_SECRET}`
       },
     },
-    tasks: [processWasteCollectionEvents, syncWasteCollectionSchedules],
+    tasks: [processWasteCollectionEvents, syncWasteCollectionSchedules, sendUpdatesNotifications],
     autoRun: [
       {
         cron: '*/5 * * * *', // Check every 5 minutes

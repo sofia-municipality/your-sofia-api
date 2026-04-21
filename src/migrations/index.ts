@@ -29,13 +29,14 @@ import * as migration_20260308_135243_added_pending_container from './20260308_1
 import * as migration_20260311_070751_districs_and_zones from './20260311_070751_districs_and_zones';
 import * as migration_20260312_201438_add_unique_observation from './20260312_201438_add_unique_observation';
 import * as migration_20260313_000000_import_containers_10_districts from './20260313_000000_import_containers_10_districts';
-import * as migration_20260408_000000_import_containers_poduyane from './20260408_000000_import_containers_poduyane';
 import * as migration_20260329_122904 from './20260329_122904';
 import * as migration_20260329_163904_geocode_address_cache from './20260329_163904_geocode_address_cache';
 import * as migration_20260331_165728 from './20260331_165728';
 import * as migration_20260401_162923 from './20260401_162923';
+import * as migration_20260408_000000_import_containers_poduyane from './20260408_000000_import_containers_poduyane';
 import * as migration_20260419_000000_fix_observation_fk_cascade from './20260419_000000_fix_observation_fk_cascade';
 import * as migration_20260419_000001_seed_categories from './20260419_000001_seed_categories';
+import * as migration_20260420_171859_add_reporterUniqueId_to_push_tokens from './20260420_171859_add_reporterUniqueId_to_push_tokens';
 
 export const migrations = [
   {
@@ -214,18 +215,23 @@ export const migrations = [
     name: '20260401_162923',
   },
   {
-    up: migration_20260419_000000_fix_observation_fk_cascade.up,
-    down: migration_20260419_000000_fix_observation_fk_cascade.down,
-    name: '20260419_000000_fix_observation_fk_cascade',
-  },
-  {
     up: migration_20260408_000000_import_containers_poduyane.up,
     down: migration_20260408_000000_import_containers_poduyane.down,
     name: '20260408_000000_import_containers_poduyane',
   },
   {
+    up: migration_20260419_000000_fix_observation_fk_cascade.up,
+    down: migration_20260419_000000_fix_observation_fk_cascade.down,
+    name: '20260419_000000_fix_observation_fk_cascade',
+  },
+  {
     up: migration_20260419_000001_seed_categories.up,
     down: migration_20260419_000001_seed_categories.down,
     name: '20260419_000001_seed_categories',
+  },
+  {
+    up: migration_20260420_171859_add_reporterUniqueId_to_push_tokens.up,
+    down: migration_20260420_171859_add_reporterUniqueId_to_push_tokens.down,
+    name: '20260420_171859_add_reporterUniqueId_to_push_tokens'
   },
 ];
