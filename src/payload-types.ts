@@ -130,11 +130,13 @@ export interface Config {
   globals: {
     header: Header;
     footer: Footer;
+    'notification-settings': NotificationSetting;
     'payload-jobs-stats': PayloadJobsStat;
   };
   globalsSelect: {
     header: HeaderSelect<false> | HeaderSelect<true>;
     footer: FooterSelect<false> | FooterSelect<true>;
+    'notification-settings': NotificationSettingsSelect<false> | NotificationSettingsSelect<true>;
     'payload-jobs-stats': PayloadJobsStatsSelect<false> | PayloadJobsStatsSelect<true>;
   };
   locale: 'bg' | 'en';
@@ -146,6 +148,7 @@ export interface Config {
     tasks: {
       processWasteCollectionEvents: TaskProcessWasteCollectionEvents;
       syncWasteCollectionSchedules: TaskSyncWasteCollectionSchedules;
+      sendUpdatesNotifications: TaskSendUpdatesNotifications;
       createCollectionExport: TaskCreateCollectionExport;
       createCollectionImport: TaskCreateCollectionImport;
       schedulePublish: TaskSchedulePublish;
@@ -898,6 +901,10 @@ export interface PushToken {
    */
   user?: (number | null) | User;
   /**
+   * Anonymous device identifier — links push token to signal reports
+   */
+  reporterUniqueId?: string | null;
+  /**
    * Last time this token was verified
    */
   lastUsed?: string | null;
@@ -1460,6 +1467,7 @@ export interface PayloadJob {
           | 'inline'
           | 'processWasteCollectionEvents'
           | 'syncWasteCollectionSchedules'
+          | 'sendUpdatesNotifications'
           | 'createCollectionExport'
           | 'createCollectionImport'
           | 'schedulePublish';
@@ -1500,6 +1508,7 @@ export interface PayloadJob {
         | 'inline'
         | 'processWasteCollectionEvents'
         | 'syncWasteCollectionSchedules'
+        | 'sendUpdatesNotifications'
         | 'createCollectionExport'
         | 'createCollectionImport'
         | 'schedulePublish'
@@ -1982,6 +1991,7 @@ export interface PushTokensSelect<T extends boolean = true> {
   device?: T;
   active?: T;
   user?: T;
+  reporterUniqueId?: T;
   lastUsed?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -2508,6 +2518,21 @@ export interface Footer {
   createdAt?: string | null;
 }
 /**
+ * Internal settings for the push notification tasks
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "notification-settings".
+ */
+export interface NotificationSetting {
+  id: number;
+  /**
+   * Timestamp of the last time the updates notification task ran. Used to find new updates since the last run.
+   */
+  lastUpdatesNotifiedAt?: string | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-jobs-stats".
  */
@@ -2573,6 +2598,16 @@ export interface FooterSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "notification-settings_select".
+ */
+export interface NotificationSettingsSelect<T extends boolean = true> {
+  lastUpdatesNotifiedAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-jobs-stats_select".
  */
 export interface PayloadJobsStatsSelect<T extends boolean = true> {
@@ -2624,6 +2659,16 @@ export interface TaskSyncWasteCollectionSchedules {
     streetsMatched: number;
     containersUpdated: number;
     streetsUnmatched: number;
+  };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TaskSendUpdatesNotifications".
+ */
+export interface TaskSendUpdatesNotifications {
+  input?: unknown;
+  output: {
+    notified: number;
   };
 }
 /**

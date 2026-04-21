@@ -68,6 +68,15 @@ export const PushTokens: CollectionConfig = {
       },
     },
     {
+      name: 'reporterUniqueId',
+      type: 'text',
+      index: true,
+      admin: {
+        description: 'Anonymous device identifier — links push token to signal reports',
+        position: 'sidebar',
+      },
+    },
+    {
       name: 'lastUsed',
       type: 'date',
       admin: {
