@@ -10,7 +10,6 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
 export async function down({ db, payload, req }: MigrateDownArgs): Promise<void> {
   await db.execute(sql`
    DROP INDEX "push_tokens_reporter_unique_id_idx";
-  ALTER TABLE "signals" ADD COLUMN "notification_token" varchar;
   ALTER TABLE "push_tokens" DROP COLUMN "reporter_unique_id";`
   )
 }
