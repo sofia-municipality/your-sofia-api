@@ -116,7 +116,23 @@ export const subscriptionMinePatch: Endpoint = {
         }
       }
 
-      // 5. Upsert — create if no subscription exists yet, otherwise patch
+      // 5. Normalize locationFilters: relationship sub-fields (district) must be bare IDs,
+      //    not the populated objects the mobile sends (e.g. {id, name, districtId}).
+      if (Array.isArray(body.locationFilters)) {
+        body.locationFilters = body.locationFilters.map((filter: Record<string, any>) => {
+          if (
+            filter.filterType === 'district' &&
+            filter.district != null &&
+            typeof filter.district === 'object' &&
+            'id' in filter.district
+          ) {
+            return { ...filter, district: filter.district.id }
+          }
+          return filter
+        })
+      }
+
+      // 6. Upsert — create if no subscription exists yet, otherwise patch
       // depth: 1 ensures categories are returned as populated objects (not raw IDs)
       // so the mobile client can read .slug without an extra fetch.
       if (subResult.totalDocs === 0 || !subResult.docs[0]) {
