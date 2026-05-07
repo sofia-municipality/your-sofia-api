@@ -3,7 +3,9 @@ import { MigrateUpArgs, MigrateDownArgs, sql } from '@payloadcms/db-postgres'
 export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   await db.execute(sql`
    ALTER TABLE "users" ADD COLUMN "_verified" boolean;
-  ALTER TABLE "users" ADD COLUMN "_verificationtoken" varchar;`)
+  ALTER TABLE "users" ADD COLUMN "_verificationtoken" varchar;
+  UPDATE "users" SET "_verified" = true WHERE id = 1;`) // Mark the existing admin user as verified
+  
 }
 
 export async function down({ db, payload, req }: MigrateDownArgs): Promise<void> {
