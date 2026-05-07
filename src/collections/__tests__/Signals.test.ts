@@ -8,7 +8,7 @@ jest.mock('../../utilities/pushNotifications', () => ({
   sendPushNotificationsToTokens: jest.fn(),
 }))
 
-// payload uses ESM — mock it so Jest can import Signals.ts without transform errors
+// payload uses ESM — mock it so Jest can import Signals/index.ts without transform errors
 jest.mock('payload', () => ({
   APIError: class APIError extends Error {
     constructor(
@@ -21,7 +21,7 @@ jest.mock('payload', () => ({
   },
 }))
 
-import { Signals } from '../Signals'
+import { Signals } from '../Signals/index'
 import { sendPushNotificationsToTokens } from '../../utilities/pushNotifications'
 
 const mockSendPush = sendPushNotificationsToTokens as jest.MockedFunction<
