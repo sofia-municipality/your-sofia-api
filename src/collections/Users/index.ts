@@ -1,13 +1,27 @@
 import type { CollectionConfig } from 'payload'
 
+import { APIError } from 'payload'
 import { deleteAccount } from '../../endpoints/deleteAccount'
+import { resendVerificationEmail } from '../../endpoints/resendVerificationEmail'
 import { isAdmin } from '@/access/isAdmin'
 import { hasAdminPanelAccess } from '@/access/hasAdminPanelAccess'
 import { adminOnly } from '@/access/adminOnly'
 
 export const Users: CollectionConfig = {
   slug: 'users',
-  endpoints: [deleteAccount],
+  endpoints: [deleteAccount, resendVerificationEmail],
+  hooks: {
+    beforeLogin: [
+      ({ user }) => {
+        if (user._verified !== true) {
+          throw new APIError(
+            'Your email address has not been verified. Please check your inbox.',
+            403
+          )
+        }
+      },
+    ],
+  },
   access: {
     admin: hasAdminPanelAccess,
     create: () => true,
