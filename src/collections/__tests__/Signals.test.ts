@@ -46,124 +46,65 @@ const makePayload = (overrides?: Record<string, unknown>): any => ({
   ...overrides,
 })
 
-// Pull the afterRead hook directly from the collection config
-const afterReadHooks = Signals.hooks?.afterRead as Array<(...args: any[]) => any> | undefined
-if (!afterReadHooks?.[0]) throw new Error('Signals.hooks.afterRead[0] is not defined')
-const afterReadHook = afterReadHooks[0]
-
 // canUpdate is private; test it through Signals.access.update
 const canUpdate = Signals.access!.update as (...args: any[]) => Promise<boolean>
 
 // ---------------------------------------------------------------------------
-// afterRead hook — reporterUniqueId IDOR protection
+// canUpdate access — authenticated user ownership
 // ---------------------------------------------------------------------------
 
-describe('Signals afterRead hook — reporterUniqueId redaction', () => {
-  it('strips reporterUniqueId for unauthenticated requests', () => {
-    const doc: any = { id: '1', title: 'Test', reporterUniqueId: 'SECRET-UUID' }
-    const result = afterReadHook({ doc, req: { user: null } })
-    expect(result.reporterUniqueId).toBeUndefined()
+describe('Signals canUpdate access — authenticated user ownership', () => {
+  it('grants access to city infrastructure admins regardless of ownership', async () => {
+    const payload = makePayload({ findByID: jest.fn() })
+    const req = { user: { role: 'inspector' }, payload } as any
+    const result = await canUpdate({ req, id: '42' })
+    expect(result).toBe(true)
+    expect(payload.findByID).not.toHaveBeenCalled()
   })
 
-  it('strips reporterUniqueId for regular (non-admin) users', () => {
-    const doc: any = { id: '1', title: 'Test', reporterUniqueId: 'SECRET-UUID' }
-    const result = afterReadHook({ doc, req: { user: { role: 'user' } } })
-    expect(result.reporterUniqueId).toBeUndefined()
-  })
-
-  it('strips reporterUniqueId for inspector role', () => {
-    const doc: any = { id: '1', title: 'Test', reporterUniqueId: 'SECRET-UUID' }
-    const result = afterReadHook({ doc, req: { user: { role: 'inspector' } } })
-    expect(result.reporterUniqueId).toBeUndefined()
-  })
-
-  it('preserves reporterUniqueId for admin users', () => {
-    const doc: any = { id: '1', title: 'Test', reporterUniqueId: 'SECRET-UUID' }
-    const result = afterReadHook({ doc, req: { user: { role: 'admin' } } })
-    expect(result.reporterUniqueId).toBe('SECRET-UUID')
-  })
-
-  it('handles documents without reporterUniqueId gracefully', () => {
-    const doc: any = { id: '1', title: 'Test' }
-    const result = afterReadHook({ doc, req: { user: null } })
-    expect(result.reporterUniqueId).toBeUndefined()
-    expect(result.title).toBe('Test')
-  })
-
-  it('returns the mutated doc object', () => {
-    const doc: any = { id: '1', reporterUniqueId: 'X' }
-    const result = afterReadHook({ doc, req: { user: { role: 'user' } } })
-    expect(result).toBe(doc)
-  })
-})
-
-// ---------------------------------------------------------------------------
-// reporterUniqueId field definition
-// ---------------------------------------------------------------------------
-
-describe('Signals reporterUniqueId field definition', () => {
-  const field = (Signals.fields as any[]).find((f: any) => f.name === 'reporterUniqueId')
-
-  it('field exists in the collection', () => {
-    expect(field).toBeDefined()
-  })
-
-  it('is of type text', () => {
-    expect(field?.type).toBe('text')
-  })
-
-  it('is indexed (required for where-query performance)', () => {
-    expect(field?.index).toBe(true)
-  })
-
-  it('does NOT have a field-level read access restriction (queries must not be blocked)', () => {
-    // The read restriction was moved to the afterRead hook so that
-    // non-admins can still filter ?where[reporterUniqueId][equals]=... queries.
-    expect(field?.access?.read).toBeUndefined()
-  })
-})
-
-// ---------------------------------------------------------------------------
-// canUpdate access — reporterUniqueId ownership verification
-// ---------------------------------------------------------------------------
-
-describe('Signals canUpdate access — reporterUniqueId ownership', () => {
-  it('grants access when reporterUniqueId in request matches stored signal (overrideAccess used)', async () => {
-    const UNIQUE_ID = 'TEST-UUID-123'
-    const payload = makePayload({
-      findByID: jest.fn().mockResolvedValue({ id: '42', reporterUniqueId: UNIQUE_ID }),
-    })
+  it('denies access when user is unauthenticated', async () => {
+    const payload = makePayload({ findByID: jest.fn() })
     const req = { user: null, payload } as any
-    const result = await canUpdate({ req, data: { reporterUniqueId: UNIQUE_ID }, id: '42' })
+    const result = await canUpdate({ req, id: '42' })
+    expect(result).toBe(false)
+    expect(payload.findByID).not.toHaveBeenCalled()
+  })
+
+  it('denies access when id is missing', async () => {
+    const payload = makePayload({ findByID: jest.fn() })
+    const req = { user: { id: 1, role: 'user' }, payload } as any
+    const result = await canUpdate({ req, id: undefined })
+    expect(result).toBe(false)
+    expect(payload.findByID).not.toHaveBeenCalled()
+  })
+
+  it('grants access when authenticated user is the reporter', async () => {
+    const payload = makePayload({
+      findByID: jest.fn().mockResolvedValue({ id: '42', reporter: 7 }),
+    })
+    const req = { user: { id: 7, role: 'user' }, payload } as any
+    const result = await canUpdate({ req, id: '42' })
     expect(result).toBe(true)
     expect(payload.findByID).toHaveBeenCalledWith(
       expect.objectContaining({ overrideAccess: true, collection: 'signals', id: '42' })
     )
   })
 
-  it('denies access when reporterUniqueId does not match stored signal', async () => {
+  it('denies access when authenticated user is not the reporter', async () => {
     const payload = makePayload({
-      findByID: jest.fn().mockResolvedValue({ id: '42', reporterUniqueId: 'DIFFERENT-UUID' }),
+      findByID: jest.fn().mockResolvedValue({ id: '42', reporter: 99 }),
     })
-    const req = { user: null, payload } as any
-    const result = await canUpdate({ req, data: { reporterUniqueId: 'WRONG-UUID' }, id: '42' })
+    const req = { user: { id: 7, role: 'user' }, payload } as any
+    const result = await canUpdate({ req, id: '42' })
     expect(result).toBe(false)
-  })
-
-  it('denies access when no reporterUniqueId is provided in the update data', async () => {
-    const payload = makePayload({ findByID: jest.fn() })
-    const req = { user: null, payload } as any
-    const result = await canUpdate({ req, data: { title: 'changed' }, id: '42' })
-    expect(result).toBe(false)
-    expect(payload.findByID).not.toHaveBeenCalled()
   })
 
   it('denies access and logs error when findByID throws', async () => {
     const payload = makePayload({
       findByID: jest.fn().mockRejectedValue(new Error('DB error')),
     })
-    const req = { user: null, payload } as any
-    const result = await canUpdate({ req, data: { reporterUniqueId: 'X' }, id: '99' })
+    const req = { user: { id: 7, role: 'user' }, payload } as any
+    const result = await canUpdate({ req, id: '99' })
     expect(result).toBe(false)
     expect(payload.logger.error).toHaveBeenCalled()
   })
