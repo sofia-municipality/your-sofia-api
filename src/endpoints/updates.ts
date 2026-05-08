@@ -2,6 +2,19 @@ import type { Endpoint } from 'payload'
 import type { Category, Subscription } from '../payload-types'
 import { proxyUpdatesUpstreamGet } from './updatesProxyUtils'
 
+type RawMessage = {
+  id?: string
+  text?: string
+  categories?: string[]
+  pins?: Array<{ address?: string; timespans?: Array<{ start?: string | null }> }>
+}
+
+function hasNullTimespanStart(msg: RawMessage): boolean {
+  return (msg.pins ?? []).some((pin) =>
+    (pin.timespans ?? []).some((ts) => ts.start === null || ts.start === undefined)
+  )
+}
+
 // ─── Bounding-box helpers ──────────────────────────────────────────────────
 
 interface BBox {
@@ -191,19 +204,35 @@ export const updates: Endpoint = {
 
     // Post-filter by categories when requested — the upstream API returns all messages
     // regardless of the `categories` param; filtering must be applied here.
-    if (categoriesFilter && categoriesFilter.length > 0 && upstreamResponse.ok) {
+    // Also drop messages that have pins with a null timespan start.
+    if (upstreamResponse.ok) {
       try {
         const body = await upstreamResponse.json()
-        const messages: { categories?: string[] }[] = body.messages ?? []
-        const filtered = messages.filter(
-          (msg) =>
-            Array.isArray(msg.categories) &&
-            msg.categories.some((cat) => categoriesFilter.includes(cat.toLowerCase()))
-        )
-        return Response.json({ ...body, messages: filtered })
+        let messages: RawMessage[] = body.messages ?? []
+
+        // Drop messages with null pin timespan starts
+        messages = messages.filter((msg) => {
+          if (hasNullTimespanStart(msg)) {
+            req.payload?.logger?.warn(
+              { messageId: msg.id, text: msg.text?.slice(0, 120) },
+              '[updates] Dropping message — pin has null timespans.start'
+            )
+            return false
+          }
+          return true
+        })
+
+        if (categoriesFilter && categoriesFilter.length > 0) {
+          messages = messages.filter(
+            (msg) =>
+              Array.isArray(msg.categories) &&
+              msg.categories.some((cat) => categoriesFilter.includes(cat.toLowerCase()))
+          )
+        }
+
+        return Response.json({ ...body, messages })
       } catch (err) {
-        req.payload?.logger?.error({ err }, '[updates] Failed to post-filter by categories')
-        // Return original response untouched on parse error
+        req.payload?.logger?.error({ err }, '[updates] Failed to post-process upstream response')
         return upstreamResponse
       }
     }
