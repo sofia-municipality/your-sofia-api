@@ -65,7 +65,7 @@ const email = nodemailerAdapter(
             pass: process.env.SMTP_PASS,
           },
           tls: {
-            rejectUnauthorized: process.env.SMTP_FORBID_SELF_SIGNED,
+            rejectUnauthorized: process.env.SMTP_FORBID_SELF_SIGNED === 'true',
           },
         },
       }
