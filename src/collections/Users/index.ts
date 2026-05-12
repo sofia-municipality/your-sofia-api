@@ -6,6 +6,7 @@ import { resendVerificationEmail } from '../../endpoints/resendVerificationEmail
 import { isAdmin } from '@/access/isAdmin'
 import { hasAdminPanelAccess } from '@/access/hasAdminPanelAccess'
 import { adminOnly } from '@/access/adminOnly'
+import { getServerSideURL } from '@/utilities/getURL'
 
 export const Users: CollectionConfig = {
   slug: 'users',
@@ -57,8 +58,30 @@ export const Users: CollectionConfig = {
     hidden: adminOnly,
   },
   auth: {
-    verify: true,
-    tokenExpiration: 60 * 60 * 24, // 24h in secconds
+    verify: {
+      generateEmailHTML: ({ token }: { token: string }) => {
+        const verifyURL = `${getServerSideURL()}/verify-email?token=${token}`
+        return `
+          <p>Здравейте,</p>
+          <p>Моля, потвърдете имейл адреса си, за да активирате профила си в <strong>Твоята София</strong>.</p>
+          <p><a href="${verifyURL}" style="display:inline-block;padding:12px 24px;background:#2F54C5;color:#fff;border-radius:8px;text-decoration:none;font-weight:600;">Потвърди имейл</a></p>
+          <p>Ако бутонът не работи, копирайте и поставете следния адрес в браузъра си:</p>
+          <p><a href="${verifyURL}">${verifyURL}</a></p>
+          <p>Ако не сте се регистрирали, игнорирайте този имейл.</p>
+          <p>Поздрави,<br /><strong>Твоята София @ Столична община</strong></p>
+          
+          <hr style="margin:24px 0;border:none;border-top:1px solid #e5e7eb;" />
+          <p>Hello,</p>
+          <p>Please verify your email address to activate your <strong>Your Sofia</strong> account.</p>
+          <p><a href="${verifyURL}" style="display:inline-block;padding:12px 24px;background:#2F54C5;color:#fff;border-radius:8px;text-decoration:none;font-weight:600;">Verify email</a></p>
+          <p>If the button doesn't work, copy and paste the following link into your browser:</p>
+          <p><a href="${verifyURL}">${verifyURL}</a></p>
+          <p>If you did not submit a registration, please ignore this email.</p>
+          <p>Best regards,<br /><strong>Your Sofia @ Sofia Municipality</strong></p>
+        `
+      },
+    },
+    tokenExpiration: 60 * 60 * 24, // 24h in seconds
     maxLoginAttempts: 5, // the admin can unlock manually
     lockTime: 1000 * 60 * 10, // 10 minutes in milliseconds
   },
