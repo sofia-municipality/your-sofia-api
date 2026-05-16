@@ -177,7 +177,7 @@ describe('processWasteCollectionEvents handler', () => {
 
     // drizzle returns a container row that already has a district
     const mockPayload = makeMockPayload({
-      drizzleRows: [{ id: 42, district_id: 10 }],
+      drizzleRows: [{ id: 42, district_id: 10, status: 'full' }],
     })
     const req: any = { payload: mockPayload }
     const input = { from: '2026-04-30 09:00', to: '2026-04-30 10:00' }
@@ -192,7 +192,7 @@ describe('processWasteCollectionEvents handler', () => {
     expect(updateCall.collection).toBe('waste-containers')
     expect(updateCall.id).toBe(42)
     expect(updateCall.data.status).toBe('active')
-    expect(updateCall.data.servicedBy).toBe('FirmId: 95')
+    expect(updateCall.data.servicedBy).toBe('Фирма: 95')
     // district already set → should NOT overwrite it
     expect(updateCall.data.district).toBeUndefined()
 
@@ -236,8 +236,8 @@ describe('processWasteCollectionEvents handler', () => {
     expect(mockPayload.logger.error).toHaveBeenCalledWith(
       expect.stringContaining('Failed to update container 42')
     )
-    // observation is skipped because `continue` was hit
-    expect(result.output.observationsCreated).toBe(0)
+    // observation is still created even though the update failed
+    expect(result.output.observationsCreated).toBe(1)
     expect(result.output.containersUpdated).toBe(0)
   })
 
