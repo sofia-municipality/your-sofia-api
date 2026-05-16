@@ -88,11 +88,11 @@ const handler: TaskHandler<'processWasteCollectionEvents'> = async ({ input, req
     const spots = groupIntoSpots(shooterEvents, SPOT_CLUSTER_RADIUS_METERS)
     totalCollectionSpots += spots.length
 
-    // ── Step 2: match each spot to the nearest container within 25 m ──────────
+    // ── Step 2: match each spot to the nearest container within 50 m ──────────
 
     for (const spot of spots) {
       const nearestQuery = sql`
-        SELECT wc.id, wc.district_id
+        SELECT wc.id, wc.district_id, wc.public_number
         FROM waste_containers wc
         WHERE ST_DWithin(
           ST_MakePoint(${spot.centroidLng}, ${spot.centroidLat})::geography,
@@ -107,8 +107,10 @@ const handler: TaskHandler<'processWasteCollectionEvents'> = async ({ input, req
       `
 
       const result = await payload.db.drizzle.execute(nearestQuery)
-      let containerId = result?.rows?.[0]?.id as number | undefined
-      const districtExists = result?.rows?.[0]?.district_id
+      const nearestContainer = result?.rows?.[0]
+      let containerId = nearestContainer?.id as number | undefined
+      const districtExists = nearestContainer?.district_id
+      const containerPublicNumber = nearestContainer?.public_number as string | undefined
 
       if (!containerId) {
         //insert container on the missing spot and mark it prending for approval
@@ -138,16 +140,15 @@ const handler: TaskHandler<'processWasteCollectionEvents'> = async ({ input, req
             collection: 'waste-containers',
             id: containerId,
             data: {
-              status: 'active',
+              status: nearestContainer?.status === 'full' ? 'active' : undefined, // make active only if it was full before
               state: [],
               lastCleaned: parseGpsTime(spot.events[0].GpsTime).toISOString(),
-              servicedBy: `FirmId: ${firmId}`,
+              servicedBy: `Фирма: ${firmId}`,
               district: !districtExists
                 ? (districtIdByRegion.get(spot.latestEvent.Region) ?? undefined)
                 : undefined, //update district only if it was missing before
             },
             overrideAccess: true,
-            context: { skipGpsSyncHooks: true },
           })
 
           containersUpdated++
@@ -155,7 +156,23 @@ const handler: TaskHandler<'processWasteCollectionEvents'> = async ({ input, req
           payload.logger.error(
             `[processWasteCollectionEvents] Failed to update container ${containerId}: ${String(err)}`
           )
-          continue
+        }
+
+        // Resolve any open signal for this container — GPS confirmed it was collected
+        if (containerPublicNumber) {
+          try {
+            await payload.db.drizzle.execute(sql`
+              UPDATE signals
+              SET status = 'resolved', updated_at = NOW()
+              WHERE city_object_reference_id = ${containerPublicNumber}
+                AND city_object_type = 'waste-container'
+                AND status NOT IN ('resolved', 'rejected')
+            `)
+          } catch (err) {
+            payload.logger.error(
+              `[processWasteCollectionEvents] Failed to resolve signals for container ${containerPublicNumber}: ${String(err)}`
+            )
+          }
         }
       }
 
