@@ -32,7 +32,7 @@ export default function HomePage() {
           {/* Alpha Label */}
           <div className="inline-block mb-4">
             <span className="bg-yellow-300 text-yellow-900 px-4 py-2 rounded-full text-sm font-semibold shadow-md">
-              Експериментална версия (Alpha)
+              Експериментална версия (Бета)
             </span>
           </div>
 
