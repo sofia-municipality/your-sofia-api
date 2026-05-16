@@ -3,6 +3,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useAuth } from '@payloadcms/ui'
 import dynamic from 'next/dynamic'
+import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { isCityInfrastructureAdmin } from '@/access/cityInfrastructureAdmin'
 import { SofiaGerbMark } from '@/components/AdminBrand/SofiaGerbMark'
@@ -66,6 +67,9 @@ const WasteContainerMapView: React.FC = () => {
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set())
   const [newPin, setNewPin] = useState<NewPinLocation | null>(null)
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const filtersRef = useRef<FilterState>(filters)
+  filtersRef.current = filters
+  const lastViewportRef = useRef<{ zoom: number; bounds: Bounds } | null>(null)
 
   const initialZoom = useMemo(() => {
     const zoomParam = Number(searchParams.get('zoom') ?? 12)
@@ -79,15 +83,23 @@ const WasteContainerMapView: React.FC = () => {
   }, [searchParams])
 
   const fetchData = useCallback(async (zoom: number, bounds: Bounds) => {
+    lastViewportRef.current = { zoom, bounds }
     setLoading(true)
     setError(null)
     try {
+      const f = filtersRef.current
       const params = new URLSearchParams({
         zoom: String(zoom),
         minLat: String(bounds.minLat),
         maxLat: String(bounds.maxLat),
         minLng: String(bounds.minLng),
         maxLng: String(bounds.maxLng),
+        ...(f.statuses.length > 0 && { statuses: f.statuses.join(',') }),
+        ...(f.wasteTypes.length > 0 && { wasteTypes: f.wasteTypes.join(',') }),
+        ...(f.districtId && { districtId: f.districtId }),
+        ...(f.hasActiveSignals && { hasActiveSignals: 'true' }),
+        ...(f.createdFrom && { createdFrom: f.createdFrom }),
+        ...(f.createdTo && { createdTo: f.createdTo }),
       })
       const res = await fetch(`/api/waste-containers/containers-with-signal-count?${params}`)
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
@@ -107,6 +119,12 @@ const WasteContainerMapView: React.FC = () => {
     },
     [fetchData]
   )
+
+  // Re-fetch with current filters whenever they change (using last known viewport)
+  useEffect(() => {
+    const vp = lastViewportRef.current
+    if (vp) void fetchData(vp.zoom, vp.bounds)
+  }, [filters, fetchData])
 
   useEffect(
     () => () => {
@@ -240,6 +258,7 @@ const WasteContainerMapView: React.FC = () => {
       <div
         style={{
           display: 'flex',
+          flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
           minHeight: 320,
@@ -250,6 +269,22 @@ const WasteContainerMapView: React.FC = () => {
         }}
       >
         Нямате достъп до картата на контейнерите.
+        <Link
+          href="/admin/login"
+          style={{
+            marginTop: 16,
+            display: 'inline-block',
+            padding: '8px 20px',
+            background: '#2F54C5',
+            color: '#fff',
+            borderRadius: 8,
+            textDecoration: 'none',
+            fontSize: 14,
+            fontWeight: 600,
+          }}
+        >
+          Влезте в профила си
+        </Link>
       </div>
     )
   }
@@ -335,8 +370,8 @@ const WasteContainerMapView: React.FC = () => {
         </div>
       </div>
 
-      {/* Filters — only meaningful in individual marker mode */}
-      {!isClustered && <MapFilters filters={filters} onChange={setFilters} />}
+      {/* Filters */}
+      <MapFilters filters={filters} onChange={setFilters} />
 
       {/* Bulk action bar */}
       {selectMode && selectedIds.size > 0 && (

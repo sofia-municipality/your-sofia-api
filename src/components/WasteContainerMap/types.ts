@@ -22,6 +22,11 @@ export interface ContainerWithSignals {
   lastCleaned?: string | null
   binCount?: number | null
   districtId?: number | null
+  source?: string | null
+  state?: string[]
+  collectionDaysOfWeek?: string[]
+  collectionTimesPerDay?: number | null
+  scheduleSource?: string | null
   signalCount: number
   activeSignalCount: number
   updatedAt: string

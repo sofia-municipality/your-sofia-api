@@ -25,23 +25,76 @@ export const containersWithSignalCount: Endpoint = {
 
     try {
       const zoom = parseInt((req.query?.zoom as string) || '12')
-      const status = req.query?.status as string | undefined
       const minLat = parseFloat((req.query?.minLat as string) || '')
       const maxLat = parseFloat((req.query?.maxLat as string) || '')
       const minLng = parseFloat((req.query?.minLng as string) || '')
       const maxLng = parseFloat((req.query?.maxLng as string) || '')
       const hasBounds = !isNaN(minLat) && !isNaN(maxLat) && !isNaN(minLng) && !isNaN(maxLng)
 
-      const allowedStatuses = ['active', 'full', 'maintenance', 'inactive', 'pending'] as const
-      const hasStatusFilter =
-        typeof status === 'string' && (allowedStatuses as readonly string[]).includes(status)
+      const allowedStatuses = ['active', 'full', 'maintenance', 'inactive', 'pending']
+      const allowedWasteTypes = [
+        'general',
+        'recyclables',
+        'organic',
+        'glass',
+        'paper',
+        'plastic',
+        'metal',
+        'trashCan',
+      ]
+
+      // Support both legacy ?status=x and new ?statuses=a,b,c
+      const statusesParam = (req.query?.statuses as string) || (req.query?.status as string) || ''
+      const statuses = statusesParam
+        .split(',')
+        .map((s) => s.trim())
+        .filter((s) => allowedStatuses.includes(s))
+
+      const wasteTypes = ((req.query?.wasteTypes as string) || '')
+        .split(',')
+        .map((s) => s.trim())
+        .filter((s) => allowedWasteTypes.includes(s))
+
+      const districtIdRaw = parseInt((req.query?.districtId as string) || '', 10)
+      const districtId = isNaN(districtIdRaw) ? null : districtIdRaw
+
+      const hasActiveSignals = req.query?.hasActiveSignals === 'true'
+
+      const createdFrom = (req.query?.createdFrom as string) || null
+      const createdTo = (req.query?.createdTo as string) || null
 
       const db = payload.db
 
       const boundsFilter = hasBounds
         ? sql`AND wc.location && ST_MakeEnvelope(${minLng}, ${minLat}, ${maxLng}, ${maxLat}, 4326)`
         : sql``
-      const statusFilter = hasStatusFilter ? sql`AND wc.status = ${status}` : sql``
+      const statusFilter =
+        statuses.length > 0
+          ? sql`AND wc.status::text IN (${sql.join(
+              statuses.map((s) => sql`${s}`),
+              sql`, `
+            )})`
+          : sql``
+      const wasteTypeFilter =
+        wasteTypes.length > 0
+          ? sql`AND wc.waste_type::text IN (${sql.join(
+              wasteTypes.map((s) => sql`${s}`),
+              sql`, `
+            )})`
+          : sql``
+      const districtFilter = districtId !== null ? sql`AND wc.district_id = ${districtId}` : sql``
+      const activeSignalsFilter = hasActiveSignals
+        ? sql`AND EXISTS (
+            SELECT 1 FROM signals s2
+            WHERE s2.city_object_reference_id = wc.public_number
+              AND s2.city_object_type = 'waste-container'
+              AND s2.status NOT IN ('resolved', 'rejected')
+          )`
+        : sql``
+      const createdFromFilter = createdFrom
+        ? sql`AND wc.created_at >= ${createdFrom}::timestamptz`
+        : sql``
+      const createdToFilter = createdTo ? sql`AND wc.created_at < ${createdTo}::timestamptz` : sql``
 
       if (zoom >= INDIVIDUAL_ZOOM) {
         // Return individual markers for the visible viewport (capped at 2000)
@@ -64,6 +117,17 @@ export const containersWithSignalCount: Endpoint = {
             wc.last_cleaned,
             wc.bin_count,
             wc.district_id,
+            wc.source,
+            ARRAY(
+              SELECT wcs.value::text FROM waste_containers_state wcs
+              WHERE wcs.parent_id = wc.id ORDER BY wcs.order
+            ) AS state,
+            ARRAY(
+              SELECT wcd.value::text FROM waste_containers_collection_days_of_week wcd
+              WHERE wcd.parent_id = wc.id ORDER BY wcd.order
+            ) AS collection_days_of_week,
+            wc.collection_times_per_day,
+            wc.schedule_source,
             wc.created_at,
             wc.updated_at,
             COALESCE(COUNT(s.id), 0)::int AS signal_count,
@@ -78,6 +142,11 @@ export const containersWithSignalCount: Endpoint = {
           WHERE wc.location IS NOT NULL
             ${boundsFilter}
             ${statusFilter}
+            ${wasteTypeFilter}
+            ${districtFilter}
+            ${activeSignalsFilter}
+            ${createdFromFilter}
+            ${createdToFilter}
           GROUP BY wc.id
           ORDER BY active_signal_count DESC
           LIMIT ${limit}
@@ -103,6 +172,11 @@ export const containersWithSignalCount: Endpoint = {
           lastCleaned: row.last_cleaned,
           binCount: row.bin_count,
           districtId: row.district_id,
+          source: row.source,
+          state: (row.state as string[] | null) ?? [],
+          collectionDaysOfWeek: (row.collection_days_of_week as string[] | null) ?? [],
+          collectionTimesPerDay: row.collection_times_per_day as number | null,
+          scheduleSource: row.schedule_source as string | null,
           createdAt: row.created_at,
           updatedAt: row.updated_at,
           signalCount: row.signal_count,
@@ -130,6 +204,11 @@ export const containersWithSignalCount: Endpoint = {
           WHERE wc.location IS NOT NULL
             ${boundsFilter}
             ${statusFilter}
+            ${wasteTypeFilter}
+            ${districtFilter}
+            ${activeSignalsFilter}
+            ${createdFromFilter}
+            ${createdToFilter}
           GROUP BY ST_SnapToGrid(wc.location::geometry, ${gridSize})
           ORDER BY count DESC
         `

@@ -41,6 +41,33 @@ const CAPACITY_LABELS: Record<string, string> = {
   industrial: 'Промишлен',
 }
 
+const STATE_LABELS: Record<string, string> = {
+  full: 'Пълен',
+  dirty: 'Замърсен',
+  damaged: 'Повреден',
+  leaves: 'Листа',
+  maintenance: 'Поддръжка',
+  bagged: 'Боклук в торби',
+  fallen: 'Паднал',
+  bulkyWaste: 'Едрогабаритен боклук',
+}
+
+const SOURCE_LABELS: Record<string, string> = {
+  community: 'Гражданин',
+  official: 'Официални данни',
+  third_party: 'Трета страна',
+}
+
+const DAY_LABELS: Record<string, string> = {
+  '1': 'Пон',
+  '2': 'Вт',
+  '3': 'Ср',
+  '4': 'Чет',
+  '5': 'Пет',
+  '6': 'Съб',
+  '7': 'Нед',
+}
+
 const FIELD_LABEL_STYLE = { color: colors.textMuted }
 const INPUT_STYLE = {
   width: '100%',
@@ -97,6 +124,10 @@ interface EditFormState {
   lastCleaned: string
   binCount: string
   districtId: string
+  source: string
+  stateValues: string
+  collectionDays: string
+  collectionTimesPerDay: string
 }
 
 function toDateTimeLocalValue(value?: string | null): string {
@@ -122,6 +153,11 @@ function createEditFormState(container: ContainerWithSignals): EditFormState {
     lastCleaned: toDateTimeLocalValue(container.lastCleaned),
     binCount: container.binCount != null ? String(container.binCount) : '',
     districtId: container.districtId != null ? String(container.districtId) : '',
+    source: container.source ?? '',
+    stateValues: (container.state ?? []).slice().sort().join(','),
+    collectionDays: (container.collectionDaysOfWeek ?? []).slice().sort().join(','),
+    collectionTimesPerDay:
+      container.collectionTimesPerDay != null ? String(container.collectionTimesPerDay) : '',
   }
 }
 
@@ -428,6 +464,10 @@ export function ContainerPopup({
         throw new Error('Невалиден район ID')
       }
 
+      const collectionTimesPerDay = form.collectionTimesPerDay.trim()
+        ? Number(form.collectionTimesPerDay)
+        : null
+
       const payload = {
         publicNumber: form.publicNumber.trim(),
         location: [lng, lat],
@@ -441,6 +481,10 @@ export function ContainerPopup({
         notes: form.notes.trim() || null,
         lastCleaned: form.lastCleaned ? new Date(form.lastCleaned).toISOString() : null,
         district,
+        source: form.source.trim() || null,
+        state: form.stateValues.split(',').filter(Boolean),
+        collectionDaysOfWeek: form.collectionDays.split(',').filter(Boolean),
+        collectionTimesPerDay,
       }
 
       const res = await fetch(`/api/waste-containers/${container.id}`, {
@@ -469,6 +513,10 @@ export function ContainerPopup({
         lastCleaned: payload.lastCleaned,
         binCount: payload.binCount,
         districtId: district,
+        source: payload.source,
+        state: payload.state,
+        collectionDaysOfWeek: payload.collectionDaysOfWeek,
+        collectionTimesPerDay: payload.collectionTimesPerDay,
         updatedAt: data.doc?.updatedAt ?? data.updatedAt ?? new Date().toISOString(),
       })
       setIsEditing(false)
@@ -911,6 +959,81 @@ export function ContainerPopup({
                 }}
                 dirty={isFieldDirty('districtId')}
               />
+              <DetailRow label="Произход">
+                <select
+                  value={form.source}
+                  onChange={(e) => handleFieldChange('source', e.target.value)}
+                  style={getInputStyle('source')}
+                >
+                  <option value="">—</option>
+                  {Object.entries(SOURCE_LABELS).map(([value, label]) => (
+                    <option key={value} value={value}>
+                      {label}
+                    </option>
+                  ))}
+                </select>
+              </DetailRow>
+              <DetailRow label="Състояние">
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                  {Object.entries(STATE_LABELS).map(([value, label]) => {
+                    const checked = form.stateValues.split(',').filter(Boolean).includes(value)
+                    return (
+                      <label
+                        key={value}
+                        style={{ display: 'flex', alignItems: 'center', gap: 3, cursor: 'pointer' }}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={checked}
+                          onChange={(e) => {
+                            const current = form.stateValues.split(',').filter(Boolean)
+                            const next = e.target.checked
+                              ? [...current, value]
+                              : current.filter((v) => v !== value)
+                            handleFieldChange('stateValues', next.slice().sort().join(','))
+                          }}
+                        />
+                        <span style={{ fontSize: 11 }}>{label}</span>
+                      </label>
+                    )
+                  })}
+                </div>
+              </DetailRow>
+              <DetailRow label="Дни за събиране">
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                  {Object.entries(DAY_LABELS).map(([value, label]) => {
+                    const checked = form.collectionDays.split(',').filter(Boolean).includes(value)
+                    return (
+                      <label
+                        key={value}
+                        style={{ display: 'flex', alignItems: 'center', gap: 3, cursor: 'pointer' }}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={checked}
+                          onChange={(e) => {
+                            const current = form.collectionDays.split(',').filter(Boolean)
+                            const next = e.target.checked
+                              ? [...current, value]
+                              : current.filter((v) => v !== value)
+                            handleFieldChange('collectionDays', next.slice().sort().join(','))
+                          }}
+                        />
+                        <span style={{ fontSize: 11 }}>{label}</span>
+                      </label>
+                    )
+                  })}
+                </div>
+              </DetailRow>
+              <DetailRow label="Събирания/ден">
+                <input
+                  type="number"
+                  min="1"
+                  value={form.collectionTimesPerDay}
+                  onChange={(e) => handleFieldChange('collectionTimesPerDay', e.target.value)}
+                  style={getInputStyle('collectionTimesPerDay')}
+                />
+              </DetailRow>
               <DetailRow label="Бележки">
                 <textarea
                   value={form.notes}
@@ -941,12 +1064,23 @@ export function ContainerPopup({
               <DetailRow label="Координати">
                 {container.location[1].toFixed(6)}, {container.location[0].toFixed(6)}
               </DetailRow>
-              {container.binCount != null && (
-                <DetailRow label="Брой съдове">{container.binCount}</DetailRow>
-              )}
-              {container.districtId != null && (
-                <DetailRow label="Район ID">{container.districtId}</DetailRow>
-              )}
+              <DetailRow label="Брой съдове">{container.binCount}</DetailRow>
+              <DetailRow label="Район ID">{container.districtId}</DetailRow>
+
+              <DetailRow label="Произход">
+                {SOURCE_LABELS[container.source ?? ''] ?? container.source ?? '—'}
+              </DetailRow>
+              <DetailRow label="Състояние">
+                {container.state?.map((s) => STATE_LABELS[s] ?? s).join(', ') || '—'}
+              </DetailRow>
+              <DetailRow label="Дни за събиране">
+                {container.collectionDaysOfWeek?.map((d) => DAY_LABELS[d] ?? d).join(', ') || '—'}
+              </DetailRow>
+              <DetailRow label="Събирания/ден">
+                {container.collectionTimesPerDay != null
+                  ? `${container.collectionTimesPerDay}×`
+                  : '—'}
+              </DetailRow>
               {container.notes && <DetailRow label="Бележки">{container.notes}</DetailRow>}
             </>
           )}
