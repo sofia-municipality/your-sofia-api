@@ -92,7 +92,7 @@ const handler: TaskHandler<'processWasteCollectionEvents'> = async ({ input, req
 
     for (const spot of spots) {
       const nearestQuery = sql`
-        SELECT wc.id, wc.district_id, wc.public_number
+        SELECT wc.id, wc.district_id, wc.public_number, wc.status
         FROM waste_containers wc
         WHERE ST_DWithin(
           ST_MakePoint(${spot.centroidLng}, ${spot.centroidLat})::geography,
