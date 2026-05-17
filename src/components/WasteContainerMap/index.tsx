@@ -68,7 +68,6 @@ const WasteContainerMapView: React.FC = () => {
   const [newPin, setNewPin] = useState<NewPinLocation | null>(null)
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const filtersRef = useRef<FilterState>(filters)
-  filtersRef.current = filters
   const lastViewportRef = useRef<{ zoom: number; bounds: Bounds } | null>(null)
 
   const initialZoom = useMemo(() => {
@@ -81,6 +80,10 @@ const WasteContainerMapView: React.FC = () => {
     const hasDayFilter = Boolean(searchParams.get('createdFrom') && searchParams.get('createdTo'))
     return hasDayFilter ? 16 : 12
   }, [searchParams])
+
+  useEffect(() => {
+    filtersRef.current = filters
+  }, [filters])
 
   const fetchData = useCallback(async (zoom: number, bounds: Bounds) => {
     lastViewportRef.current = { zoom, bounds }
@@ -123,7 +126,8 @@ const WasteContainerMapView: React.FC = () => {
   // Re-fetch with current filters whenever they change (using last known viewport)
   useEffect(() => {
     const vp = lastViewportRef.current
-    if (vp) void fetchData(vp.zoom, vp.bounds)
+    if (!vp) return
+    void Promise.resolve().then(() => fetchData(vp.zoom, vp.bounds))
   }, [filters, fetchData])
 
   useEffect(
@@ -140,12 +144,14 @@ const WasteContainerMapView: React.FC = () => {
 
     if (!status && !createdFrom && !createdTo) return
 
-    setFilters((prev) => ({
-      ...prev,
-      statuses: status ? [status] : prev.statuses,
-      createdFrom: createdFrom ?? prev.createdFrom,
-      createdTo: createdTo ?? prev.createdTo,
-    }))
+    void Promise.resolve().then(() => {
+      setFilters((prev) => ({
+        ...prev,
+        statuses: status ? [status] : prev.statuses,
+        createdFrom: createdFrom ?? prev.createdFrom,
+        createdTo: createdTo ?? prev.createdTo,
+      }))
+    })
   }, [searchParams])
 
   const isClustered = items.length > 0 && items[0]?.type === 'cluster'

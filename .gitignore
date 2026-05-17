@@ -1,5 +1,7 @@
 build
 tsconfig.tsbuildinfo
+next-env.d.ts
+
 dist / media
 node_modules
 .DS_Store
@@ -31,3 +33,4 @@ nginx/ssl/*.pem
 nginx/ssl/*.key
 nginx/ssl/*.crt
 src/app/(payload)/admin/importMap.js
+

@@ -96,12 +96,8 @@ function useClickableCard<T extends HTMLElement>({
   }, [card, link, router])
 
   return {
-    card: {
-      ref: card,
-    },
-    link: {
-      ref: link,
-    },
+    cardRef: card,
+    linkRef: link,
   }
 }
 
