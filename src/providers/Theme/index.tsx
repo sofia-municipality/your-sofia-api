@@ -48,7 +48,9 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
     }
 
     document.documentElement.setAttribute('data-theme', themeToSet)
-    setThemeState(themeToSet)
+    void Promise.resolve().then(() => {
+      setThemeState(themeToSet)
+    })
   }, [])
 
   return <ThemeContext value={{ setTheme, theme }}>{children}</ThemeContext>

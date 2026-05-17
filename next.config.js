@@ -8,13 +8,9 @@ const NEXT_PUBLIC_SERVER_URL = process.env.VERCEL_PROJECT_PRODUCTION_URL
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  eslint: {
-    // added due to failures in Payload's codebase
-    ignoreDuringBuilds: true,
-  },
   typescript: {
     // added due to failures in Payload's codebase
-    ignoreBuildErrors: true,
+    ignoreBuildErrors: false,
   },
   images: {
     remotePatterns: [

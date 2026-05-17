@@ -196,7 +196,10 @@ function MarkersLayer({
   const frontRef = useRef<0 | 1>(0)
   // Keep a stable ref to the callback so marker closures always call the latest version
   const onMarkerClickRef = useRef(onMarkerClick)
-  onMarkerClickRef.current = onMarkerClick
+
+  useEffect(() => {
+    onMarkerClickRef.current = onMarkerClick
+  }, [onMarkerClick])
 
   // Mount / unmount both groups with the map lifetime
   useEffect(() => {
