@@ -1,5 +1,4 @@
 import { defineConfig } from 'drizzle-kit'
-import { withPayload } from '@payloadcms/next/withPayload'
 
 const drizzleConfig = defineConfig({
   dialect: 'postgresql',
@@ -18,4 +17,4 @@ const drizzleConfig = defineConfig({
   ],
 })
 
-export default withPayload(drizzleConfig, { devBundleServerPackages: false })
+export default drizzleConfig
