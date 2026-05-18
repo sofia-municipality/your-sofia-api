@@ -18,6 +18,11 @@ export async function resolveOpenContainerSignals(
     })
 
     for (const signal of signalsToResolve.docs) {
+      if (signal.containerState?.includes('bulkyWaste')) {
+        // Skip signals for bulky waste as this requires manual inspection
+        continue
+      }
+
       const previousDescription = signal.description as string | undefined
       const autoCloseNote = `Автоматично затворен от GPS синхронизация на ${new Date().toISOString()}.`
       const updatedDescription = previousDescription
