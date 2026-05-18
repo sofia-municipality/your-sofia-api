@@ -200,6 +200,37 @@ describe('processWasteCollectionEvents handler', () => {
     expect(result.output.observationsCreated).toBe(1)
   })
 
+  it('resolves open waste-container signals and adds an auto-close note', async () => {
+    const event = makeEvent({ Region: 24 })
+    mockFetch([95], [event])
+
+    const mockPayload = makeMockPayload({
+      drizzleRows: [{ id: 42, public_number: 'RTR-123', district_id: 10, status: 'full' }],
+    })
+    mockPayload.find
+      .mockResolvedValueOnce({
+        docs: [
+          { id: 10, districtId: 24, code: 'RTR' },
+          { id: 11, districtId: 1, code: 'RSE' },
+        ],
+      })
+      .mockResolvedValueOnce({ docs: [{ id: 'signal-1', description: 'Контейнерът е пълен' }] })
+
+    const req: any = { payload: mockPayload }
+    const input = { from: '2026-04-30 09:00', to: '2026-04-30 10:00' }
+
+    const { processWasteCollectionEvents } = await import('../processWasteCollectionEvents')
+    await (processWasteCollectionEvents as any).handler({ input, req })
+
+    expect(mockPayload.create).not.toHaveBeenCalled()
+    expect(mockPayload.update).toHaveBeenCalledTimes(2)
+    const signalUpdateCall = (mockPayload.update.mock.calls[1] as any[])[0] as any
+    expect(signalUpdateCall.collection).toBe('signals')
+    expect(signalUpdateCall.id).toBe('signal-1')
+    expect(signalUpdateCall.data.status).toBe('resolved')
+    expect(signalUpdateCall.data.description).toContain('Автоматично затворен от GPS синхронизация')
+  })
+
   it('fills in missing district when container has no district_id', async () => {
     const event = makeEvent({ Region: 24 })
     mockFetch([95], [event])

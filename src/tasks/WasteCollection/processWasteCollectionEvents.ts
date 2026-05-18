@@ -1,4 +1,4 @@
-import type { TaskConfig, TaskHandler } from 'payload'
+import type { Payload, TaskConfig, TaskHandler } from 'payload'
 import { sql } from '@payloadcms/db-postgres'
 import {
   type WasteCollectionEvent,
@@ -8,6 +8,7 @@ import {
 } from './gpsCollectionHelpers'
 
 export { buildSyncWindow } from './gpsCollectionHelpers'
+import { resolveOpenContainerSignals } from './resolveOpenContainerSignals'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Task handler
@@ -160,19 +161,7 @@ const handler: TaskHandler<'processWasteCollectionEvents'> = async ({ input, req
 
         // Resolve any open signal for this container — GPS confirmed it was collected
         if (containerPublicNumber) {
-          try {
-            await payload.db.drizzle.execute(sql`
-              UPDATE signals
-              SET status = 'resolved', updated_at = NOW()
-              WHERE city_object_reference_id = ${containerPublicNumber}
-                AND city_object_type = 'waste-container'
-                AND status NOT IN ('resolved', 'rejected')
-            `)
-          } catch (err) {
-            payload.logger.error(
-              `[processWasteCollectionEvents] Failed to resolve signals for container ${containerPublicNumber}: ${String(err)}`
-            )
-          }
+          await resolveOpenContainerSignals(payload, containerPublicNumber)
         }
       }
 
