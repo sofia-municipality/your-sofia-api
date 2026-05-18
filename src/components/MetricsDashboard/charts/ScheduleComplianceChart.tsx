@@ -106,7 +106,39 @@ export function ScheduleComplianceChart({ compliance }: ScheduleComplianceChartP
                     itemStyle={{ color: palette.textPrimary }}
                     formatter={(value) => [value, 'Контейнери']}
                   />
-                  <Bar dataKey="count" radius={[4, 4, 0, 0]}>
+                  <Bar
+                    dataKey="count"
+                    radius={[4, 4, 0, 0]}
+                    cursor="pointer"
+                    onClick={(bar) => {
+                      const status = (bar?.payload as any)?.status as string | undefined
+                      if (!status) return
+
+                      const params = new URLSearchParams({
+                        zoom: '13',
+                        status: 'active',
+                        scheduledToday: 'true',
+                      })
+                      switch (status) {
+                        case 'В график':
+                          params.set('scheduleCategory', 'onTime')
+                          break
+                        case 'Закъснение':
+                          params.set('scheduleCategory', 'delayed')
+                          break
+                        case 'Пропуснати':
+                          params.set('scheduleCategory', 'missed')
+                          break
+                        default:
+                          return
+                      }
+                      window.open(
+                        `/admin/waste-map?${params.toString()}`,
+                        '_blank',
+                        'noopener,noreferrer'
+                      )
+                    }}
+                  >
                     {data.map((item) => (
                       <Cell key={item.status} fill={item.color} />
                     ))}

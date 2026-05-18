@@ -73,15 +73,28 @@ export function CollectionByGroupChart({
     }
   }
 
-  let data: Array<{ name: string; collectedContainers: number; notCollectedContainers: number }>
+  let data: Array<{
+    name: string
+    collectedContainers: number
+    notCollectedContainers: number
+    params?: Record<string, string>
+  }>
   switch (groupBy) {
     case 'day':
       data = (props.byDay ?? EMPTY_DAY_DATA).map((day) => {
         const [, month, date] = day.date.slice(0, 10).split('-')
+        const from = day.date
+        const to = new Date(`${day.date}T00:00:00.000Z`)
+        to.setDate(to.getDate() + 1)
         return {
           name: `${date}.${month}`,
           collectedContainers: day.collectedContainers,
           notCollectedContainers: Math.max(0, day.totalContainers - day.collectedContainers),
+          params: {
+            createdFrom: from,
+            createdTo: to.toISOString(),
+            zoom: '13',
+          },
         }
       })
       break
@@ -90,6 +103,10 @@ export function CollectionByGroupChart({
         name: zone.zoneName,
         collectedContainers: zone.collectedContainers,
         notCollectedContainers: zone.totalContainers - zone.collectedContainers,
+        params: {
+          zoneNumber: String(zone.zoneNumber),
+          zoom: '12',
+        },
       }))
       break
     case 'district':
@@ -97,6 +114,10 @@ export function CollectionByGroupChart({
         name: district.districtName,
         collectedContainers: district.collectedContainers,
         notCollectedContainers: district.totalContainers - district.collectedContainers,
+        params: {
+          districtId: district.districtId,
+          zoom: '12',
+        },
       }))
       break
   }
@@ -210,6 +231,17 @@ export function CollectionByGroupChart({
                 name="collectedContainers"
                 radius={[3, 3, 0, 0]}
                 label={{ position: 'top', fontSize: 10, fill: palette.textSecondary }}
+                cursor="pointer"
+                onClick={(bar) => {
+                  const params = (bar?.payload as any)?.params as Record<string, string> | undefined
+                  if (!params) return
+                  const search = new URLSearchParams(params)
+                  window.open(
+                    `/admin/waste-map?${search.toString()}`,
+                    '_blank',
+                    'noopener,noreferrer'
+                  )
+                }}
               />
               <Bar
                 dataKey="notCollectedContainers"
@@ -218,6 +250,17 @@ export function CollectionByGroupChart({
                 name="notCollectedContainers"
                 radius={[3, 3, 0, 0]}
                 label={{ position: 'insideTop', fontSize: 10, fill: palette.textSecondary }}
+                cursor="pointer"
+                onClick={(bar) => {
+                  const params = (bar?.payload as any)?.params as Record<string, string> | undefined
+                  if (!params) return
+                  const search = new URLSearchParams(params)
+                  window.open(
+                    `/admin/waste-map?${search.toString()}`,
+                    '_blank',
+                    'noopener,noreferrer'
+                  )
+                }}
               />
             </BarChart>
           </ResponsiveContainer>

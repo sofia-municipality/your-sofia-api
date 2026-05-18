@@ -82,7 +82,87 @@ export function TimeSinceCollectionChart({ data }: TimeSinceCollectionChartProps
                   itemStyle={{ color: palette.textPrimary }}
                   formatter={(value) => [value, 'Контейнери']}
                 />
-                <Bar dataKey="containers" fill={palette.success} radius={[4, 4, 0, 0]}>
+                <Bar
+                  dataKey="containers"
+                  fill={palette.success}
+                  radius={[4, 4, 0, 0]}
+                  cursor="pointer"
+                  onClick={(bar) => {
+                    const bucket = (bar?.payload as any)?.bucket as string | undefined
+                    if (!bucket) return
+
+                    const now = new Date()
+                    const params = new URLSearchParams({ zoom: '13' })
+
+                    switch (bucket) {
+                      case '<1 ден':
+                        expires.setDate(now.getDate() + 1)
+                        params.set(
+                          'lastCleanedFrom',
+                          new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString()
+                        )
+                        params.set('lastCleanedTo', now.toISOString())
+                        break
+                      case '1-2 дни':
+                        params.set(
+                          'lastCleanedFrom',
+                          new Date(now.getTime() - 48 * 60 * 60 * 1000).toISOString()
+                        )
+                        params.set(
+                          'lastCleanedTo',
+                          new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString()
+                        )
+                        break
+                      case '2-3 дни':
+                        params.set(
+                          'lastCleanedFrom',
+                          new Date(now.getTime() - 72 * 60 * 60 * 1000).toISOString()
+                        )
+                        params.set(
+                          'lastCleanedTo',
+                          new Date(now.getTime() - 48 * 60 * 60 * 1000).toISOString()
+                        )
+                        break
+                      case '3-7 дни':
+                        params.set(
+                          'lastCleanedFrom',
+                          new Date(now.getTime() - 168 * 60 * 60 * 1000).toISOString()
+                        )
+                        params.set(
+                          'lastCleanedTo',
+                          new Date(now.getTime() - 72 * 60 * 60 * 1000).toISOString()
+                        )
+                        break
+                      case '7-14 дни':
+                        params.set(
+                          'lastCleanedFrom',
+                          new Date(now.getTime() - 336 * 60 * 60 * 1000).toISOString()
+                        )
+                        params.set(
+                          'lastCleanedTo',
+                          new Date(now.getTime() - 168 * 60 * 60 * 1000).toISOString()
+                        )
+                        break
+                      case '14+':
+                        params.set(
+                          'lastCleanedTo',
+                          new Date(now.getTime() - 336 * 60 * 60 * 1000).toISOString()
+                        )
+                        break
+                      case 'N/A':
+                        params.set('lastCleanedIsNull', 'true')
+                        break
+                      default:
+                        return
+                    }
+
+                    window.open(
+                      `/admin/waste-map?${params.toString()}`,
+                      '_blank',
+                      'noopener,noreferrer'
+                    )
+                  }}
+                >
                   {data.map((bucket) => (
                     <Cell key={bucket.bucket} fill={colorByBucketOrder(bucket.bucketOrder)} />
                   ))}

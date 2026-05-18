@@ -5,6 +5,9 @@ import { SofiaGerbMark } from '@/components/AdminBrand/SofiaGerbMark'
 import { CollectionByGroupChart } from './charts/CollectionByGroupChart'
 import { NewlyCreatedContainersChart } from './charts/NewlyCreatedContainersChart'
 import { ScheduleComplianceChart } from './charts/ScheduleComplianceChart'
+import { SignalsActiveByContainerStateChart } from './charts/SignalsActiveByContainerStateChart'
+import { SignalsByAgeChart } from './charts/SignalsByAgeChart'
+import { SignalsByStatusChart } from './charts/SignalsByStatusChart'
 import { palette } from './charts/shared'
 import { TimeSinceCollectionChart } from './charts/TimeSinceCollectionChart'
 
@@ -299,6 +302,19 @@ const MetricsDashboard: React.FC = () => {
           <TimeSinceCollectionChart data={data.byTimeSinceCollection} />
           <ScheduleComplianceChart compliance={data.scheduleCompliance} />
           <NewlyCreatedContainersChart />
+
+          <div style={{ marginTop: 32, marginBottom: 16 }}>
+            <h2 style={{ fontSize: 22, fontWeight: 700, margin: 0, color: palette.textPrimary }}>
+              Сигнали
+            </h2>
+            <p style={{ margin: '6px 0 0', fontSize: 13, color: palette.textSecondary }}>
+              Метрики за клиентските сигнали и състоянието на контейнерите.
+            </p>
+          </div>
+
+          <SignalsByAgeChart />
+          <SignalsByStatusChart />
+          <SignalsActiveByContainerStateChart />
         </>
       )}
     </div>

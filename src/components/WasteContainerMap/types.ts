@@ -37,18 +37,36 @@ export interface FilterState {
   statuses: string[]
   wasteTypes: string[]
   districtId: string | null
+  zoneNumber: string | null
   hasActiveSignals: boolean
   createdFrom: string | null
   createdTo: string | null
+  lastCleanedFrom: string | null
+  lastCleanedTo: string | null
+  lastCleanedIsNull: boolean
+  scheduledToday: boolean
+  scheduleCategory: string | null
+  signalStatus: string | null
+  signalContainerState: string | null
+  signalAgeBucket: string | null
 }
 
 export const EMPTY_FILTERS: FilterState = {
   statuses: [],
   wasteTypes: [],
   districtId: null,
+  zoneNumber: null,
   hasActiveSignals: false,
   createdFrom: null,
   createdTo: null,
+  lastCleanedFrom: null,
+  lastCleanedTo: null,
+  lastCleanedIsNull: false,
+  scheduledToday: false,
+  scheduleCategory: null,
+  signalStatus: null,
+  signalContainerState: null,
+  signalAgeBucket: null,
 }
 
 export function applyFilters(containers: MarkerPoint[], filters: FilterState): MarkerPoint[] {

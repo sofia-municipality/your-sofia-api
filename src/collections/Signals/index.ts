@@ -5,6 +5,11 @@ import { beforeValidateSignal } from './hooks/beforeValidateSignal'
 import { beforeChangeSetReporter } from './hooks/beforeChangeSetReporter'
 import { afterChangeUpdateContainer } from './hooks/afterChangeUpdateContainer'
 import { afterChangeNotifyReporter } from './hooks/afterChangeNotifyReporter'
+import {
+  signalsAgeMetric,
+  signalsStatusMetric,
+  signalsActiveContainerStateMetric,
+} from '@/endpoints/signals-metrics'
 
 const canUpdate: Access = async ({ req, id }) => {
   if (canViewCityInfrastructure({ req })) return true
@@ -59,6 +64,7 @@ export const Signals: CollectionConfig = {
     update: canUpdate,
     delete: isAdmin,
   },
+  endpoints: [signalsAgeMetric, signalsStatusMetric, signalsActiveContainerStateMetric],
   fields: [
     {
       name: 'title',

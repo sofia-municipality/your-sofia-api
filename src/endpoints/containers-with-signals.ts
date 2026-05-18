@@ -58,7 +58,49 @@ export const containersWithSignalCount: Endpoint = {
       const districtIdRaw = parseInt((req.query?.districtId as string) || '', 10)
       const districtId = isNaN(districtIdRaw) ? null : districtIdRaw
 
+      const zoneNumberRaw = parseInt((req.query?.zoneNumber as string) || '', 10)
+      const zoneNumber = isNaN(zoneNumberRaw) ? null : zoneNumberRaw
+      const serviceCompanyIdRaw = parseInt((req.query?.serviceCompanyId as string) || '', 10)
+      const serviceCompanyId = isNaN(serviceCompanyIdRaw) ? null : serviceCompanyIdRaw
+      const lastCleanedFrom = (req.query?.lastCleanedFrom as string) || null
+      const lastCleanedTo = (req.query?.lastCleanedTo as string) || null
+      const lastCleanedIsNull = req.query?.lastCleanedIsNull === 'true'
+      const scheduledToday = req.query?.scheduledToday === 'true'
+      const scheduleCategory = (req.query?.scheduleCategory as string | undefined) ?? null
+      const allowedScheduleCategories = ['onTime', 'delayed', 'missed']
+      const scheduleCategoryValid =
+        scheduleCategory && allowedScheduleCategories.includes(scheduleCategory)
+          ? scheduleCategory
+          : null
+
       const hasActiveSignals = req.query?.hasActiveSignals === 'true'
+      const signalStatus = (req.query?.signalStatus as string | undefined) ?? null
+      const allowedSignalStatuses = ['pending', 'in-progress', 'resolved', 'rejected']
+      const signalStatusValid =
+        signalStatus && allowedSignalStatuses.includes(signalStatus) ? signalStatus : null
+
+      const signalContainerState = (req.query?.signalContainerState as string | undefined) ?? null
+      const allowedSignalContainerStates = [
+        'full',
+        'dirty',
+        'damaged',
+        'leaves',
+        'maintenance',
+        'bagged',
+        'fallen',
+        'bulkyWaste',
+      ]
+      const signalContainerStateValid =
+        signalContainerState && allowedSignalContainerStates.includes(signalContainerState)
+          ? signalContainerState
+          : null
+
+      const signalAgeBucket = (req.query?.signalAgeBucket as string | undefined) ?? null
+      const allowedSignalAgeBuckets = ['<1 ден', '1-2 дни', '2-3 дни', '3-7 дни', '7-14 дни', '14+']
+      const signalAgeBucketValid =
+        signalAgeBucket && allowedSignalAgeBuckets.includes(signalAgeBucket)
+          ? signalAgeBucket
+          : null
 
       const createdFrom = (req.query?.createdFrom as string) || null
       const createdTo = (req.query?.createdTo as string) || null
@@ -95,6 +137,69 @@ export const containersWithSignalCount: Endpoint = {
         ? sql`AND wc.created_at >= ${createdFrom}::timestamptz`
         : sql``
       const createdToFilter = createdTo ? sql`AND wc.created_at < ${createdTo}::timestamptz` : sql``
+      const zoneFilter = zoneNumber !== null ? sql`AND wcz.number = ${zoneNumber}` : sql``
+      const serviceCompanyFilter =
+        serviceCompanyId !== null ? sql`AND wcz.service_company_id = ${serviceCompanyId}` : sql``
+      const lastCleanedFromFilter = lastCleanedFrom
+        ? sql`AND wc.last_cleaned >= ${lastCleanedFrom}::timestamptz`
+        : sql``
+      const lastCleanedToFilter = lastCleanedTo
+        ? sql`AND wc.last_cleaned < ${lastCleanedTo}::timestamptz`
+        : sql``
+      const lastCleanedNullFilter = lastCleanedIsNull ? sql`AND wc.last_cleaned IS NULL` : sql``
+      const scheduledTodayFilter = scheduledToday
+        ? sql`AND wcdow.value::text = EXTRACT(ISODOW FROM NOW() AT TIME ZONE 'Europe/Sofia')::int::text`
+        : sql``
+      const scheduleCategoryFilter =
+        scheduleCategoryValid === 'onTime'
+          ? sql`AND wc.last_cleaned >= NOW() - INTERVAL '24 hours'`
+          : scheduleCategoryValid === 'delayed'
+            ? sql`AND wc.last_cleaned < NOW() - INTERVAL '24 hours' AND wc.last_cleaned >= NOW() - INTERVAL '36 hours'`
+            : scheduleCategoryValid === 'missed'
+              ? sql`AND (wc.last_cleaned IS NULL OR wc.last_cleaned < NOW() - INTERVAL '36 hours')`
+              : sql``
+      const signalStatusFilter = signalStatusValid
+        ? sql`AND EXISTS (
+            SELECT 1
+            FROM signals s2
+            WHERE s2.city_object_reference_id = wc.public_number
+              AND s2.city_object_type = 'waste-container'
+              AND s2.status = ${signalStatusValid}
+          )`
+        : sql``
+      const signalContainerStateFilter = signalContainerStateValid
+        ? sql`AND EXISTS (
+            SELECT 1
+            FROM signals s2
+            JOIN signals_container_state scs ON scs.parent_id = s2.id
+            WHERE s2.city_object_reference_id = wc.public_number
+              AND s2.city_object_type = 'waste-container'
+              AND s2.status NOT IN ('resolved', 'rejected')
+              AND scs.value = ${signalContainerStateValid}
+          )`
+        : sql``
+      const signalAgeBucketFilter = signalAgeBucketValid
+        ? sql`
+            AND EXISTS (
+              SELECT 1
+              FROM signals s2
+              WHERE s2.city_object_reference_id = wc.public_number
+                AND s2.city_object_type = 'waste-container'
+                AND (
+                  CASE
+                    WHEN NOW() - s2.created_at < INTERVAL '1 day' THEN '<1 ден'
+                    WHEN NOW() - s2.created_at < INTERVAL '2 days' THEN '1-2 дни'
+                    WHEN NOW() - s2.created_at < INTERVAL '3 days' THEN '2-3 дни'
+                    WHEN NOW() - s2.created_at < INTERVAL '7 days' THEN '3-7 дни'
+                    WHEN NOW() - s2.created_at < INTERVAL '14 days' THEN '7-14 дни'
+                    ELSE '14+'
+                  END
+                ) = ${signalAgeBucketValid}
+            )`
+        : sql``
+      const scheduleJoin = scheduledToday
+        ? sql`LEFT JOIN waste_containers_collection_days_of_week wcdow ON wcdow.parent_id = wc.id`
+        : sql``
 
       if (zoom >= INDIVIDUAL_ZOOM) {
         // Return individual markers for the visible viewport (capped at 2000)
@@ -135,6 +240,9 @@ export const containersWithSignalCount: Endpoint = {
               WHERE s.status NOT IN ('resolved', 'rejected')
             ), 0)::int AS active_signal_count
           FROM waste_containers wc
+          LEFT JOIN city_districts cd ON cd.id = wc.district_id
+          LEFT JOIN waste_collection_zones wcz ON wcz.id = cd.waste_collection_zone_id
+          ${scheduleJoin}
           LEFT JOIN signals s ON (
             s.city_object_reference_id = wc.public_number
             AND s.city_object_type = 'waste-container'
@@ -144,9 +252,19 @@ export const containersWithSignalCount: Endpoint = {
             ${statusFilter}
             ${wasteTypeFilter}
             ${districtFilter}
+            ${zoneFilter}
+            ${serviceCompanyFilter}
             ${activeSignalsFilter}
             ${createdFromFilter}
             ${createdToFilter}
+            ${lastCleanedFromFilter}
+            ${lastCleanedToFilter}
+            ${lastCleanedNullFilter}
+            ${scheduledTodayFilter}
+            ${scheduleCategoryFilter}
+            ${signalStatusFilter}
+            ${signalContainerStateFilter}
+            ${signalAgeBucketFilter}
           GROUP BY wc.id
           ORDER BY active_signal_count DESC
           LIMIT ${limit}
@@ -197,6 +315,9 @@ export const containersWithSignalCount: Endpoint = {
               WHERE s.id IS NOT NULL AND s.status NOT IN ('resolved', 'rejected')
             )::int AS active_signal_count
           FROM waste_containers wc
+          LEFT JOIN city_districts cd ON cd.id = wc.district_id
+          LEFT JOIN waste_collection_zones wcz ON wcz.id = cd.waste_collection_zone_id
+          ${scheduleJoin}
           LEFT JOIN signals s ON (
             s.city_object_reference_id = wc.public_number
             AND s.city_object_type = 'waste-container'
@@ -206,9 +327,19 @@ export const containersWithSignalCount: Endpoint = {
             ${statusFilter}
             ${wasteTypeFilter}
             ${districtFilter}
+            ${zoneFilter}
+            ${serviceCompanyFilter}
             ${activeSignalsFilter}
             ${createdFromFilter}
             ${createdToFilter}
+            ${lastCleanedFromFilter}
+            ${lastCleanedToFilter}
+            ${lastCleanedNullFilter}
+            ${scheduledTodayFilter}
+            ${scheduleCategoryFilter}
+            ${signalStatusFilter}
+            ${signalContainerStateFilter}
+            ${signalAgeBucketFilter}
           GROUP BY ST_SnapToGrid(wc.location::geometry, ${gridSize})
           ORDER BY count DESC
         `

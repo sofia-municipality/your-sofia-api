@@ -36,6 +36,11 @@ import { updates } from './endpoints/updates'
 import { updatesById } from './endpoints/updatesById'
 import { updatesOpenApi } from './endpoints/updatesOpenApi'
 import { updatesSources } from './endpoints/updatesSources'
+import {
+  signalsAgeMetric,
+  signalsStatusMetric,
+  signalsActiveContainerStateMetric,
+} from './endpoints/signals-metrics'
 import { processWasteCollectionEvents } from './tasks/WasteCollection/processWasteCollectionEvents'
 import { syncWasteCollectionSchedules } from './tasks/WasteCollection/syncWasteCollectionSchedules'
 import { sendUpdatesNotifications } from './tasks/Notifications/sendUpdatesNotifications'
@@ -167,7 +172,16 @@ export default buildConfig({
   ],
   cors: [serverURL].filter(Boolean),
   email,
-  endpoints: [healthCheck, updates, updatesById, updatesSources, updatesOpenApi],
+  endpoints: [
+    healthCheck,
+    updates,
+    updatesById,
+    updatesSources,
+    updatesOpenApi,
+    signalsAgeMetric,
+    signalsStatusMetric,
+    signalsActiveContainerStateMetric,
+  ],
   globals: [Header, Footer, NotificationSettings],
   i18n: {
     supportedLanguages: { en, bg },

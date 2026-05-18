@@ -103,6 +103,14 @@ const WasteContainerMapView: React.FC = () => {
         ...(f.hasActiveSignals && { hasActiveSignals: 'true' }),
         ...(f.createdFrom && { createdFrom: f.createdFrom }),
         ...(f.createdTo && { createdTo: f.createdTo }),
+        ...(f.lastCleanedFrom && { lastCleanedFrom: f.lastCleanedFrom }),
+        ...(f.lastCleanedTo && { lastCleanedTo: f.lastCleanedTo }),
+        ...(f.lastCleanedIsNull && { lastCleanedIsNull: 'true' }),
+        ...(f.scheduledToday && { scheduledToday: 'true' }),
+        ...(f.scheduleCategory && { scheduleCategory: f.scheduleCategory }),
+        ...(f.signalStatus && { signalStatus: f.signalStatus }),
+        ...(f.signalContainerState && { signalContainerState: f.signalContainerState }),
+        ...(f.signalAgeBucket && { signalAgeBucket: f.signalAgeBucket }),
       })
       const res = await fetch(`/api/waste-containers/containers-with-signal-count?${params}`)
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
@@ -141,8 +149,31 @@ const WasteContainerMapView: React.FC = () => {
     const status = searchParams.get('status')
     const createdFrom = searchParams.get('createdFrom')
     const createdTo = searchParams.get('createdTo')
+    const zoneNumber = searchParams.get('zoneNumber')
+    const lastCleanedFrom = searchParams.get('lastCleanedFrom')
+    const lastCleanedTo = searchParams.get('lastCleanedTo')
+    const lastCleanedIsNull = searchParams.get('lastCleanedIsNull') === 'true'
+    const scheduledToday = searchParams.get('scheduledToday') === 'true'
+    const scheduleCategory = searchParams.get('scheduleCategory')
+    const signalStatus = searchParams.get('signalStatus')
+    const signalContainerState = searchParams.get('signalContainerState')
+    const signalAgeBucket = searchParams.get('signalAgeBucket')
 
-    if (!status && !createdFrom && !createdTo) return
+    if (
+      !status &&
+      !createdFrom &&
+      !createdTo &&
+      !zoneNumber &&
+      !lastCleanedFrom &&
+      !lastCleanedTo &&
+      !lastCleanedIsNull &&
+      !scheduledToday &&
+      !scheduleCategory &&
+      !signalStatus &&
+      !signalContainerState &&
+      !signalAgeBucket
+    )
+      return
 
     void Promise.resolve().then(() => {
       setFilters((prev) => ({
@@ -150,6 +181,15 @@ const WasteContainerMapView: React.FC = () => {
         statuses: status ? [status] : prev.statuses,
         createdFrom: createdFrom ?? prev.createdFrom,
         createdTo: createdTo ?? prev.createdTo,
+        zoneNumber: zoneNumber ?? prev.zoneNumber,
+        lastCleanedFrom: lastCleanedFrom ?? prev.lastCleanedFrom,
+        lastCleanedTo: lastCleanedTo ?? prev.lastCleanedTo,
+        lastCleanedIsNull: lastCleanedIsNull || prev.lastCleanedIsNull,
+        scheduledToday: scheduledToday || prev.scheduledToday,
+        scheduleCategory: scheduleCategory ?? prev.scheduleCategory,
+        signalStatus: signalStatus ?? prev.signalStatus,
+        signalContainerState: signalContainerState ?? prev.signalContainerState,
+        signalAgeBucket: signalAgeBucket ?? prev.signalAgeBucket,
       }))
     })
   }, [searchParams])
