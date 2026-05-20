@@ -93,7 +93,7 @@ const handler: TaskHandler<'processWasteCollectionEvents'> = async ({ input, req
 
     for (const spot of spots) {
       const nearestQuery = sql`
-        SELECT wc.id, wc.district_id, wc.public_number, wc.status
+        SELECT wc.id, wc.district_id, wc.public_number, wc.status, wc.state
         FROM waste_containers wc
         WHERE ST_DWithin(
           ST_MakePoint(${spot.centroidLng}, ${spot.centroidLat})::geography,
@@ -112,7 +112,8 @@ const handler: TaskHandler<'processWasteCollectionEvents'> = async ({ input, req
       let containerId = nearestContainer?.id as number | undefined
       const districtExists = nearestContainer?.district_id
       const containerPublicNumber = nearestContainer?.public_number as string | undefined
-
+      const containerState = Array.isArray(nearestContainer?.state) ? nearestContainer.state : []
+      const keepBulkyWasteState = containerState.includes('bulkyWaste')
       if (!containerId) {
         //insert container on the missing spot and mark it prending for approval
         const newContainer = await payload.create({
@@ -142,7 +143,7 @@ const handler: TaskHandler<'processWasteCollectionEvents'> = async ({ input, req
             id: containerId,
             data: {
               status: nearestContainer?.status === 'full' ? 'active' : undefined, // make active only if it was full before
-              state: [],
+              state: keepBulkyWasteState ? ['bulkyWaste'] : [],
               lastCleaned: parseGpsTime(spot.events[0].GpsTime).toISOString(),
               servicedBy: `Фирма: ${firmId}`,
               district: !districtExists
