@@ -104,11 +104,8 @@ function RangeButton({
 const MetricsDashboard: React.FC = () => {
   const [range, setRange] = useState<Range>('week')
   const [data, setData] = useState<MetricsData | null>(null)
-  const [monthData, setMonthData] = useState<MetricsData | null>(null)
   const [loading, setLoading] = useState(true)
-  const [monthLoading, setMonthLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [monthError, setMonthError] = useState<string | null>(null)
 
   const fetchMetrics = useCallback(
     async (
@@ -146,15 +143,6 @@ const MetricsDashboard: React.FC = () => {
       onFinally: () => setLoading(false),
     })
   }, [range, fetchMetrics])
-
-  useEffect(() => {
-    fetchMetrics('month', {
-      onStart: () => setMonthLoading(true),
-      onSuccess: setMonthData,
-      onError: (message) => setMonthError(message || null),
-      onFinally: () => setMonthLoading(false),
-    })
-  }, [fetchMetrics])
 
   return (
     <div style={{ padding: '32px 40px', maxWidth: 1200, margin: '0 auto' }}>

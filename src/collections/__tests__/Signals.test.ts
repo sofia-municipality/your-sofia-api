@@ -32,15 +32,6 @@ const mockSendPush = sendPushNotificationsToTokens as jest.MockedFunction<
 // Helpers
 // ---------------------------------------------------------------------------
 
-const makeReq = (role?: string) => ({
-  req: {
-    user: role ? { role } : null,
-    payload: {
-      logger: { error: jest.fn(), warn: jest.fn(), info: jest.fn() },
-    },
-  },
-})
-
 const makePayload = (overrides?: Record<string, unknown>): any => ({
   logger: { error: jest.fn(), warn: jest.fn(), info: jest.fn() },
   ...overrides,

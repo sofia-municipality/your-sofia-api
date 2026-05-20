@@ -22,17 +22,6 @@ const WASTE_TYPES = [
   { value: 'trashCan', label: 'Кош' },
 ]
 
-const CONTAINER_STATES = [
-  { value: 'full', label: 'Пълен' },
-  { value: 'dirty', label: 'Замърсен' },
-  { value: 'damaged', label: 'Повреден' },
-  { value: 'leaves', label: 'Листа' },
-  { value: 'maintenance', label: 'В ремонт' },
-  { value: 'bagged', label: 'Торби' },
-  { value: 'fallen', label: 'Паднал' },
-  { value: 'bulkyWaste', label: 'Едрогабаритни' },
-]
-
 interface District {
   id: number
   name: string

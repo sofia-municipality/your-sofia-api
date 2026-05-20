@@ -1,4 +1,4 @@
-import type { Payload, TaskConfig, TaskHandler } from 'payload'
+import type { TaskConfig, TaskHandler } from 'payload'
 import { sql } from '@payloadcms/db-postgres'
 import {
   type WasteCollectionEvent,

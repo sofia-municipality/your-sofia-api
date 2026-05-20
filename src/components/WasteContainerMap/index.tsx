@@ -473,7 +473,6 @@ const WasteContainerMapView: React.FC = () => {
             items={displayItems}
             selectedIds={selectedIds}
             selectedContainerId={selectedContainer?.id ?? null}
-            selectMode={selectMode}
             onMarkerClick={handleMarkerClick}
             onMapClick={handleMapClick}
             onViewportChange={handleViewportChange}

@@ -226,7 +226,7 @@ describe('processWasteCollectionEvents handler', () => {
     expect(mockPayload.update).toHaveBeenCalledTimes(2)
     const signalUpdateCall = (mockPayload.update.mock.calls[1] as any[])[0] as any
     expect(signalUpdateCall.collection).toBe('signals')
-    expect(signalUpdateCall.id).toBe('signal-1')
+    expect(signalUpdateCall.id).toBe(1)
     expect(signalUpdateCall.data.status).toBe('resolved')
     expect(signalUpdateCall.data.description).toContain('Автоматично затворен от GPS синхронизация')
   })

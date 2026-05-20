@@ -248,7 +248,6 @@ interface ContainerMapProps {
   items: MapItem[]
   selectedIds: Set<number>
   selectedContainerId: number | null
-  selectMode: boolean
   onMarkerClick: (container: ContainerWithSignals) => void
   onMapClick: (lat: number, lng: number, screenX: number, screenY: number) => void
   onViewportChange: (zoom: number, bounds: Bounds) => void
@@ -260,7 +259,6 @@ export function ContainerMap({
   items,
   selectedIds,
   selectedContainerId,
-  selectMode,
   onMarkerClick,
   onMapClick,
   onViewportChange,
