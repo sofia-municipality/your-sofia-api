@@ -57,8 +57,8 @@ function getId(ref: { id: number | string } | number | string): number | string 
 function locationFilterMatches(
   filter: LocationFilter,
   newsDistrictId: number | string | null | undefined,
-  newsLat: number | null | undefined,
-  newsLng: number | null | undefined
+  _newsLat: number | null | undefined,
+  _newsLng: number | null | undefined
 ): boolean {
   switch (filter.filterType) {
     case 'all':

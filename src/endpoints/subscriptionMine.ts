@@ -95,7 +95,7 @@ export const subscriptionMinePatch: Endpoint = {
       let body: Record<string, any> = {}
       try {
         body = (await req.json?.()) ?? {}
-      } catch (e) {
+      } catch {
         return Response.json({ error: 'Invalid JSON body' }, { status: 400 })
       }
 
