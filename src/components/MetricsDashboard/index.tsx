@@ -14,7 +14,7 @@ import { TimeSinceCollectionChart } from './charts/TimeSinceCollectionChart'
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 interface DistrictStat {
-  districtId: string
+  districtId: number
   districtName: string
   totalContainers: number
   collectedContainers: number

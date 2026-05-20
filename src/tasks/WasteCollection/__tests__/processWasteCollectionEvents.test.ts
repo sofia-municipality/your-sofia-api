@@ -214,7 +214,7 @@ describe('processWasteCollectionEvents handler', () => {
           { id: 11, districtId: 1, code: 'RSE' },
         ],
       })
-      .mockResolvedValueOnce({ docs: [{ id: 'signal-1', description: 'Контейнерът е пълен' }] })
+      .mockResolvedValueOnce({ docs: [{ id: 1, districtId: 24, code: 'RTR' }] })
 
     const req: any = { payload: mockPayload }
     const input = { from: '2026-04-30 09:00', to: '2026-04-30 10:00' }

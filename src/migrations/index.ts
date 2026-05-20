@@ -42,6 +42,7 @@ import * as migration_20260428_163003_news_topics from './20260428_163003_news_t
 import * as migration_20260502_081213_container_service_fixes from './20260502_081213_container_service_fixes';
 import * as migration_20260505_065206_user_verification from './20260505_065206_user_verification';
 import * as migration_20260508_064250 from './20260508_064250';
+import * as migration_20260520_164303_inspectorMail from './20260520_164303_inspectorMail';
 
 export const migrations = [
   {
@@ -262,6 +263,11 @@ export const migrations = [
   {
     up: migration_20260508_064250.up,
     down: migration_20260508_064250.down,
-    name: '20260508_064250'
+    name: '20260508_064250',
+  },
+  {
+    up: migration_20260520_164303_inspectorMail.up,
+    down: migration_20260520_164303_inspectorMail.down,
+    name: '20260520_164303_inspectorMail'
   },
 ];

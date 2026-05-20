@@ -149,6 +149,7 @@ export interface Config {
       processWasteCollectionEvents: TaskProcessWasteCollectionEvents;
       syncWasteCollectionSchedules: TaskSyncWasteCollectionSchedules;
       sendUpdatesNotifications: TaskSendUpdatesNotifications;
+      sendInspectorMetricsReport: TaskSendInspectorMetricsReport;
       createCollectionExport: TaskCreateCollectionExport;
       createCollectionImport: TaskCreateCollectionImport;
       schedulePublish: TaskSchedulePublish;
@@ -1474,6 +1475,7 @@ export interface PayloadJob {
           | 'processWasteCollectionEvents'
           | 'syncWasteCollectionSchedules'
           | 'sendUpdatesNotifications'
+          | 'sendInspectorMetricsReport'
           | 'createCollectionExport'
           | 'createCollectionImport'
           | 'schedulePublish';
@@ -1515,6 +1517,7 @@ export interface PayloadJob {
         | 'processWasteCollectionEvents'
         | 'syncWasteCollectionSchedules'
         | 'sendUpdatesNotifications'
+        | 'sendInspectorMetricsReport'
         | 'createCollectionExport'
         | 'createCollectionImport'
         | 'schedulePublish'
@@ -2678,6 +2681,17 @@ export interface TaskSendUpdatesNotifications {
   input?: unknown;
   output: {
     notified: number;
+  };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TaskSendInspectorMetricsReport".
+ */
+export interface TaskSendInspectorMetricsReport {
+  input?: unknown;
+  output: {
+    recipients: number;
+    sent: number;
   };
 }
 /**

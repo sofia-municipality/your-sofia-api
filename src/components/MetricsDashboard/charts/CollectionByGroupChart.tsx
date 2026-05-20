@@ -15,11 +15,13 @@ type CollectionByGroupChartProps = {
   groupBy?: 'zone' | 'district' | 'day'
   byZone?: Array<{
     zoneName: string
+    zoneNumber: number
     collectedContainers: number
     totalContainers: number
   }>
   byDistrict?: Array<{
     districtName: string
+    districtId: number
     collectedContainers: number
     totalContainers: number
   }>
@@ -33,12 +35,14 @@ type CollectionByGroupChartProps = {
 
 const EMPTY_ZONE_DATA: Array<{
   zoneName: string
+  zoneNumber: number
   collectedContainers: number
   totalContainers: number
 }> = []
 
 const EMPTY_DISTRICT_DATA: Array<{
   districtName: string
+  districtId: number
   collectedContainers: number
   totalContainers: number
 }> = []
@@ -115,7 +119,7 @@ export function CollectionByGroupChart({
         collectedContainers: district.collectedContainers,
         notCollectedContainers: district.totalContainers - district.collectedContainers,
         params: {
-          districtId: district.districtId,
+          districtId: String(district.districtId),
           zoom: '12',
         },
       }))

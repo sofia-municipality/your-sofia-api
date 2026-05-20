@@ -57,7 +57,7 @@ export const collectionMetrics: Endpoint = {
       }[]
 
       const byDistrict = districtRows.map((row) => ({
-        districtId: String(row.district_id),
+        districtId: row.district_id,
         districtName: row.district_name ?? `District ${row.district_id}`,
         totalContainers: row.total_containers,
         collectedContainers: row.collected_containers,

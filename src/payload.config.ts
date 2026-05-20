@@ -44,6 +44,7 @@ import {
 import { processWasteCollectionEvents } from './tasks/WasteCollection/processWasteCollectionEvents'
 import { syncWasteCollectionSchedules } from './tasks/WasteCollection/syncWasteCollectionSchedules'
 import { sendUpdatesNotifications } from './tasks/Notifications/sendUpdatesNotifications'
+import { sendInspectorMetricsReport } from './tasks/Reports/sendInspectorMetricsReport'
 import { adminOnly } from '@/access/adminOnly'
 
 const filename = fileURLToPath(import.meta.url)
@@ -239,7 +240,12 @@ export default buildConfig({
         return authHeader === `Bearer ${process.env.CRON_SECRET}`
       },
     },
-    tasks: [processWasteCollectionEvents, syncWasteCollectionSchedules, sendUpdatesNotifications],
+    tasks: [
+      processWasteCollectionEvents,
+      syncWasteCollectionSchedules,
+      sendUpdatesNotifications,
+      sendInspectorMetricsReport,
+    ],
     autoRun: [
       {
         cron: '*/5 * * * *', // Check every 5 minutes

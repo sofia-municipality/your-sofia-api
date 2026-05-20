@@ -96,7 +96,6 @@ export function TimeSinceCollectionChart({ data }: TimeSinceCollectionChartProps
 
                     switch (bucket) {
                       case '<1 ден':
-                        expires.setDate(now.getDate() + 1)
                         params.set(
                           'lastCleanedFrom',
                           new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString()
