@@ -93,13 +93,20 @@ const handler: TaskHandler<'processWasteCollectionEvents'> = async ({ input, req
 
     for (const spot of spots) {
       const nearestQuery = sql`
-        SELECT wc.id, wc.district_id, wc.public_number, wc.status, wc.state
+        SELECT
+          wc.id,
+          wc.district_id,
+          wc.public_number,
+          wc.status,
+          COALESCE(json_agg(wcs.value) FILTER (WHERE wcs.value IS NOT NULL), '[]'::json) AS state
         FROM waste_containers wc
+        LEFT JOIN waste_containers_state wcs ON wcs.parent_id = wc.id
         WHERE ST_DWithin(
           ST_MakePoint(${spot.centroidLng}, ${spot.centroidLat})::geography,
           wc.location,
           ${SEARCH_RADIUS_METERS}
         )
+        GROUP BY wc.id
         ORDER BY ST_Distance(
           ST_MakePoint(${spot.centroidLng}, ${spot.centroidLat})::geography,
           wc.location
