@@ -35,6 +35,7 @@ import { healthCheck } from './endpoints/health'
 import { updates } from './endpoints/updates'
 import { updatesById } from './endpoints/updatesById'
 import { updatesOpenApi } from './endpoints/updatesOpenApi'
+import { updatesExport } from './endpoints/updatesExport'
 import { updatesSources } from './endpoints/updatesSources'
 import {
   signalsAgeMetric,
@@ -177,6 +178,7 @@ export default buildConfig({
     healthCheck,
     updates,
     updatesById,
+    updatesExport,
     updatesSources,
     updatesOpenApi,
     signalsAgeMetric,
