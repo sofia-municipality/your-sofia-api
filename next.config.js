@@ -1,6 +1,10 @@
 import { withPayload } from '@payloadcms/next/withPayload'
+import path from 'path'
+import { fileURLToPath } from 'url'
 
 import redirects from './redirects.js'
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 const NEXT_PUBLIC_SERVER_URL = process.env.VERCEL_PROJECT_PRODUCTION_URL
   ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
@@ -26,7 +30,13 @@ const nextConfig = {
   },
   reactStrictMode: true,
   redirects,
-  output: 'standalone', // Enable for Docker deployment
+  sassOptions: {
+    includePaths: [
+      path.join(__dirname, 'node_modules/@payloadcms/ui/dist/scss'),
+      path.join(__dirname, 'node_modules/@payloadcms/ui/dist'),
+    ],
+  },
+  output: 'standalone',
   webpack: (config) => {
     // Replace chunkhash with contenthash for consistent hashing
     // https://www.reddit.com/r/nextjs/comments/1o4a0fv/deploying_payload_cms_3x_with_docker_compose/

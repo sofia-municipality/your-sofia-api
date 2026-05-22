@@ -1,32 +1,22 @@
 import type { Endpoint } from 'payload'
 import type { Category, Subscription } from '../payload-types'
-import { proxyUpdatesUpstreamGet } from './updatesProxyUtils'
+import { getMessagesCollection, SOFIA_LOCALITY } from '../lib/oboMongo'
+import {
+  docToUpdateMessage,
+  hasNullPinTimespanStart,
+  messageInBounds,
+  sortByRelevance,
+  type ViewportBounds,
+} from '../lib/oboMessageMapper'
 
-type RawMessage = {
-  id?: string
-  text?: string
-  categories?: string[]
-  pins?: Array<{ address?: string; timespans?: Array<{ start?: string | null }> }>
-}
+const DEFAULT_QUERY_LIMIT = 200
+const MAX_QUERY_LIMIT = 500
 
-function hasNullTimespanStart(msg: RawMessage): boolean {
-  return (msg.pins ?? []).some((pin) =>
-    (pin.timespans ?? []).some((ts) => ts.start === null || ts.start === undefined)
-  )
-}
-
-// ─── Bounding-box helpers ──────────────────────────────────────────────────
-
-interface BBox {
-  north: number
-  south: number
-  east: number
-  west: number
-}
+// ─── Bounding-box helpers ────────────────────────────────────────────────
 
 const LAT_DEGREE_METERS = 111_320
 
-function bboxFromPoint(lat: number, lng: number, radiusMeters: number): BBox {
+function bboxFromPoint(lat: number, lng: number, radiusMeters: number): ViewportBounds {
   const dLat = radiusMeters / LAT_DEGREE_METERS
   const dLng = radiusMeters / (LAT_DEGREE_METERS * Math.cos((lat * Math.PI) / 180))
   return { north: lat + dLat, south: lat - dLat, east: lng + dLng, west: lng - dLng }
@@ -35,7 +25,7 @@ function bboxFromPoint(lat: number, lng: number, radiusMeters: number): BBox {
 function bboxFromPolygon(polygon: {
   type: 'Polygon'
   coordinates: [number, number][][]
-}): BBox | null {
+}): ViewportBounds | null {
   const coords = polygon.coordinates.flat()
   if (coords.length === 0) return null
   const lngs = coords.map((c) => c[0])
@@ -48,7 +38,7 @@ function bboxFromPolygon(polygon: {
   }
 }
 
-function unionBBoxes(boxes: BBox[]): BBox {
+function unionBBoxes(boxes: ViewportBounds[]): ViewportBounds {
   return {
     north: Math.max(...boxes.map((b) => b.north)),
     south: Math.min(...boxes.map((b) => b.south)),
@@ -61,7 +51,7 @@ function unionBBoxes(boxes: BBox[]): BBox {
 
 interface ResolvedSubscription {
   categories: string[]
-  bbox: BBox | null
+  bbox: ViewportBounds | null
 }
 
 async function resolveSubscription(
@@ -101,7 +91,7 @@ async function resolveSubscription(
     return { categories, bbox: null }
   }
 
-  const boxes: BBox[] = []
+  const boxes: ViewportBounds[] = []
 
   for (const filter of locationFilters) {
     if (filter.filterType === 'point') {
@@ -189,7 +179,7 @@ export const updates: Endpoint = {
       rawQuery.timespanEndGte = dayStart.toISOString()
     }
 
-    // Resolve the category filter before forwarding (the upstream may not honour it)
+    // Parse the category filter
     const categoriesFilter =
       typeof rawQuery.categories === 'string' && rawQuery.categories.trim()
         ? rawQuery.categories
@@ -198,45 +188,125 @@ export const updates: Endpoint = {
             .filter(Boolean)
         : null
 
-    const upstreamResponse = await proxyUpdatesUpstreamGet('/messages', rawQuery, {
-      logger: req.payload?.logger,
-    })
+    // Parse optional viewport bounds
+    const toNum = (v: unknown): number | undefined => {
+      if (typeof v === 'string' && v.trim() === '') return undefined
+      const n = Number(v)
+      return Number.isFinite(n) ? n : undefined
+    }
+    const north = toNum(rawQuery.north)
+    const south = toNum(rawQuery.south)
+    const east = toNum(rawQuery.east)
+    const west = toNum(rawQuery.west)
+    const hasBounds =
+      north !== undefined && south !== undefined && east !== undefined && west !== undefined
+    const bounds: ViewportBounds | null = hasBounds
+      ? { north: north!, south: south!, east: east!, west: west! }
+      : null
 
-    // Post-filter by categories when requested — the upstream API returns all messages
-    // regardless of the `categories` param; filtering must be applied here.
-    // Also drop messages that have pins with a null timespan start.
-    if (upstreamResponse.ok) {
-      try {
-        const body = await upstreamResponse.json()
-        let messages: RawMessage[] = body.messages ?? []
-
-        // Drop messages with null pin timespan starts
-        messages = messages.filter((msg) => {
-          if (hasNullTimespanStart(msg)) {
-            req.payload?.logger?.warn(
-              { messageId: msg.id, text: msg.text?.slice(0, 120) },
-              '[updates] Dropping message — pin has null timespans.start'
-            )
-            return false
-          }
-          return true
-        })
-
-        if (categoriesFilter && categoriesFilter.length > 0) {
-          messages = messages.filter(
-            (msg) =>
-              Array.isArray(msg.categories) &&
-              msg.categories.some((cat) => categoriesFilter.includes(cat.toLowerCase()))
-          )
-        }
-
-        return Response.json({ ...body, messages })
-      } catch (err) {
-        req.payload?.logger?.error({ err }, '[updates] Failed to post-process upstream response')
-        return upstreamResponse
-      }
+    // Parse timespanEndGte (already defaulted above)
+    const timespanEndGte = rawQuery.timespanEndGte
+    const cutoffDate = timespanEndGte ? new Date(String(timespanEndGte)) : new Date()
+    if (Number.isNaN(cutoffDate.getTime())) {
+      return Response.json({ error: 'Invalid timespanEndGte value' }, { status: 400 })
     }
 
-    return upstreamResponse
+    const parseNonNegativeInt = (value: unknown, field: 'limit' | 'offset'): number | null => {
+      if (value === undefined || value === null || value === '') {
+        return field === 'limit' ? DEFAULT_QUERY_LIMIT : 0
+      }
+      const parsed = Number.parseInt(String(value), 10)
+      if (Number.isNaN(parsed) || parsed < 0) return null
+      return parsed
+    }
+
+    const requestedLimit = parseNonNegativeInt(rawQuery.limit, 'limit')
+    if (requestedLimit === null) {
+      return Response.json({ error: 'Invalid limit value' }, { status: 400 })
+    }
+    const offset = parseNonNegativeInt(rawQuery.offset, 'offset')
+    if (offset === null) {
+      return Response.json({ error: 'Invalid offset value' }, { status: 400 })
+    }
+    const limit = Math.min(requestedLimit, MAX_QUERY_LIMIT)
+
+    // ── Build Mongo filter ───────────────────────────────────────────────
+    if (!process.env.YSM_OBOAPP_MONGODB_URI) {
+      return Response.json({ error: 'YSM_OBOAPP_MONGODB_URI is not configured' }, { status: 500 })
+    }
+
+    let messagesCollection: Awaited<ReturnType<typeof getMessagesCollection>>
+    try {
+      messagesCollection = await getMessagesCollection()
+    } catch (err) {
+      req.payload?.logger?.error({ err }, '[updates] Failed to connect to OboApp MongoDB')
+      return Response.json({ error: 'Failed to connect to OboApp database' }, { status: 500 })
+    }
+
+    // timespanEnd is stored as BSON Date by OboApp (confirmed in firestore-to-mongo migration);
+    // Date comparison is correct here.
+    const mongoFilter: Record<string, unknown> = {
+      timespanEnd: { $gte: cutoffDate },
+      locality: SOFIA_LOCALITY,
+    }
+
+    if (categoriesFilter && categoriesFilter.length > 0) {
+      // Include messages that match any requested category OR are cityWide
+      mongoFilter.$or = [{ categories: { $in: categoriesFilter } }, { cityWide: true }]
+    }
+
+    let rawDocs: Record<string, unknown>[]
+    try {
+      rawDocs = (await messagesCollection
+        .find(mongoFilter)
+        // Exclude large internal fields not used by docToUpdateMessage
+        .project({ embedding: 0, process: 0, ingestErrors: 0 })
+        .sort({ finalizedAt: -1, timespanEnd: -1 })
+        .skip(offset)
+        .limit(limit)
+        .toArray()) as Record<string, unknown>[]
+    } catch (err) {
+      req.payload?.logger?.error({ err }, '[updates] Mongo query failed')
+      return Response.json({ error: 'Failed to query OboApp database' }, { status: 500 })
+    }
+
+    // ── Map, filter and sort ─────────────────────────────────────────────
+    let messages = rawDocs
+      .map((doc) => {
+        const msg = docToUpdateMessage(doc)
+        if (!msg) {
+          req.payload?.logger?.warn(
+            { docId: String(doc._id ?? '') },
+            '[updates] Skipping malformed message document'
+          )
+        }
+        return msg
+      })
+      .filter((msg): msg is NonNullable<typeof msg> => msg !== null)
+
+    // Drop messages with null pin timespan starts
+    messages = messages.filter((msg) => {
+      if (hasNullPinTimespanStart(msg)) {
+        req.payload?.logger?.warn(
+          { messageId: msg.id, text: msg.text?.slice(0, 120) },
+          '[updates] Dropping message — pin has null timespans.start'
+        )
+        return false
+      }
+      return true
+    })
+
+    // Apply viewport bounds filter
+    if (bounds) {
+      messages = messages.filter((msg) => messageInBounds(msg, bounds))
+    }
+
+    return Response.json({
+      messages: sortByRelevance(messages),
+      pagination: {
+        limit,
+        offset,
+      },
+    })
   },
 }
