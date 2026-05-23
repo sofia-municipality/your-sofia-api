@@ -336,10 +336,8 @@ function geometryCentroid(geometry: GeoJsonGeometry): Coordinates | null {
     Array.isArray(geometry.coordinates) &&
     geometry.coordinates.length >= 2
   ) {
-    return {
-      lat: (geometry.coordinates as number[])[1],
-      lng: (geometry.coordinates as number[])[0],
-    }
+    const [lng, lat] = geometry.coordinates as [number, number, ...number[]]
+    return { lat, lng }
   }
 
   if (
