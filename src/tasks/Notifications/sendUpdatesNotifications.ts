@@ -1,15 +1,9 @@
 import type { TaskConfig, TaskHandler } from 'payload'
-import { buildUpdatesUpstreamUrl } from '@/endpoints/updatesProxyUtils'
+import type { UpdateMessage } from '@/lib/oboMessageMapper'
+import { docToUpdateMessage } from '@/lib/oboMessageMapper'
+import { getMessagesCollection, isMongoConfigured, SOFIA_LOCALITY } from '@/lib/oboMongo'
 import { matchSubscriptions } from '@/utilities/matchSubscriptions'
 import { sendPushNotifications, sendPushNotificationsToTokens } from '@/utilities/pushNotifications'
-
-interface UpdateMessage {
-  id?: string
-  text: string
-  plainText?: string
-  createdAt: string
-  categories?: string[]
-}
 
 const TASK_SLUG = 'sendUpdatesNotifications'
 
@@ -28,49 +22,31 @@ const handler: TaskHandler<'sendUpdatesNotifications'> = async ({ req }) => {
 
   payload.logger.info(`[${TASK_SLUG}] Checking for updates newer than ${since.toISOString()}`)
 
-  // ── 2. Fetch current active updates from upstream ─────────────────────────
-  const targetUrl = buildUpdatesUpstreamUrl('/messages', {})
-  if (!targetUrl) {
-    payload.logger.error(`[${TASK_SLUG}] OBOAPP_UPDATES_BASE_URL is not configured — skipping`)
+  // ── 2. Fetch new messages from MongoDB ───────────────────────────────────
+  if (!isMongoConfigured()) {
+    payload.logger.error(`[${TASK_SLUG}] MongoDB is not configured — skipping`)
     return { output: { notified: 0 } }
   }
 
-  const apiKey = process.env.OBOAPP_API_KEY
-  if (!apiKey) {
-    payload.logger.error(`[${TASK_SLUG}] OBOAPP_API_KEY is not configured — skipping`)
-    return { output: { notified: 0 } }
-  }
-
-  let messages: UpdateMessage[] = []
+  let newMessages: UpdateMessage[] = []
   try {
-    const res = await fetch(targetUrl.toString(), {
-      headers: { Accept: 'application/json', 'X-Api-Key': apiKey },
-      signal: AbortSignal.timeout(15_000),
-    })
-    if (!res.ok) {
-      payload.logger.error(`[${TASK_SLUG}] Upstream returned ${res.status} — skipping`)
-      return { output: { notified: 0 } }
-    }
-    const body = await res.json()
-    messages = (body.messages ?? []) as UpdateMessage[]
+    const col = await getMessagesCollection()
+    const docs = await col
+      .find(
+        { locality: SOFIA_LOCALITY, finalizedAt: { $gt: since } },
+        { projection: { embedding: 0, process: 0, ingestErrors: 0 } }
+      )
+      .sort({ finalizedAt: 1 })
+      .toArray()
+    newMessages = docs.map(docToUpdateMessage).filter((m): m is UpdateMessage => m !== null)
   } catch (err) {
-    payload.logger.error(`[${TASK_SLUG}] Failed to fetch upstream updates: ${err}`)
+    payload.logger.error(`[${TASK_SLUG}] Failed to query MongoDB for updates: ${err}`)
     return { output: { notified: 0 } }
   }
-
-  // ── 3. Filter to new messages only ────────────────────────────────────────
-  const newMessages = messages.filter((msg) => {
-    if (!msg.createdAt) return false
-    try {
-      return new Date(msg.createdAt) > since
-    } catch {
-      return false
-    }
-  })
 
   payload.logger.info(`[${TASK_SLUG}] ${newMessages.length} new update(s) to notify about`)
 
-  // ── 4. Update global timestamp before sending to avoid double-runs on error ─
+  // ── 3. Update global timestamp before sending to avoid double-runs on error ─
   await payload.updateGlobal({
     slug: 'notification-settings',
     data: { lastUpdatesNotifiedAt: new Date().toISOString() },
@@ -81,7 +57,7 @@ const handler: TaskHandler<'sendUpdatesNotifications'> = async ({ req }) => {
     return { output: { notified: 0 } }
   }
 
-  // ── 5. Send notifications ─────────────────────────────────────────────────
+  // ── 4. Send notifications ─────────────────────────────────────────────────
   let notified = 0
 
   for (const msg of newMessages) {
