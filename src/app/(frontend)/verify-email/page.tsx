@@ -14,8 +14,11 @@ export default async function VerifyEmailPage({ searchParams }: Props) {
   } else {
     try {
       const res = await fetch(`${getServerSideURL()}/api/users/verify/${token}`, {
-        method: 'GET',
+        method: 'POST',
         cache: 'no-store',
+        headers: {
+          'Content-Type': 'application/json',
+        },
       })
 
       verified = res.ok
