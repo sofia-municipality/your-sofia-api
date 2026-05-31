@@ -13,6 +13,9 @@ RUN corepack prepare pnpm@10.18.0 --activate
 FROM base AS deps
 # Check https://github.com/nodejs/docker-node/tree/b4117f9333da4138b03a546ec926ef50a31506c3#nodealpine to understand why libc6-compat might be needed.
 RUN apk add --no-cache libc6-compat
+RUN apk add --no-cache tzdata
+ENV TZ=Europe/Sofia
+RUN ln -snf /usr/share/zoneinfo/Europe/Sofia /etc/localtime && echo "Europe/Sofia" > /etc/timezone
 WORKDIR /app
 
 # Install dependencies based on the preferred package manager
@@ -59,6 +62,9 @@ COPY --from=builder --chown=nextjs:nodejs /app/public ./public
 
 # Ensure nextjs user can write to public and .next directories
 RUN chown -R nextjs:nodejs public .next
+
+ENV TZ=Europe/Sofia
+RUN ln -snf /usr/share/zoneinfo/Europe/Sofia /etc/localtime && echo "Europe/Sofia" > /etc/timezone
 
 USER nextjs
 
