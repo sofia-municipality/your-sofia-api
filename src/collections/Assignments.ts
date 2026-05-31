@@ -1,8 +1,11 @@
 import type { CollectionConfig, Access } from 'payload'
-import { canViewCityInfrastructure } from '@/access/cityInfrastructureAdmin'
+import {
+  canViewCityInfrastructure,
+  isCityInfrastructureAdmin,
+} from '@/access/cityInfrastructureAdmin'
 
 const canEditAssignments: Access = ({ req: { user } }) => {
-  return user?.role === 'containerAdmin' || user?.role === 'admin'
+  return isCityInfrastructureAdmin(user?.role)
 }
 
 const canReadAssignments: Access = ({ req: { user } }) => {

@@ -1,8 +1,10 @@
 import type { Access, CollectionConfig } from 'payload'
-import { canViewCityInfrastructure } from '@/access/cityInfrastructureAdmin'
+import {
+  canViewCityInfrastructure,
+  isCityInfrastructureAdmin,
+} from '@/access/cityInfrastructureAdmin'
 
-const canEditZones: Access = ({ req: { user } }) =>
-  user?.role === 'admin' || user?.role === 'containerAdmin'
+const canEditZones: Access = ({ req: { user } }) => isCityInfrastructureAdmin(user?.role)
 
 export const WasteCollectionZones: CollectionConfig = {
   slug: 'waste-collection-zones',

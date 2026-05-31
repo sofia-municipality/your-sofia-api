@@ -1,5 +1,6 @@
 import type { Endpoint } from 'payload'
 import type { User } from '@/payload-types'
+import { isCityInfrastructureAdmin } from '@/access/cityInfrastructureAdmin'
 
 export const cleanContainer: Endpoint = {
   path: '/:id/clean',
@@ -13,11 +14,12 @@ export const cleanContainer: Endpoint = {
       return Response.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Check if user has containerAdmin or admin role
     const userRole = (user as User).role
-    if (userRole !== 'containerAdmin' && userRole !== 'admin') {
+    if (!isCityInfrastructureAdmin(userRole)) {
       return Response.json(
-        { error: 'Forbidden: Only Container Admins can clean containers' },
+        {
+          error: 'Forbidden: Only admins, container admins, or inspectors can clean containers',
+        },
         { status: 403 }
       )
     }

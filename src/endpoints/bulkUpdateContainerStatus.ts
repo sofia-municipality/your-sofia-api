@@ -1,5 +1,6 @@
 import type { Endpoint } from 'payload'
 import type { User } from '@/payload-types'
+import { isCityInfrastructureAdmin } from '@/access/cityInfrastructureAdmin'
 
 export const bulkUpdateContainerStatus: Endpoint = {
   path: '/bulk-status',
@@ -12,7 +13,7 @@ export const bulkUpdateContainerStatus: Endpoint = {
     }
 
     const userRole = (user as User).role
-    if (userRole !== 'containerAdmin' && userRole !== 'admin') {
+    if (!isCityInfrastructureAdmin(userRole)) {
       return Response.json({ error: 'Forbidden' }, { status: 403 })
     }
 

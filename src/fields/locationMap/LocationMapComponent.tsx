@@ -3,6 +3,7 @@
 import { useAuth, useForm, useFormFields } from '@payloadcms/ui'
 import dynamic from 'next/dynamic'
 import React, { useCallback, useEffect, useRef } from 'react'
+import { isCityInfrastructureAdmin } from '@/access/cityInfrastructureAdmin'
 import './index.scss'
 
 // Dynamically import the Leaflet map to avoid SSR issues (Leaflet requires `window`)
@@ -39,7 +40,7 @@ export function LocationMapComponent() {
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const prefillApplied = useRef(false)
 
-  const canEdit = user != null && (user.role === 'admin' || user.role === 'containerAdmin')
+  const canEdit = user != null && isCityInfrastructureAdmin(user.role)
 
   // location is stored as [longitude, latitude] (PostGIS point format)
   const locationValue = useFormFields(([fields]) => fields['location']?.value) as

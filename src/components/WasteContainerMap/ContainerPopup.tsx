@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useAuth } from '@payloadcms/ui'
 import { colors } from '@/cssVariables'
+import { isCityInfrastructureAdmin } from '@/access/cityInfrastructureAdmin'
 import { ContainerWithSignals } from './types'
 
 const STATUS_LABELS: Record<string, string> = {
@@ -307,7 +308,7 @@ function DetailRow({ label, children }: { label: string; children: React.ReactNo
 
 export function ContainerPopup({ container, onClose, onContainerUpdated }: ContainerPopupProps) {
   const { user } = useAuth()
-  const isAdmin = user?.role === 'admin' || user?.role === 'containerAdmin'
+  const canEditContainer = isCityInfrastructureAdmin(user?.role)
 
   const [cleaning, setCleaning] = useState(false)
   const [cleanNotes, setCleanNotes] = useState('')
@@ -322,7 +323,6 @@ export function ContainerPopup({ container, onClose, onContainerUpdated }: Conta
   const [districtLoading, setDistrictLoading] = useState(false)
   const [districtError, setDistrictError] = useState<string | null>(null)
   const [selectedDistrict, setSelectedDistrict] = useState<RelationOption | null>(null)
-  const showCleanButton = isAdmin
   const initialForm = createEditFormState(container)
 
   const isFieldDirty = <K extends keyof EditFormState>(field: K) =>
@@ -619,7 +619,7 @@ export function ContainerPopup({ container, onClose, onContainerUpdated }: Conta
         <div
           style={{ display: 'flex', alignItems: 'center', gap: 8, marginLeft: 8, flexShrink: 0 }}
         >
-          {isAdmin && !isEditing && (
+          {canEditContainer && !isEditing && (
             <button
               onClick={() => setIsEditing(true)}
               style={{
@@ -636,7 +636,7 @@ export function ContainerPopup({ container, onClose, onContainerUpdated }: Conta
               Редакция
             </button>
           )}
-          {isAdmin && isEditing && (
+          {canEditContainer && isEditing && (
             <>
               <button
                 onClick={handleSave}
@@ -727,7 +727,7 @@ export function ContainerPopup({ container, onClose, onContainerUpdated }: Conta
           >
             Сигнали: {container.activeSignalCount} активни / {container.signalCount} общо
           </Link>
-          {showCleanButton && !cleaning && (
+          {canEditContainer && !cleaning && (
             <button
               onClick={() => setCleaning(true)}
               disabled={container.signalCount === 0}
@@ -819,7 +819,7 @@ export function ContainerPopup({ container, onClose, onContainerUpdated }: Conta
           }}
         >
           <DetailRow label="ID">{container.id}</DetailRow>
-          {isAdmin && isEditing ? (
+          {canEditContainer && isEditing ? (
             <>
               <DetailRow label="Публичен номер">
                 <input
@@ -1091,7 +1091,7 @@ export function ContainerPopup({ container, onClose, onContainerUpdated }: Conta
             {new Date(container.updatedAt).toLocaleString('bg-BG')}
           </DetailRow>
         </div>
-        {isAdmin && saveError && (
+        {canEditContainer && saveError && (
           <p style={{ color: colors.error, margin: '8px 0 0' }}>{saveError}</p>
         )}
       </div>

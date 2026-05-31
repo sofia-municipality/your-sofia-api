@@ -6,10 +6,13 @@ import { collectionMetrics } from '@/endpoints/collection-metrics'
 import { bulkUpdateContainerStatus } from '@/endpoints/bulkUpdateContainerStatus'
 import { newlyCreatedContainersMetric } from '@/endpoints/newly-created-containers-metric'
 import { locationMapField } from '@/fields/locationMap'
-import { canViewCityInfrastructure } from '@/access/cityInfrastructureAdmin'
+import {
+  canViewCityInfrastructure,
+  isCityInfrastructureAdmin,
+} from '@/access/cityInfrastructureAdmin'
 
 const canEditContainers: Access = ({ req: { user } }) => {
-  return user?.role === 'containerAdmin' || user?.role === 'admin'
+  return isCityInfrastructureAdmin(user?.role)
 }
 
 export const WasteContainers: CollectionConfig = {
