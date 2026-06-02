@@ -61,6 +61,7 @@ export const Users: CollectionConfig = {
     verify: {
       generateEmailHTML: ({ token }: { token: string }) => {
         const verifyURL = `${getServerSideURL()}/verify-email?token=${token}`
+        console.log(`[Users] Email verification URL: ${verifyURL}`)
         return `
           <p>Здравейте,</p>
           <p>Моля, потвърдете имейл адреса си, за да активирате профила си в <strong>Твоята София</strong>.</p>
