@@ -110,11 +110,10 @@ export const collectionMetrics: Endpoint = {
         WITH last_coll AS (
           SELECT
             wc.id AS container_id,
-            MAX(wc.last_cleaned) AS last_cleaned_at
+            wc.last_cleaned AS last_cleaned_at
           FROM waste_containers wc
           LEFT JOIN city_districts cd ON cd.id = wc.district_id
           WHERE cd.code = 'RTR' AND wc.capacity_volume = 1.1
-          GROUP BY wc.id
         )
         SELECT
           CASE
