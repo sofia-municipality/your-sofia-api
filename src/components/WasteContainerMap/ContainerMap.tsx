@@ -185,11 +185,13 @@ function MarkersLayer({
   selectedIds,
   selectedContainerId,
   onMarkerClick,
+  uncollectedMode,
 }: {
   items: MapItem[]
   selectedIds: Set<number>
   selectedContainerId: number | null
   onMarkerClick: (container: ContainerWithSignals) => void
+  uncollectedMode?: boolean
 }) {
   const map = useMap()
   const groupsRef = useRef<[L.LayerGroup, L.LayerGroup]>([L.layerGroup(), L.layerGroup()])
@@ -227,7 +229,7 @@ function MarkersLayer({
         backGroup.addLayer(marker)
       } else {
         const [lng, lat] = item.location
-        const color = getMarkerColor(item)
+        const color = getMarkerColor(item, uncollectedMode)
         const selected = selectedIds.has(item.id) || item.id === selectedContainerId
         const marker = L.marker([lat, lng], { icon: createColorIcon(color, selected) })
         marker.on('click', () => onMarkerClickRef.current(item))
@@ -239,7 +241,7 @@ function MarkersLayer({
     backGroup.addTo(map)
     groups[front].remove()
     frontRef.current = back
-  }, [items, selectedIds, selectedContainerId, map])
+  }, [items, selectedIds, selectedContainerId, map, uncollectedMode])
 
   return null
 }
@@ -253,6 +255,7 @@ interface ContainerMapProps {
   onViewportChange: (zoom: number, bounds: Bounds) => void
   flyToTarget: [number, number] | null
   initialZoom?: number
+  uncollectedMode?: boolean
 }
 
 export function ContainerMap({
@@ -264,6 +267,7 @@ export function ContainerMap({
   onViewportChange,
   flyToTarget,
   initialZoom = 12,
+  uncollectedMode,
 }: ContainerMapProps) {
   const handleMapClick = useCallback(
     (lat: number, lng: number, screenX: number, screenY: number) => {
@@ -291,6 +295,7 @@ export function ContainerMap({
         selectedIds={selectedIds}
         selectedContainerId={selectedContainerId}
         onMarkerClick={onMarkerClick}
+        uncollectedMode={uncollectedMode}
       />
     </MapContainer>
   )

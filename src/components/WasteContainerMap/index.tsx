@@ -91,13 +91,14 @@ const WasteContainerMapView: React.FC = () => {
     setError(null)
     try {
       const f = filtersRef.current
+      const serverStatuses = f.statuses.filter((status) => status !== 'uncollected')
       const params = new URLSearchParams({
         zoom: String(zoom),
         minLat: String(bounds.minLat),
         maxLat: String(bounds.maxLat),
         minLng: String(bounds.minLng),
         maxLng: String(bounds.maxLng),
-        ...(f.statuses.length > 0 && { statuses: f.statuses.join(',') }),
+        ...(serverStatuses.length > 0 && { statuses: serverStatuses.join(',') }),
         ...(f.wasteTypes.length > 0 && { wasteTypes: f.wasteTypes.join(',') }),
         ...(f.districtId && { districtId: f.districtId }),
         ...(f.hasActiveSignals && { hasActiveSignals: 'true' }),
@@ -478,6 +479,7 @@ const WasteContainerMapView: React.FC = () => {
             onViewportChange={handleViewportChange}
             flyToTarget={flyToTarget}
             initialZoom={initialZoom}
+            uncollectedMode={filters.statuses.includes('uncollected')}
           />
         )}
 

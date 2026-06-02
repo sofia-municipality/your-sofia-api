@@ -69,14 +69,27 @@ export const EMPTY_FILTERS: FilterState = {
   signalAgeBucket: null,
 }
 
+function getUncollectedBucket(lastCleaned?: string | null): 'green' | 'orange' | 'red' {
+  if (!lastCleaned) return 'red'
+
+  // Keep parity with mobile logic: PostgreSQL timestamp with space separator.
+  const hoursSince = (Date.now() - new Date(lastCleaned).getTime()) / (1000 * 60 * 60)
+
+  if (!Number.isFinite(hoursSince)) return 'red'
+  if (hoursSince <= 24) return 'green'
+  if (hoursSince <= 36) return 'orange'
+  return 'red'
+}
+
 export function applyFilters(containers: MarkerPoint[], filters: FilterState): MarkerPoint[] {
   const createdFromTime = filters.createdFrom ? new Date(filters.createdFrom).getTime() : null
   const createdToTime = filters.createdTo ? new Date(filters.createdTo).getTime() : null
+  const realStatuses = filters.statuses.filter((s) => s !== 'uncollected')
 
   return containers.filter((c) => {
     const createdAtTime = new Date(c.createdAt).getTime()
 
-    if (filters.statuses.length > 0 && !filters.statuses.includes(c.status)) return false
+    if (realStatuses.length > 0 && !realStatuses.includes(c.status)) return false
     if (filters.wasteTypes.length > 0 && !filters.wasteTypes.includes(c.wasteType)) return false
     if (filters.districtId !== null && c.districtId !== Number(filters.districtId)) return false
     if (filters.hasActiveSignals && c.activeSignalCount === 0) return false
@@ -86,7 +99,13 @@ export function applyFilters(containers: MarkerPoint[], filters: FilterState): M
   })
 }
 
-export function getMarkerColor(c: ContainerWithSignals): string {
+export function getMarkerColor(c: ContainerWithSignals, uncollectedMode?: boolean): string {
+  if (uncollectedMode) {
+    const bucket = getUncollectedBucket(c.lastCleaned)
+    if (bucket === 'red') return '#EF4444'
+    if (bucket === 'orange') return '#F97316'
+    return '#22C55E'
+  }
   if (c.status === 'inactive' || c.status === 'pending') return '#9CA3AF'
   if (c.status === 'full' || c.status === 'maintenance') return '#EF4444'
   if (c.activeSignalCount > 0) return '#F97316'

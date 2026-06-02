@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react'
 import { FilterState, EMPTY_FILTERS } from './types'
 
 const STATUSES = [
+  { value: 'uncollected', label: 'Непочистен', color: '#F97316' },
   { value: 'active', label: 'Активен', color: '#22C55E' },
   { value: 'full', label: 'Пълен', color: '#EF4444' },
   { value: 'maintenance', label: 'Поддръжка', color: '#F97316' },
