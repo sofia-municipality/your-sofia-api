@@ -1,4 +1,5 @@
-import { getServerSideURL } from '@/utilities/getURL'
+import configPromise from '@payload-config'
+import { getPayload } from 'payload'
 
 interface Props {
   searchParams: Promise<{ token?: string }>
@@ -13,24 +14,13 @@ export default async function VerifyEmailPage({ searchParams }: Props) {
     console.log('[verify-email] No token in query params')
     error = true
   } else {
-    const verifyUrl = `${getServerSideURL()}/api/users/verify/${token}`
-    console.log(`[verify-email] Verify URL: ${verifyUrl}`)
+    console.log(`[verify-email] Verifying token via local API: ${token}`)
     try {
-      const res = await fetch(verifyUrl, {
-        method: 'POST',
-        cache: 'no-store',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      })
-
-      const body = await res.text()
-      console.log(`[verify-email] Response status: ${res.status}, body: ${body}`)
-
-      verified = res.ok
-      error = !res.ok
+      const payload = await getPayload({ config: configPromise })
+      verified = await payload.verifyEmail({ collection: 'users', token })
+      error = !verified
     } catch (err) {
-      console.error('[verify-email] Fetch error:', err)
+      console.error('[verify-email] Verify error:', err)
       error = true
     }
   }
