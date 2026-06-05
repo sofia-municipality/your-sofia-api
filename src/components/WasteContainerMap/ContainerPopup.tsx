@@ -166,6 +166,7 @@ interface ContainerPopupProps {
   container: ContainerWithSignals
   onClose: () => void
   onContainerUpdated: (updated: ContainerWithSignals) => void
+  onContainerDeleted: (id: number) => void
 }
 
 function SearchableRelationField({
@@ -306,7 +307,12 @@ function DetailRow({ label, children }: { label: string; children: React.ReactNo
   )
 }
 
-export function ContainerPopup({ container, onClose, onContainerUpdated }: ContainerPopupProps) {
+export function ContainerPopup({
+  container,
+  onClose,
+  onContainerUpdated,
+  onContainerDeleted,
+}: ContainerPopupProps) {
   const { user } = useAuth()
   const canEditContainer = isCityInfrastructureAdmin(user?.role)
 
@@ -316,6 +322,8 @@ export function ContainerPopup({ container, onClose, onContainerUpdated }: Conta
   const [cleanLoading, setCleanLoading] = useState(false)
   const [saveError, setSaveError] = useState<string | null>(null)
   const [saveLoading, setSaveLoading] = useState(false)
+  const [deleteError, setDeleteError] = useState<string | null>(null)
+  const [deleteLoading, setDeleteLoading] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
   const [form, setForm] = useState<EditFormState>(() => createEditFormState(container))
   const [districtQuery, setDistrictQuery] = useState('')
@@ -527,6 +535,33 @@ export function ContainerPopup({ container, onClose, onContainerUpdated }: Conta
     }
   }
 
+  const handleDelete = async () => {
+    if (!window.confirm('Сигурни ли сте, че искате да изтриете контейнера?')) {
+      return
+    }
+
+    setDeleteLoading(true)
+    setDeleteError(null)
+
+    try {
+      const res = await fetch(`/api/waste-containers/${container.id}`, {
+        method: 'DELETE',
+      })
+
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}))
+        throw new Error(body.message ?? `HTTP ${res.status}`)
+      }
+
+      onContainerDeleted(container.id)
+      onClose()
+    } catch (e) {
+      setDeleteError(e instanceof Error ? e.message : 'Неуспешно изтриване')
+    } finally {
+      setDeleteLoading(false)
+    }
+  }
+
   const handleClean = async () => {
     setCleanLoading(true)
     setCleanError(null)
@@ -615,27 +650,63 @@ export function ContainerPopup({ container, onClose, onContainerUpdated }: Conta
               {WASTE_TYPE_LABELS[container.wasteType] ?? container.wasteType}
             </span>
           </div>
+          {canEditContainer && !isEditing && (
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 10 }}>
+              <button
+                onClick={() => setIsEditing(true)}
+                style={{
+                  padding: '6px 10px',
+                  borderRadius: 6,
+                  border: 'none',
+                  cursor: 'pointer',
+                  background: colors.primaryDark,
+                  color: colors.surface,
+                  fontSize: 12,
+                  fontWeight: 600,
+                }}
+              >
+                Редакция
+              </button>
+              <button
+                type="button"
+                onClick={() => setCleaning(true)}
+                disabled={container.signalCount === 0}
+                style={{
+                  padding: '6px 10px',
+                  borderRadius: 6,
+                  border: 'none',
+                  cursor: container.signalCount > 0 ? 'pointer' : 'default',
+                  background: container.signalCount > 0 ? colors.success : colors.textMuted,
+                  color: colors.surface,
+                  fontSize: 12,
+                  fontWeight: 600,
+                }}
+              >
+                Почисти
+              </button>
+              <button
+                type="button"
+                onClick={handleDelete}
+                disabled={deleteLoading}
+                style={{
+                  padding: '6px 10px',
+                  borderRadius: 6,
+                  border: 'none',
+                  cursor: deleteLoading ? 'default' : 'pointer',
+                  background: colors.error,
+                  color: colors.surface,
+                  fontSize: 12,
+                  fontWeight: 600,
+                }}
+              >
+                {deleteLoading ? 'Изтрива се…' : 'Изтрий'}
+              </button>
+            </div>
+          )}
         </div>
         <div
           style={{ display: 'flex', alignItems: 'center', gap: 8, marginLeft: 8, flexShrink: 0 }}
         >
-          {canEditContainer && !isEditing && (
-            <button
-              onClick={() => setIsEditing(true)}
-              style={{
-                padding: '6px 10px',
-                borderRadius: 6,
-                border: 'none',
-                cursor: 'pointer',
-                background: colors.primaryDark,
-                color: colors.surface,
-                fontSize: 12,
-                fontWeight: 600,
-              }}
-            >
-              Редакция
-            </button>
-          )}
           {canEditContainer && isEditing && (
             <>
               <button
@@ -727,25 +798,6 @@ export function ContainerPopup({ container, onClose, onContainerUpdated }: Conta
           >
             Сигнали: {container.activeSignalCount} активни / {container.signalCount} общо
           </Link>
-          {canEditContainer && !cleaning && (
-            <button
-              onClick={() => setCleaning(true)}
-              disabled={container.signalCount === 0}
-              style={{
-                padding: '4px 10px',
-                borderRadius: 6,
-                background: container.signalCount > 0 ? colors.success : colors.textMuted,
-                color: colors.surface,
-                fontSize: 12,
-                fontWeight: 600,
-                border: 'none',
-                cursor: container.signalCount > 0 ? 'pointer' : 'default',
-                flexShrink: 0,
-              }}
-            >
-              Почисти
-            </button>
-          )}
         </div>
 
         {cleaning && (
@@ -1094,18 +1146,10 @@ export function ContainerPopup({ container, onClose, onContainerUpdated }: Conta
         {canEditContainer && saveError && (
           <p style={{ color: colors.error, margin: '8px 0 0' }}>{saveError}</p>
         )}
+        {canEditContainer && deleteError && (
+          <p style={{ color: colors.error, margin: '8px 0 0' }}>{deleteError}</p>
+        )}
       </div>
-
-      {/* Actions */}
-      <div
-        style={{
-          padding: '8px 16px 14px',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 6,
-          borderTop: `1px solid ${colors.surface2}`,
-        }}
-      ></div>
     </div>
   )
 }

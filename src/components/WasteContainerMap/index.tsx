@@ -241,6 +241,16 @@ const WasteContainerMapView: React.FC = () => {
     setSelectedContainer(updated)
   }, [])
 
+  const handleContainerDeleted = useCallback((id: number) => {
+    setItems((prev) => prev.filter((item) => item.type !== 'marker' || item.id !== id))
+    setSelectedIds((prev) => {
+      const next = new Set(prev)
+      next.delete(id)
+      return next
+    })
+    setSelectedContainer(null)
+  }, [])
+
   const handleBulkUpdate = useCallback(async (ids: number[], status: string) => {
     const res = await fetch('/api/waste-containers/bulk-status', {
       method: 'PATCH',
@@ -489,6 +499,7 @@ const WasteContainerMapView: React.FC = () => {
             container={selectedContainer}
             onClose={() => setSelectedContainer(null)}
             onContainerUpdated={handleContainerUpdated}
+            onContainerDeleted={handleContainerDeleted}
           />
         )}
 
