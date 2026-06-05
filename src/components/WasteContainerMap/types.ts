@@ -37,6 +37,7 @@ export interface FilterState {
   statuses: string[]
   wasteTypes: string[]
   districtId: string | null
+  volumeOptions: string[]
   zoneNumber: string | null
   hasActiveSignals: boolean
   createdFrom: string | null
@@ -55,6 +56,7 @@ export const EMPTY_FILTERS: FilterState = {
   statuses: [],
   wasteTypes: [],
   districtId: null,
+  volumeOptions: [],
   zoneNumber: null,
   hasActiveSignals: false,
   createdFrom: null,
@@ -84,6 +86,9 @@ function getUncollectedBucket(lastCleaned?: string | null): 'green' | 'orange' |
 export function applyFilters(containers: MarkerPoint[], filters: FilterState): MarkerPoint[] {
   const createdFromTime = filters.createdFrom ? new Date(filters.createdFrom).getTime() : null
   const createdToTime = filters.createdTo ? new Date(filters.createdTo).getTime() : null
+  const selectedVolumes = filters.volumeOptions
+    .map((value) => Number(value))
+    .filter(Number.isFinite)
   const realStatuses = filters.statuses.filter((s) => s !== 'uncollected')
 
   return containers.filter((c) => {
@@ -95,6 +100,7 @@ export function applyFilters(containers: MarkerPoint[], filters: FilterState): M
     if (filters.hasActiveSignals && c.activeSignalCount === 0) return false
     if (createdFromTime !== null && createdAtTime < createdFromTime) return false
     if (createdToTime !== null && createdAtTime >= createdToTime) return false
+    if (selectedVolumes.length > 0 && !selectedVolumes.includes(c.capacityVolume)) return false
     return true
   })
 }

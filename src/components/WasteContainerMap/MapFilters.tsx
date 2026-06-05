@@ -83,6 +83,7 @@ export function MapFilters({ filters, onChange }: MapFiltersProps) {
     filters.statuses.length > 0 ||
     filters.wasteTypes.length > 0 ||
     filters.districtId !== null ||
+    filters.volumeOptions.length > 0 ||
     filters.hasActiveSignals
 
   return (
@@ -163,6 +164,27 @@ export function MapFilters({ filters, onChange }: MapFiltersProps) {
                 active={filters.wasteTypes.includes(value)}
                 onToggle={() =>
                   onChange({ ...filters, wasteTypes: toggle(filters.wasteTypes, value) })
+                }
+              />
+            ))}
+          </FilterRow>
+
+          <FilterRow label="Обем">
+            {[
+              { value: '1.1', label: '1100' },
+              { value: '0.12', label: '120' },
+            ].map(({ value, label }) => (
+              <Chip
+                key={value}
+                label={label}
+                active={filters.volumeOptions.includes(value)}
+                onToggle={() =>
+                  onChange({
+                    ...filters,
+                    volumeOptions: filters.volumeOptions.includes(value)
+                      ? filters.volumeOptions.filter((v) => v !== value)
+                      : [...filters.volumeOptions, value],
+                  })
                 }
               />
             ))}

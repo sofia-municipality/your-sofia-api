@@ -281,7 +281,7 @@ export const containersWithSignalCount: Endpoint = {
           imageId: row.image_id,
           location: [Number(row.longitude), Number(row.latitude)] as [number, number],
           capacitySize: row.capacity_size,
-          capacityVolume: row.capacity_volume,
+          capacityVolume: Number(row.capacity_volume),
           wasteType: row.waste_type,
           status: row.status,
           servicedBy: row.serviced_by,
