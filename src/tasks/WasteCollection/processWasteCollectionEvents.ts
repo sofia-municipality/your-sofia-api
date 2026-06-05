@@ -81,7 +81,11 @@ const handler: TaskHandler<'processWasteCollectionEvents'> = async ({ input, req
     const collectionEvents: WasteCollectionEvent[] = await vehicleResponse.json()
 
     // Keep only data points where the collection arm (Shooter) was active
-    const shooterEvents = collectionEvents.filter((p) => p.Shooter === true)
+    // and the truck was moving slowly enough to represent a true collection event.
+    const shooterEvents = collectionEvents.filter((p) => {
+      const speed = Number(p.Speed)
+      return p.Shooter === true && Number.isFinite(speed) && speed < 4
+    })
 
     // ── Step 1: cluster raw events into geographic spots (20 m radius) ────────
     // Multiple consecutive Shooter=true pings at the same location represent
