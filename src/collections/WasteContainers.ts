@@ -44,6 +44,22 @@ export const WasteContainers: CollectionConfig = {
     delete: canEditContainers,
   },
   defaultSort: '-createdAt',
+  hooks: {
+    beforeDelete: [
+      async ({ id, req }) => {
+        await req.payload.delete({
+          collection: 'waste-container-observations',
+          where: {
+            container: {
+              equals: id,
+            },
+          },
+          overrideAccess: true,
+          req,
+        })
+      },
+    ],
+  },
   fields: [
     // ── Sidebar fields (rendered outside of tabs) ─────────────────────────
     {
