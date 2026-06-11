@@ -242,7 +242,7 @@ export default buildConfig({
     tasks: [processWasteCollectionEvents, sendUpdatesNotifications, sendInspectorMetricsReport],
     autoRun: [
       {
-        cron: '*/5 * * * *', // Check every 5 minutes
+        cron: '*/2 * * * *', // Check every 2 minutes
         queue: 'default', // Process 'default' queue (for manually queued jobs)
         limit: 10,
       },
