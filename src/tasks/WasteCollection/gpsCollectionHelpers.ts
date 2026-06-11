@@ -142,12 +142,12 @@ export function formatApiDate(date: Date): string {
   )
 }
 
-/** Compute from/to strings for the given interval sync window ending at `now`. */
+/** Compute from/to strings for the given interval sync window ending at `now` in minutes. */
 export function buildSyncWindow(
-  hoursInterval: number = 1,
+  minutesInterval: number = 10,
   now: Date = new Date()
 ): { from: string; to: string } {
   const to = new Date(now)
-  const from = new Date(now.getTime() - hoursInterval * 60 * 60 * 1000)
+  const from = new Date(now.getTime() - minutesInterval * 60 * 1000)
   return { from: formatApiDate(from), to: formatApiDate(to) }
 }
