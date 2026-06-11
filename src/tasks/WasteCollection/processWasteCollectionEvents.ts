@@ -24,7 +24,7 @@ const handler: TaskHandler<'processWasteCollectionEvents'> = async ({ input, req
   const apiKey = process.env.INSPECTORAT_GPS_API_KEY ?? ''
   const gpsHeaders = { 'X-API-KEY': apiKey }
 
-  const { from, to } = input?.from && input?.to ? input : buildSyncWindow(1)
+  const { from, to } = input?.from && input?.to ? input : buildSyncWindow(12) // Default to last 12 min + 2 min overlap if no input provided
 
   payload.logger.info(`[processWasteCollectionEvents] Starting sync. Window: ${from} → ${to}`)
 
@@ -232,7 +232,7 @@ export const processWasteCollectionEvents: TaskConfig<'processWasteCollectionEve
   slug: 'processWasteCollectionEvents',
   label: 'Process Waste Collection Events',
   schedule: [
-    { cron: '02 * * * *', queue: 'default' }, // Run at 2 minutes past every hour
+    { cron: '*/10 * * * *', queue: 'default' }, // Run every 10 minutes
   ],
   inputSchema: [
     { name: 'from', type: 'text', required: true },
