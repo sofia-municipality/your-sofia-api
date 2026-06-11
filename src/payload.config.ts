@@ -42,7 +42,6 @@ import {
   signalsActiveContainerStateMetric,
 } from './endpoints/signals-metrics'
 import { processWasteCollectionEvents } from './tasks/WasteCollection/processWasteCollectionEvents'
-import { syncWasteCollectionSchedules } from './tasks/WasteCollection/syncWasteCollectionSchedules'
 import { sendUpdatesNotifications } from './tasks/Notifications/sendUpdatesNotifications'
 import { sendInspectorMetricsReport } from './tasks/Reports/sendInspectorMetricsReport'
 import { adminOnly } from '@/access/adminOnly'
@@ -240,12 +239,7 @@ export default buildConfig({
         return authHeader === `Bearer ${process.env.CRON_SECRET}`
       },
     },
-    tasks: [
-      processWasteCollectionEvents,
-      syncWasteCollectionSchedules,
-      sendUpdatesNotifications,
-      sendInspectorMetricsReport,
-    ],
+    tasks: [processWasteCollectionEvents, sendUpdatesNotifications, sendInspectorMetricsReport],
     autoRun: [
       {
         cron: '*/5 * * * *', // Check every 5 minutes
