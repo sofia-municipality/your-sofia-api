@@ -5,7 +5,11 @@ import { useAuth } from '@payloadcms/ui'
 import dynamic from 'next/dynamic'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
-import { isCityInfrastructureAdmin } from '@/access/cityInfrastructureAdmin'
+import {
+  canViewCityInfrastructure,
+  isCityInfrastructureAdmin,
+} from '@/access/cityInfrastructureAdmin'
+import type { PayloadRequest } from 'payload'
 import { SofiaGerbMark } from '@/components/AdminBrand/SofiaGerbMark'
 import {
   Bounds,
@@ -53,7 +57,8 @@ interface NewPinLocation {
 const WasteContainerMapView: React.FC = () => {
   const { user } = useAuth()
   const searchParams = useSearchParams()
-  const hasAccess = isCityInfrastructureAdmin(user?.role)
+  const hasAccess = canViewCityInfrastructure({ req: { user } } as { req: PayloadRequest })
+  const canAddContainer = isCityInfrastructureAdmin(user?.role)
   const [items, setItems] = useState<MapItem[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -222,12 +227,12 @@ const WasteContainerMapView: React.FC = () => {
 
   const handleMapClick = useCallback(
     (lat: number, lng: number, screenX: number, screenY: number) => {
-      if (!selectMode) {
+      if (!selectMode && canAddContainer) {
         setSelectedContainer(null)
         setNewPin({ lat, lng, screenX, screenY })
       }
     },
-    [selectMode]
+    [selectMode, canAddContainer]
   )
 
   const handleContainerUpdated = useCallback((updated: ContainerWithSignals) => {
@@ -504,7 +509,7 @@ const WasteContainerMapView: React.FC = () => {
         )}
 
         {/* Create pin hint */}
-        {newPin && !selectMode && (
+        {newPin && !selectMode && canAddContainer && (
           <CreatePinHint
             lat={newPin.lat}
             lng={newPin.lng}

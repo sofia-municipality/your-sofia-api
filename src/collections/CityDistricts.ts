@@ -13,6 +13,7 @@ export const CityDistricts: CollectionConfig = {
     defaultColumns: ['districtId', 'name', 'wasteCollectionZone'],
     group: 'Градска инфраструктура',
     description: 'Административни райони на София (1–24)',
+    hidden: ({ user }) => user?.role === 'wasteCollector',
   },
   access: {
     admin: canViewCityInfrastructure,

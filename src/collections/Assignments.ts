@@ -22,6 +22,7 @@ export const Assignments: CollectionConfig = {
     useAsTitle: 'title',
     defaultColumns: ['title', 'status', 'assignedTo', 'dueDate', 'createdAt'],
     group: 'Градска инфраструктура',
+    hidden: ({ user }) => user?.role === 'wasteCollector',
   },
   access: {
     admin: canViewCityInfrastructure,
