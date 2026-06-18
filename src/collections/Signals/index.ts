@@ -48,6 +48,7 @@ export const Signals: CollectionConfig = {
     group: 'Градска инфраструктура',
     description: 'Сигнали от граждани за проблеми',
     listSearchableFields: ['title', 'reporterUniqueId'],
+    hidden: ({ user }) => user?.role === 'wasteCollector',
   },
   defaultSort: '-createdAt',
   hooks: {
