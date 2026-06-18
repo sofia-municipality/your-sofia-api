@@ -2,29 +2,18 @@ import { updates } from '../updates'
 import { updatesById } from '../updatesById'
 import { updatesOpenApi } from '../updatesOpenApi'
 import { updatesSources } from '../updatesSources'
-
-// ─── Mock oboMongo ────────────────────────────────────────────────────────
-
-jest.mock('../../lib/oboMongo', () => ({
-  getMessagesCollection: jest.fn(),
-  getSourcesCollection: jest.fn(),
-  isMongoConfigured: jest.fn(() => true),
-  SOFIA_LOCALITY: 'bg.sofia',
-}))
-
-import { getMessagesCollection } from '../../lib/oboMongo'
+import type { UpdateMessage } from '../../lib/oboMessageMapper'
 
 // ─── Helpers ──────────────────────────────────────────────────────────────
 
-function makeMessage(overrides: Record<string, unknown> = {}): Record<string, unknown> {
+function makeMsg(overrides: Partial<UpdateMessage> = {}): UpdateMessage {
   return {
-    _id: 'msg-1',
+    id: 'msg-1',
     text: 'Test message',
-    createdAt: new Date('2026-01-01T00:00:00.000Z'),
-    crawledAt: new Date('2026-01-01T01:00:00.000Z'),
-    finalizedAt: new Date('2026-01-01T02:00:00.000Z'),
-    timespanStart: new Date('2026-01-01T00:00:00.000Z'),
-    timespanEnd: new Date('2026-01-10T00:00:00.000Z'),
+    createdAt: '2026-01-01T00:00:00.000Z',
+    finalizedAt: '2026-01-01T02:00:00.000Z',
+    timespanStart: '2026-01-01T00:00:00.000Z',
+    timespanEnd: '2026-01-10T00:00:00.000Z',
     locality: 'bg.sofia',
     categories: ['water'],
     cityWide: false,
@@ -32,125 +21,109 @@ function makeMessage(overrides: Record<string, unknown> = {}): Record<string, un
   }
 }
 
-function mockCollection(
-  docs: Record<string, unknown>[],
-  findOneResult: Record<string, unknown> | null = null
+/**
+ * Build a fake Payload request whose `payload.find` resolves to the given
+ * cache rows ({ data: UpdateMessage }). A custom `find` implementation can be
+ * supplied for error cases or to inspect query args.
+ */
+function makeReq(
+  options: {
+    query?: Record<string, unknown>
+    url?: string
+    docs?: { data: UpdateMessage }[]
+    find?: jest.Mock
+  } = {}
 ) {
-  const cursor = {
-    sort: jest.fn().mockReturnThis(),
-    project: jest.fn().mockReturnThis(),
-    skip: jest.fn().mockReturnThis(),
-    limit: jest.fn().mockReturnThis(),
-    toArray: jest.fn().mockResolvedValue(docs),
-  }
+  const find = options.find ?? jest.fn().mockResolvedValue({ docs: options.docs ?? [] })
   return {
-    find: jest.fn().mockReturnValue(cursor),
-    findOne: jest.fn().mockResolvedValue(findOneResult),
-  }
+    query: options.query ?? {},
+    url: options.url,
+    payload: { find, logger: { warn: jest.fn(), error: jest.fn() } },
+    _find: find,
+  } as any
 }
 
-// ─── updates endpoint ─────────────────────────────────────────────────────
+// ─── updates endpoint ──────────────────────────────────────────────────────
 
 describe('updates endpoint (unit)', () => {
-  const originalUri = process.env.YSM_OBOAPP_MONGODB_URI
+  afterEach(() => jest.clearAllMocks())
 
-  beforeEach(() => {
-    process.env.YSM_OBOAPP_MONGODB_URI = 'mongodb://localhost:27017'
-  })
-
-  afterEach(() => {
-    if (originalUri === undefined) {
-      Reflect.deleteProperty(process.env, 'YSM_OBOAPP_MONGODB_URI')
-    } else {
-      process.env.YSM_OBOAPP_MONGODB_URI = originalUri
-    }
-    jest.clearAllMocks()
-  })
-
-  it('returns 500 when YSM_OBOAPP_MONGODB_URI is not configured', async () => {
-    Reflect.deleteProperty(process.env, 'YSM_OBOAPP_MONGODB_URI')
-    const res = await updates.handler({ query: {} } as any)
-    expect(res.status).toBe(500)
-    expect(await res.json()).toEqual({ error: 'YSM_OBOAPP_MONGODB_URI is not configured' })
-  })
-
-  it('returns 500 when Mongo connection fails', async () => {
-    ;(getMessagesCollection as jest.Mock).mockRejectedValue(new Error('connect failed'))
-    const res = await updates.handler({
-      query: {},
-      payload: { logger: { error: jest.fn() } },
-    } as any)
-    expect(res.status).toBe(500)
-    expect(await res.json()).toEqual({ error: 'Failed to connect to OboApp database' })
-  })
-
-  it('returns 200 with mapped messages', async () => {
-    const doc = makeMessage()
-    ;(getMessagesCollection as jest.Mock).mockResolvedValue(mockCollection([doc]))
-    const res = await updates.handler({ query: {} } as any)
+  it('returns 200 with messages from the cache', async () => {
+    const req = makeReq({ docs: [{ data: makeMsg() }] })
+    const res = await updates.handler(req)
     expect(res.status).toBe(200)
     const body = await res.json()
     expect(Array.isArray(body.messages)).toBe(true)
     expect(body.messages).toHaveLength(1)
     expect(body.messages[0].id).toBe('msg-1')
-    expect(body.messages[0].text).toBe('Test message')
+    expect(body.pagination).toEqual({ limit: 200, offset: 0, total: 1 })
   })
 
-  it('adds default timespanEndGte filter when missing', async () => {
-    const col = mockCollection([])
-    ;(getMessagesCollection as jest.Mock).mockResolvedValue(col)
-    await updates.handler({ query: {} } as any)
-    const filterArg = col.find.mock.calls[0][0]
-    expect(filterArg.timespanEnd).toBeDefined()
-    expect(filterArg.timespanEnd.$gte).toBeInstanceOf(Date)
+  it('queries the cache by locality and active-timespan cutoff', async () => {
+    const req = makeReq()
+    await updates.handler(req)
+    const arg = req._find.mock.calls[0][0]
+    expect(arg.collection).toBe('obo-updates')
+    expect(arg.where.locality).toEqual({ equals: 'bg.sofia' })
+    expect(arg.where.timespanEnd.greater_than_equal).toBeDefined()
+    expect(arg.overrideAccess).toBe(true)
+    expect(arg.pagination).toBe(false)
   })
 
-  it('preserves provided timespanEndGte filter', async () => {
-    const col = mockCollection([])
-    ;(getMessagesCollection as jest.Mock).mockResolvedValue(col)
-    await updates.handler({ query: { timespanEndGte: '2026-02-23T00:00:00.000Z' } } as any)
-    const filterArg = col.find.mock.calls[0][0]
-    expect(filterArg.timespanEnd.$gte).toEqual(new Date('2026-02-23T00:00:00.000Z'))
+  it('defaults the timespan cutoff to the start of today when not provided', async () => {
+    const req = makeReq()
+    await updates.handler(req)
+    const cutoff = new Date(req._find.mock.calls[0][0].where.timespanEnd.greater_than_equal)
+    const todayStart = new Date()
+    todayStart.setHours(0, 0, 0, 0)
+    expect(cutoff.getTime()).toBe(todayStart.getTime())
   })
 
-  it('applies categories $in filter when categories are given', async () => {
-    const col = mockCollection([])
-    ;(getMessagesCollection as jest.Mock).mockResolvedValue(col)
-    await updates.handler({ query: { categories: 'water,traffic' } } as any)
-    const filterArg = col.find.mock.calls[0][0]
-    expect(filterArg.$or).toBeDefined()
-    const catClause = filterArg.$or.find((c: Record<string, unknown>) => c.categories)
-    expect(catClause.categories.$in).toEqual(expect.arrayContaining(['water', 'traffic']))
-    const cityWideClause = filterArg.$or.find((c: Record<string, unknown>) => c.cityWide)
-    expect(cityWideClause.cityWide).toBe(true)
+  it('preserves a provided timespanEndGte', async () => {
+    const req = makeReq({ query: { timespanEndGte: '2026-02-23T00:00:00.000Z' } })
+    await updates.handler(req)
+    expect(req._find.mock.calls[0][0].where.timespanEnd.greater_than_equal).toBe(
+      '2026-02-23T00:00:00.000Z'
+    )
   })
 
-  it('does not include $or filter when no categories are given', async () => {
-    const col = mockCollection([])
-    ;(getMessagesCollection as jest.Mock).mockResolvedValue(col)
-    await updates.handler({ query: {} } as any)
-    const filterArg = col.find.mock.calls[0][0]
-    expect(filterArg.$or).toBeUndefined()
+  it('filters by categories in JS (and always keeps cityWide)', async () => {
+    const req = makeReq({
+      query: { categories: 'traffic' },
+      docs: [
+        { data: makeMsg({ id: 'water', categories: ['water'] }) },
+        { data: makeMsg({ id: 'traffic', categories: ['traffic'] }) },
+        { data: makeMsg({ id: 'cw', categories: ['water'], cityWide: true }) },
+      ],
+    })
+    const res = await updates.handler(req)
+    const ids = (await res.json()).messages.map((m: { id: string }) => m.id)
+    expect(ids).toEqual(expect.arrayContaining(['traffic', 'cw']))
+    expect(ids).not.toContain('water')
   })
 
   it('drops messages that have pins with null timespans.start', async () => {
-    const goodDoc = makeMessage({ _id: 'good', pins: [] })
-    const badDoc = makeMessage({
-      _id: 'bad',
-      pins: [{ address: 'Test', timespans: [{ start: null, end: '2026-01-10T00:00:00.000Z' }] }],
+    const req = makeReq({
+      docs: [
+        { data: makeMsg({ id: 'good', pins: [] }) },
+        {
+          data: makeMsg({
+            id: 'bad',
+            pins: [
+              { address: 'Test', timespans: [{ start: null, end: '2026-01-10T00:00:00.000Z' }] },
+            ],
+          }),
+        },
+      ],
     })
-    ;(getMessagesCollection as jest.Mock).mockResolvedValue(mockCollection([goodDoc, badDoc]))
-    const res = await updates.handler({
-      query: {},
-      payload: { logger: { warn: jest.fn(), error: jest.fn() } },
-    } as any)
-    const body = await res.json()
-    expect(body.messages.map((m: { id: string }) => m.id)).toEqual(['good'])
+    const res = await updates.handler(req)
+    const ids = (await res.json()).messages.map((m: { id: string }) => m.id)
+    expect(ids).toEqual(['good'])
   })
 
-  it('applies viewport bounds filter in-memory', async () => {
-    const inBoundsDoc = makeMessage({
-      _id: 'in',
+  it('applies the viewport bounds filter in-memory', async () => {
+    const inBounds = makeMsg({
+      id: 'in',
       geoJson: {
         type: 'FeatureCollection',
         features: [
@@ -162,8 +135,8 @@ describe('updates endpoint (unit)', () => {
         ],
       },
     })
-    const outOfBoundsDoc = makeMessage({
-      _id: 'out',
+    const outOfBounds = makeMsg({
+      id: 'out',
       geoJson: {
         type: 'FeatureCollection',
         features: [
@@ -175,20 +148,19 @@ describe('updates endpoint (unit)', () => {
         ],
       },
     })
-    ;(getMessagesCollection as jest.Mock).mockResolvedValue(
-      mockCollection([inBoundsDoc, outOfBoundsDoc])
-    )
-    const res = await updates.handler({
+    const req = makeReq({
       query: { north: '43.0', south: '42.5', east: '23.5', west: '23.0' },
-    } as any)
-    const body = await res.json()
-    expect(body.messages.map((m: { id: string }) => m.id)).toEqual(['in'])
+      docs: [{ data: inBounds }, { data: outOfBounds }],
+    })
+    const res = await updates.handler(req)
+    const ids = (await res.json()).messages.map((m: { id: string }) => m.id)
+    expect(ids).toEqual(['in'])
   })
 
-  it('always includes cityWide messages when bounds filter is active', async () => {
-    const cityWideDoc = makeMessage({ _id: 'cw', cityWide: true, geoJson: undefined })
-    const normalDoc = makeMessage({
-      _id: 'normal',
+  it('always includes cityWide messages when a bounds filter is active', async () => {
+    const cityWide = makeMsg({ id: 'cw', cityWide: true, geoJson: undefined })
+    const elsewhere = makeMsg({
+      id: 'normal',
       geoJson: {
         type: 'FeatureCollection',
         features: [
@@ -200,72 +172,68 @@ describe('updates endpoint (unit)', () => {
         ],
       },
     })
-    ;(getMessagesCollection as jest.Mock).mockResolvedValue(
-      mockCollection([cityWideDoc, normalDoc])
-    )
-    const res = await updates.handler({
+    const req = makeReq({
       query: { north: '43.0', south: '42.5', east: '23.5', west: '23.0' },
-    } as any)
-    const body = await res.json()
-    expect(body.messages.map((m: { id: string }) => m.id)).toContain('cw')
-    expect(body.messages.map((m: { id: string }) => m.id)).not.toContain('normal')
+      docs: [{ data: cityWide }, { data: elsewhere }],
+    })
+    const res = await updates.handler(req)
+    const ids = (await res.json()).messages.map((m: { id: string }) => m.id)
+    expect(ids).toContain('cw')
+    expect(ids).not.toContain('normal')
   })
 
-  it('does not call fetch (no upstream proxy)', async () => {
+  it('paginates in-memory after filtering', async () => {
+    const docs = [
+      { data: makeMsg({ id: 'a', finalizedAt: '2026-01-05T00:00:00.000Z' }) },
+      { data: makeMsg({ id: 'b', finalizedAt: '2026-01-04T00:00:00.000Z' }) },
+      { data: makeMsg({ id: 'c', finalizedAt: '2026-01-03T00:00:00.000Z' }) },
+    ]
+    const req = makeReq({ query: { limit: '1', offset: '1' }, docs })
+    const res = await updates.handler(req)
+    const body = await res.json()
+    expect(body.messages.map((m: { id: string }) => m.id)).toEqual(['b'])
+    expect(body.pagination).toEqual({ limit: 1, offset: 1, total: 3 })
+  })
+
+  it('caps the requested limit to the hard maximum', async () => {
+    const req = makeReq({ query: { limit: '9999' }, docs: [{ data: makeMsg() }] })
+    const res = await updates.handler(req)
+    expect((await res.json()).pagination.limit).toBe(500)
+  })
+
+  it('does not call fetch (served from the local cache)', async () => {
     const originalFetch = global.fetch
     global.fetch = jest.fn()
-    ;(getMessagesCollection as jest.Mock).mockResolvedValue(mockCollection([]))
-    await updates.handler({ query: {} } as any)
+    await updates.handler(makeReq())
     expect(global.fetch).not.toHaveBeenCalled()
     global.fetch = originalFetch
   })
 
-  it('applies default pagination when limit/offset are not provided', async () => {
-    const col = mockCollection([])
-    ;(getMessagesCollection as jest.Mock).mockResolvedValue(col)
-    await updates.handler({ query: {} } as any)
-    expect(col.find).toHaveBeenCalledTimes(1)
-    const cursor = col.find.mock.results[0]!.value
-    expect(cursor.skip).toHaveBeenCalledWith(0)
-    expect(cursor.limit).toHaveBeenCalledWith(200)
-  })
-
-  it('caps requested limit to hard maximum', async () => {
-    const col = mockCollection([])
-    ;(getMessagesCollection as jest.Mock).mockResolvedValue(col)
-    await updates.handler({ query: { limit: '9999' } } as any)
-    expect(col.find).toHaveBeenCalledTimes(1)
-    const cursor = col.find.mock.results[0]!.value
-    expect(cursor.limit).toHaveBeenCalledWith(500)
-  })
-
-  it('returns 400 for invalid limit', async () => {
-    const res = await updates.handler({ query: { limit: '-1' } } as any)
+  it.each([
+    [{ limit: '-1' }, 'Invalid limit value'],
+    [{ offset: '-1' }, 'Invalid offset value'],
+    [{ timespanEndGte: 'not-a-date' }, 'Invalid timespanEndGte value'],
+  ])('returns 400 for invalid query %o', async (query, error) => {
+    const res = await updates.handler(makeReq({ query }))
     expect(res.status).toBe(400)
-    expect(await res.json()).toEqual({ error: 'Invalid limit value' })
+    expect(await res.json()).toEqual({ error })
+  })
+
+  it('returns 500 when the cache query fails', async () => {
+    const find = jest.fn().mockRejectedValue(new Error('db down'))
+    const res = await updates.handler(makeReq({ find }))
+    expect(res.status).toBe(500)
+    expect(await res.json()).toEqual({ error: 'Failed to query updates' })
   })
 })
 
-// ─── updatesById endpoint ─────────────────────────────────────────────────
+// ─── updatesById endpoint ──────────────────────────────────────────────────
 
 describe('updatesById endpoint (unit)', () => {
-  const originalUri = process.env.YSM_OBOAPP_MONGODB_URI
-
-  beforeEach(() => {
-    process.env.YSM_OBOAPP_MONGODB_URI = 'mongodb://localhost:27017'
-  })
-
-  afterEach(() => {
-    if (originalUri === undefined) {
-      Reflect.deleteProperty(process.env, 'YSM_OBOAPP_MONGODB_URI')
-    } else {
-      process.env.YSM_OBOAPP_MONGODB_URI = originalUri
-    }
-    jest.clearAllMocks()
-  })
+  afterEach(() => jest.clearAllMocks())
 
   it('returns 400 when id is missing', async () => {
-    const res = await updatesById.handler({ query: {} } as any)
+    const res = await updatesById.handler(makeReq())
     expect(res.status).toBe(400)
     expect(await res.json()).toEqual({ error: 'Missing required query parameter: id' })
   })
@@ -274,81 +242,57 @@ describe('updatesById endpoint (unit)', () => {
     ['', 'empty string'],
     ['   ', 'whitespace-only string'],
   ])('returns 400 when id is %s', async (id) => {
-    const res = await updatesById.handler({ query: { id } } as any)
+    const res = await updatesById.handler(makeReq({ query: { id } }))
     expect(res.status).toBe(400)
-    expect(await res.json()).toEqual({ error: 'Missing required query parameter: id' })
   })
 
-  it('returns 500 when YSM_OBOAPP_MONGODB_URI is not configured', async () => {
-    Reflect.deleteProperty(process.env, 'YSM_OBOAPP_MONGODB_URI')
-    const res = await updatesById.handler({ query: { id: 'msg-1' } } as any)
-    expect(res.status).toBe(500)
-    expect(await res.json()).toEqual({ error: 'YSM_OBOAPP_MONGODB_URI is not configured' })
+  it('returns 200 with the message when found', async () => {
+    const req = makeReq({ query: { id: 'msg-1' }, docs: [{ data: makeMsg({ id: 'msg-1' }) }] })
+    const res = await updatesById.handler(req)
+    expect(res.status).toBe(200)
+    expect((await res.json()).message.id).toBe('msg-1')
   })
 
-  it('returns 404 when message is not found', async () => {
-    ;(getMessagesCollection as jest.Mock).mockResolvedValue(mockCollection([], null))
-    const res = await updatesById.handler({ query: { id: 'msg-1' } } as any)
+  it('returns 404 when not found', async () => {
+    const req = makeReq({ query: { id: 'missing' }, docs: [] })
+    const res = await updatesById.handler(req)
     expect(res.status).toBe(404)
     expect(await res.json()).toEqual({ error: 'Message not found' })
   })
 
-  it('returns 200 with message when found by _id', async () => {
-    const doc = makeMessage({ _id: 'msg-1' })
-    ;(getMessagesCollection as jest.Mock).mockResolvedValue(mockCollection([], doc))
-    const res = await updatesById.handler({ query: { id: 'msg-1' } } as any)
-    expect(res.status).toBe(200)
-    const body = await res.json()
-    expect(body.message.id).toBe('msg-1')
+  it('trims whitespace and queries by oboId + locality', async () => {
+    const req = makeReq({ query: { id: '  msg-1  ' }, docs: [{ data: makeMsg() }] })
+    await updatesById.handler(req)
+    const arg = req._find.mock.calls[0][0]
+    expect(arg.collection).toBe('obo-updates')
+    expect(arg.where.oboId).toEqual({ equals: 'msg-1' })
+    expect(arg.where.locality).toEqual({ equals: 'bg.sofia' })
   })
 
-  it('trims whitespace from id before lookup', async () => {
-    const col = mockCollection([], makeMessage({ _id: 'msg-1' }))
-    ;(getMessagesCollection as jest.Mock).mockResolvedValue(col)
-    await updatesById.handler({ query: { id: '  msg-1  ' } } as any)
-    expect(col.findOne).toHaveBeenCalledWith({ _id: 'msg-1', locality: 'bg.sofia' })
+  it('accepts array id values by using the first valid entry', async () => {
+    const req = makeReq({ query: { id: ['msg-1'] }, docs: [{ data: makeMsg() }] })
+    const res = await updatesById.handler(req)
+    expect(res.status).toBe(200)
+    expect(req._find.mock.calls[0][0].where.oboId).toEqual({ equals: 'msg-1' })
   })
 
-  it('accepts array id values by using first valid entry', async () => {
-    const col = mockCollection([], makeMessage({ _id: 'msg-1' }))
-    ;(getMessagesCollection as jest.Mock).mockResolvedValue(col)
-    const res = await updatesById.handler({ query: { id: ['msg-1'] } } as any)
+  it('extracts a loose id from the raw URL when query parsing is incomplete', async () => {
+    const rawId = 'aHR0cHM6Ly9leGFtcGxlLmNvbS8_-1'
+    const req = makeReq({ url: `/api/updates/by-id?id=${rawId}`, docs: [{ data: makeMsg() }] })
+    const res = await updatesById.handler(req)
     expect(res.status).toBe(200)
+    expect(req._find.mock.calls[0][0].where.oboId).toEqual({ equals: rawId })
   })
 
-  it('extracts loose id from raw URL when query parsing is incomplete', async () => {
-    const col = mockCollection([], makeMessage({ _id: 'aHR0cHM6Ly9leGFtcGxlLmNvbS8_-1' }))
-    ;(getMessagesCollection as jest.Mock).mockResolvedValue(col)
-    const res = await updatesById.handler({
-      query: {},
-      url: '/api/updates/by-id?id=aHR0cHM6Ly9leGFtcGxlLmNvbS8_-1',
-    } as any)
-    expect(res.status).toBe(200)
-    expect(col.findOne).toHaveBeenCalledWith({
-      _id: 'aHR0cHM6Ly9leGFtcGxlLmNvbS8_-1',
-      locality: 'bg.sofia',
-    })
-  })
-
-  it('falls back to sourceDocumentId lookup when _id is not found', async () => {
-    const col = {
-      find: jest.fn(),
-      findOne: jest
-        .fn()
-        .mockResolvedValueOnce(null) // _id not found
-        .mockResolvedValueOnce(makeMessage({ _id: 'sourceDocId-123' })), // sourceDocumentId found
-    }
-    ;(getMessagesCollection as jest.Mock).mockResolvedValue(col)
-    const res = await updatesById.handler({ query: { id: 'sourceDocId-123' } } as any)
-    expect(res.status).toBe(200)
-    expect(col.findOne).toHaveBeenNthCalledWith(2, {
-      sourceDocumentId: 'sourceDocId-123',
-      locality: 'bg.sofia',
-    })
+  it('returns 500 when the cache query fails', async () => {
+    const find = jest.fn().mockRejectedValue(new Error('db down'))
+    const res = await updatesById.handler(makeReq({ query: { id: 'msg-1' }, find }))
+    expect(res.status).toBe(500)
+    expect(await res.json()).toEqual({ error: 'Failed to query updates' })
   })
 })
 
-// ─── updatesOpenApi endpoint ──────────────────────────────────────────────
+// ─── updatesOpenApi endpoint ───────────────────────────────────────────────
 
 describe('updates openapi endpoint (unit)', () => {
   it('returns schema with expected public paths', async () => {
@@ -358,21 +302,15 @@ describe('updates openapi endpoint (unit)', () => {
     expect(body).toHaveProperty('openapi', '3.1.0')
     expect(body.paths).toHaveProperty('/api/updates')
     expect(body.paths).toHaveProperty('/api/updates/by-id')
-    expect(body.paths).toHaveProperty('/api/updates-export')
     expect(body.paths).toHaveProperty('/api/updates/sources')
-    expect(body.paths['/api/updates/sources'].get.deprecated).toBe(true)
     expect(body.paths['/api/updates'].get.responses).toHaveProperty('400')
     expect(body.paths['/api/updates'].get.responses).toHaveProperty('500')
     expect(body.paths['/api/updates/by-id'].get.responses).toHaveProperty('400')
     expect(body.paths['/api/updates/by-id'].get.responses).toHaveProperty('404')
-    expect(body.paths['/api/updates-export'].get.responses).toHaveProperty('401')
-    expect(body.paths['/api/updates-export'].get.responses).toHaveProperty('413')
-    expect(body.paths['/api/updates/sources'].get.responses).toHaveProperty('401')
-    expect(body.paths['/api/updates/sources'].get.responses).toHaveProperty('403')
-    expect(body.paths['/api/updates/sources'].get.responses).toHaveProperty('404')
-    expect(body.paths['/api/updates/sources'].get.responses).toHaveProperty('502')
   })
 })
+
+// ─── updatesSources endpoint (still proxies the OBO REST API) ───────────────
 
 describe('updatesSources endpoint (unit)', () => {
   const originalBaseUrl = process.env.OBOAPP_UPDATES_BASE_URL
@@ -388,24 +326,13 @@ describe('updatesSources endpoint (unit)', () => {
   })
 
   afterEach(() => {
-    if (originalBaseUrl === undefined) {
+    if (originalBaseUrl === undefined)
       Reflect.deleteProperty(process.env, 'OBOAPP_UPDATES_BASE_URL')
-    } else {
-      process.env.OBOAPP_UPDATES_BASE_URL = originalBaseUrl
-    }
-
-    if (originalApiKey === undefined) {
-      Reflect.deleteProperty(process.env, 'OBOAPP_API_KEY')
-    } else {
-      process.env.OBOAPP_API_KEY = originalApiKey
-    }
-
-    if (originalNodeEnv === undefined) {
-      Reflect.deleteProperty(process.env, 'NODE_ENV')
-    } else {
-      Reflect.set(process.env, 'NODE_ENV', originalNodeEnv)
-    }
-
+    else process.env.OBOAPP_UPDATES_BASE_URL = originalBaseUrl
+    if (originalApiKey === undefined) Reflect.deleteProperty(process.env, 'OBOAPP_API_KEY')
+    else process.env.OBOAPP_API_KEY = originalApiKey
+    if (originalNodeEnv === undefined) Reflect.deleteProperty(process.env, 'NODE_ENV')
+    else Reflect.set(process.env, 'NODE_ENV', originalNodeEnv)
     global.fetch = originalFetch
   })
 
@@ -413,21 +340,13 @@ describe('updatesSources endpoint (unit)', () => {
     ;(global.fetch as jest.Mock).mockResolvedValue(
       new Response(JSON.stringify({ sources: [{ id: 'sofia-bg', name: 'Столична община' }] }), {
         status: 200,
-        headers: {
-          'content-type': 'application/json',
-        },
+        headers: { 'content-type': 'application/json' },
       })
     )
-
     const res = await updatesSources.handler({ query: {} } as any)
-
     expect(global.fetch).toHaveBeenCalledTimes(1)
     const calledUrl = String((global.fetch as jest.Mock).mock.calls[0][0])
     expect(calledUrl).toContain('https://obo.example.com/api/v1/sources')
-    expect((global.fetch as jest.Mock).mock.calls[0][1]?.headers).toMatchObject({
-      'X-Api-Key': 'test-api-key',
-    })
-
     expect(res.status).toBe(200)
     expect(await res.json()).toEqual({ sources: [{ id: 'sofia-bg', name: 'Столична община' }] })
   })

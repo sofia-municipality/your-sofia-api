@@ -10,6 +10,14 @@
  * Fields stored as stringified JSON (geoJson in some older records) are parsed.
  */
 
+/**
+ * Locality value used by OboApp for the Sofia feed. Updates are filtered to
+ * this locality everywhere. Kept here (rather than in a data-source module) so
+ * both the Postgres and notification paths can share it without coupling to a
+ * specific storage backend.
+ */
+export const SOFIA_LOCALITY = 'bg.sofia'
+
 // ─── Types ────────────────────────────────────────────────────────────────
 
 export interface Coordinates {
@@ -271,12 +279,15 @@ export function docToUpdateMessage(doc: Record<string, unknown>): UpdateMessage 
     const createdAt = toRequiredISOString(doc.createdAt, new Date().toISOString())
     const { timespanStart, timespanEnd } = resolveTimespan(doc, createdAt)
 
+    // REST payloads expose the message id as `id`; MongoDB documents use `_id`
+    // (a string in OboApp, but tolerate ObjectId-like values via toString).
     const id =
-      typeof doc._id === 'string'
+      optStr(doc.id) ??
+      (typeof doc._id === 'string'
         ? doc._id
         : doc._id && typeof (doc._id as Record<string, unknown>).toString === 'function'
           ? String(doc._id)
-          : undefined
+          : undefined)
 
     return {
       id,
@@ -387,6 +398,28 @@ export function messageInBounds(msg: UpdateMessage, bounds: ViewportBounds): boo
   }
 
   return false
+}
+
+// ─── Category helper ──────────────────────────────────────────────────────
+
+/**
+ * Returns true when a message satisfies the requested category filter.
+ *
+ * Mirrors the previous data-store semantics (`categories $in [...] OR cityWide`):
+ *   - no/empty filter            → always matches
+ *   - cityWide message           → always matches (city-wide updates are not
+ *                                  category-scoped)
+ *   - otherwise                  → matches if any of the message's categories
+ *                                  appears in the filter (case-insensitive)
+ */
+export function messageMatchesCategories(
+  msg: UpdateMessage,
+  categoriesFilter: string[] | null
+): boolean {
+  if (!categoriesFilter || categoriesFilter.length === 0) return true
+  if (msg.cityWide) return true
+  const wanted = new Set(categoriesFilter.map((c) => c.toLowerCase()))
+  return (msg.categories ?? []).some((c) => wanted.has(c.toLowerCase()))
 }
 
 // ─── Sort helper ──────────────────────────────────────────────────────────

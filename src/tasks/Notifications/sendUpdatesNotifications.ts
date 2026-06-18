@@ -1,7 +1,6 @@
 import type { TaskConfig, TaskHandler } from 'payload'
 import type { UpdateMessage } from '@/lib/oboMessageMapper'
-import { docToUpdateMessage } from '@/lib/oboMessageMapper'
-import { getMessagesCollection, isMongoConfigured, SOFIA_LOCALITY } from '@/lib/oboMongo'
+import { SOFIA_LOCALITY } from '@/lib/oboMessageMapper'
 import { matchSubscriptions } from '@/utilities/matchSubscriptions'
 import { sendPushNotifications, sendPushNotificationsToTokens } from '@/utilities/pushNotifications'
 
@@ -22,25 +21,23 @@ const handler: TaskHandler<'sendUpdatesNotifications'> = async ({ req }) => {
 
   payload.logger.info(`[${TASK_SLUG}] Checking for updates newer than ${since.toISOString()}`)
 
-  // ── 2. Fetch new messages from MongoDB ───────────────────────────────────
-  if (!isMongoConfigured()) {
-    payload.logger.error(`[${TASK_SLUG}] MongoDB is not configured — skipping`)
-    return { output: { notified: 0 } }
-  }
-
+  // ── 2. Fetch newly-finalized messages from the local cache (Postgres) ─────
   let newMessages: UpdateMessage[] = []
   try {
-    const col = await getMessagesCollection()
-    const docs = await col
-      .find(
-        { locality: SOFIA_LOCALITY, finalizedAt: { $gt: since } },
-        { projection: { embedding: 0, process: 0, ingestErrors: 0 } }
-      )
-      .sort({ finalizedAt: 1 })
-      .toArray()
-    newMessages = docs.map(docToUpdateMessage).filter((m): m is UpdateMessage => m !== null)
+    const result = await payload.find({
+      collection: 'obo-updates',
+      where: {
+        locality: { equals: SOFIA_LOCALITY },
+        finalizedAt: { greater_than: since.toISOString() },
+      },
+      sort: 'finalizedAt',
+      pagination: false,
+      depth: 0,
+      overrideAccess: true,
+    })
+    newMessages = result.docs.map((doc) => doc.data as unknown as UpdateMessage)
   } catch (err) {
-    payload.logger.error(`[${TASK_SLUG}] Failed to query MongoDB for updates: ${err}`)
+    payload.logger.error(`[${TASK_SLUG}] Failed to query updates cache: ${err}`)
     return { output: { notified: 0 } }
   }
 

@@ -2,6 +2,7 @@ import {
   docToUpdateMessage,
   hasNullPinTimespanStart,
   messageInBounds,
+  messageMatchesCategories,
   sortByRelevance,
   type UpdateMessage,
   type ViewportBounds,
@@ -538,5 +539,45 @@ describe('sortByRelevance', () => {
     const original = [...msgs]
     sortByRelevance(msgs)
     expect(msgs).toEqual(original)
+  })
+})
+
+// ─── docToUpdateMessage id source (REST vs Mongo) ──────────────────────────
+
+describe('docToUpdateMessage id resolution', () => {
+  it('prefers a REST-style string `id`', () => {
+    const result = docToUpdateMessage(makeDoc({ id: 'rest-id', _id: 'mongo-id' }))!
+    expect(result.id).toBe('rest-id')
+  })
+
+  it('falls back to Mongo `_id` when `id` is absent', () => {
+    const doc = makeDoc()
+    delete (doc as Record<string, unknown>).id
+    const result = docToUpdateMessage(doc)!
+    expect(result.id).toBe('doc-1')
+  })
+})
+
+// ─── messageMatchesCategories ──────────────────────────────────────────────
+
+describe('messageMatchesCategories', () => {
+  it('matches everything when the filter is null or empty', () => {
+    expect(messageMatchesCategories(makeMsg({ categories: ['water'] }), null)).toBe(true)
+    expect(messageMatchesCategories(makeMsg({ categories: ['water'] }), [])).toBe(true)
+  })
+
+  it('matches when a category overlaps (case-insensitive)', () => {
+    expect(messageMatchesCategories(makeMsg({ categories: ['Water'] }), ['water'])).toBe(true)
+    expect(messageMatchesCategories(makeMsg({ categories: ['traffic'] }), ['water'])).toBe(false)
+  })
+
+  it('always matches cityWide messages regardless of category', () => {
+    expect(
+      messageMatchesCategories(makeMsg({ categories: ['traffic'], cityWide: true }), ['water'])
+    ).toBe(true)
+  })
+
+  it('does not match a non-cityWide message with no categories', () => {
+    expect(messageMatchesCategories(makeMsg({ categories: [] }), ['water'])).toBe(false)
   })
 })

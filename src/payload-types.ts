@@ -82,6 +82,7 @@ export interface Config {
     assignments: Assignment;
     'geocode-addresses': GeocodeAddress;
     subscriptions: Subscription;
+    'obo-updates': OboUpdate;
     redirects: Redirect;
     forms: Form;
     'form-submissions': FormSubmission;
@@ -111,6 +112,7 @@ export interface Config {
     assignments: AssignmentsSelect<false> | AssignmentsSelect<true>;
     'geocode-addresses': GeocodeAddressesSelect<false> | GeocodeAddressesSelect<true>;
     subscriptions: SubscriptionsSelect<false> | SubscriptionsSelect<true>;
+    'obo-updates': OboUpdatesSelect<false> | OboUpdatesSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
     'form-submissions': FormSubmissionsSelect<false> | FormSubmissionsSelect<true>;
@@ -149,6 +151,7 @@ export interface Config {
       processWasteCollectionEvents: TaskProcessWasteCollectionEvents;
       syncWasteCollectionSchedules: TaskSyncWasteCollectionSchedules;
       sendUpdatesNotifications: TaskSendUpdatesNotifications;
+      syncOboUpdates: TaskSyncOboUpdates;
       sendInspectorMetricsReport: TaskSendInspectorMetricsReport;
       createCollectionExport: TaskCreateCollectionExport;
       createCollectionImport: TaskCreateCollectionImport;
@@ -1255,6 +1258,43 @@ export interface Subscription {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "obo-updates".
+ */
+export interface OboUpdate {
+  id: number;
+  /**
+   * Идентификатор на съобщението в OboApp (за upsert и търсене по id).
+   */
+  oboId: string;
+  /**
+   * Населено място (напр. bg.sofia).
+   */
+  locality?: string | null;
+  /**
+   * Край на валидността — използва се за филтъра „активни“.
+   */
+  timespanEnd?: string | null;
+  /**
+   * Кога съобщението е финализирано — за подредба и известия.
+   */
+  finalizedAt?: string | null;
+  /**
+   * Пълното публично съобщение (UpdateMessage), сервира се както е.
+   */
+  data:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "redirects".
  */
 export interface Redirect {
@@ -1475,6 +1515,7 @@ export interface PayloadJob {
           | 'processWasteCollectionEvents'
           | 'syncWasteCollectionSchedules'
           | 'sendUpdatesNotifications'
+          | 'syncOboUpdates'
           | 'sendInspectorMetricsReport'
           | 'createCollectionExport'
           | 'createCollectionImport'
@@ -1517,6 +1558,7 @@ export interface PayloadJob {
         | 'processWasteCollectionEvents'
         | 'syncWasteCollectionSchedules'
         | 'sendUpdatesNotifications'
+        | 'syncOboUpdates'
         | 'sendInspectorMetricsReport'
         | 'createCollectionExport'
         | 'createCollectionImport'
@@ -1604,6 +1646,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'subscriptions';
         value: number | Subscription;
+      } | null)
+    | ({
+        relationTo: 'obo-updates';
+        value: number | OboUpdate;
       } | null)
     | ({
         relationTo: 'redirects';
@@ -2151,6 +2197,19 @@ export interface SubscriptionsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "obo-updates_select".
+ */
+export interface OboUpdatesSelect<T extends boolean = true> {
+  oboId?: T;
+  locality?: T;
+  timespanEnd?: T;
+  finalizedAt?: T;
+  data?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "redirects_select".
  */
 export interface RedirectsSelect<T extends boolean = true> {
@@ -2685,6 +2744,19 @@ export interface TaskSendUpdatesNotifications {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TaskSyncOboUpdates".
+ */
+export interface TaskSyncOboUpdates {
+  input?: unknown;
+  output: {
+    fetched: number;
+    upserted: number;
+    pruned: number;
+    skipped: number;
+  };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "TaskSendInspectorMetricsReport".
  */
 export interface TaskSendInspectorMetricsReport {
@@ -2719,6 +2791,7 @@ export interface TaskCreateCollectionExport {
       | 'assignments'
       | 'geocode-addresses'
       | 'subscriptions'
+      | 'obo-updates'
       | 'redirects'
       | 'forms'
       | 'form-submissions'

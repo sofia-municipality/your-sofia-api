@@ -43,6 +43,7 @@ import * as migration_20260502_081213_container_service_fixes from './20260502_0
 import * as migration_20260505_065206_user_verification from './20260505_065206_user_verification';
 import * as migration_20260508_064250 from './20260508_064250';
 import * as migration_20260520_164303_inspectorMail from './20260520_164303_inspectorMail';
+import * as migration_20260609_000000_obo_updates from './20260609_000000_obo_updates';
 
 export const migrations = [
   {
@@ -269,5 +270,10 @@ export const migrations = [
     up: migration_20260520_164303_inspectorMail.up,
     down: migration_20260520_164303_inspectorMail.down,
     name: '20260520_164303_inspectorMail'
+  },
+  {
+    up: migration_20260609_000000_obo_updates.up,
+    down: migration_20260609_000000_obo_updates.down,
+    name: '20260609_000000_obo_updates',
   },
 ];

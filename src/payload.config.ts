@@ -34,8 +34,8 @@ import { getServerSideURL } from './utilities/getURL'
 import { healthCheck } from './endpoints/health'
 import { updates } from './endpoints/updates'
 import { updatesById } from './endpoints/updatesById'
+import { oboUpdatesWebhook } from './endpoints/oboUpdatesWebhook'
 import { updatesOpenApi } from './endpoints/updatesOpenApi'
-import { updatesExport } from './endpoints/updatesExport'
 import { updatesSources } from './endpoints/updatesSources'
 import {
   signalsAgeMetric,
@@ -45,7 +45,10 @@ import {
 import { processWasteCollectionEvents } from './tasks/WasteCollection/processWasteCollectionEvents'
 import { syncWasteCollectionSchedules } from './tasks/WasteCollection/syncWasteCollectionSchedules'
 import { sendUpdatesNotifications } from './tasks/Notifications/sendUpdatesNotifications'
+import { syncOboUpdates } from './tasks/Updates/syncOboUpdates'
 import { sendInspectorMetricsReport } from './tasks/Reports/sendInspectorMetricsReport'
+import { OboUpdates } from './collections/OboUpdates'
+import { isOboRestConfigured } from './lib/oboUpdatesSource'
 import { adminOnly } from '@/access/adminOnly'
 
 const filename = fileURLToPath(import.meta.url)
@@ -171,6 +174,7 @@ export default buildConfig({
     Assignments,
     GeocodeAddresses,
     Subscriptions,
+    OboUpdates,
   ],
   cors: [serverURL].filter(Boolean),
   email,
@@ -178,9 +182,9 @@ export default buildConfig({
     healthCheck,
     updates,
     updatesById,
-    updatesExport,
     updatesSources,
     updatesOpenApi,
+    oboUpdatesWebhook,
     signalsAgeMetric,
     signalsStatusMetric,
     signalsActiveContainerStateMetric,
@@ -229,6 +233,20 @@ export default buildConfig({
   typescript: {
     outputFile: path.resolve(dirname, 'payload-types.ts'),
   },
+  onInit: async (payload) => {
+    // Warm the local Updates cache on startup so the first request after a
+    // deploy doesn't wait for the next scheduled sync. The queued job is picked
+    // up by the next autoRun tick (≤2 min); the */2 schedule keeps it fresh.
+    // onInit is skipped during `payload migrate`/CLI, so this only runs in the
+    // long-lived server.
+    if (!isOboRestConfigured()) return
+    try {
+      await payload.jobs.queue({ task: 'syncOboUpdates', input: {} })
+      payload.logger.info('[onInit] Queued initial OBO updates sync')
+    } catch (err) {
+      payload.logger.error(`[onInit] Failed to queue initial OBO updates sync: ${err}`)
+    }
+  },
   jobs: {
     access: {
       run: ({ req }: { req: PayloadRequest }): boolean => {
@@ -246,12 +264,16 @@ export default buildConfig({
       processWasteCollectionEvents,
       syncWasteCollectionSchedules,
       sendUpdatesNotifications,
+      syncOboUpdates,
       sendInspectorMetricsReport,
     ],
     autoRun: [
       {
-        cron: '*/5 * * * *', // Check every 5 minutes
-        queue: 'default', // Process 'default' queue (for manually queued jobs)
+        // Tick every 2 minutes. Payload evaluates each task's `schedule` on an
+        // autoRun tick, so this caps how often scheduled tasks (e.g. the */2
+        // OBO updates sync) can fire. Other tasks keep their own schedules.
+        cron: '*/2 * * * *',
+        queue: 'default', // Process 'default' queue (scheduled + manually queued jobs)
         limit: 10,
       },
     ],

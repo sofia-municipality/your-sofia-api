@@ -1,11 +1,12 @@
 import type { Endpoint } from 'payload'
 import type { Category, Subscription } from '../payload-types'
-import { getMessagesCollection, SOFIA_LOCALITY } from '../lib/oboMongo'
 import {
-  docToUpdateMessage,
   hasNullPinTimespanStart,
   messageInBounds,
+  messageMatchesCategories,
   sortByRelevance,
+  SOFIA_LOCALITY,
+  type UpdateMessage,
   type ViewportBounds,
 } from '../lib/oboMessageMapper'
 
@@ -230,59 +231,38 @@ export const updates: Endpoint = {
     }
     const limit = Math.min(requestedLimit, MAX_QUERY_LIMIT)
 
-    // ── Build Mongo filter ───────────────────────────────────────────────
-    if (!process.env.YSM_OBOAPP_MONGODB_URI) {
-      return Response.json({ error: 'YSM_OBOAPP_MONGODB_URI is not configured' }, { status: 500 })
-    }
-
-    let messagesCollection: Awaited<ReturnType<typeof getMessagesCollection>>
+    // ── Query the local cache (Postgres) ──────────────────────────────────
+    // Cheap, indexable predicates (locality + active-timespan cutoff) run in
+    // the DB. Everything else — category match, viewport bounds and the
+    // null-pin drop — runs in JS via the shared mapper helpers, so the
+    // filtering logic lives in exactly one tested place. The active set is
+    // small, so we fetch all matching rows and paginate in memory *after*
+    // filtering (paginating in the DB before the JS filters would under-fill
+    // pages for zoomed-in viewports).
+    let rows: { data: UpdateMessage }[]
     try {
-      messagesCollection = await getMessagesCollection()
-    } catch (err) {
-      req.payload?.logger?.error({ err }, '[updates] Failed to connect to OboApp MongoDB')
-      return Response.json({ error: 'Failed to connect to OboApp database' }, { status: 500 })
-    }
-
-    // timespanEnd is stored as BSON Date by OboApp (confirmed in firestore-to-mongo migration);
-    // Date comparison is correct here.
-    const mongoFilter: Record<string, unknown> = {
-      timespanEnd: { $gte: cutoffDate },
-      locality: SOFIA_LOCALITY,
-    }
-
-    if (categoriesFilter && categoriesFilter.length > 0) {
-      // Include messages that match any requested category OR are cityWide
-      mongoFilter.$or = [{ categories: { $in: categoriesFilter } }, { cityWide: true }]
-    }
-
-    let rawDocs: Record<string, unknown>[]
-    try {
-      rawDocs = (await messagesCollection
-        .find(mongoFilter)
-        // Exclude large internal fields not used by docToUpdateMessage
-        .project({ embedding: 0, process: 0, ingestErrors: 0 })
-        .sort({ finalizedAt: -1, timespanEnd: -1 })
-        .skip(offset)
-        .limit(limit)
-        .toArray()) as Record<string, unknown>[]
-    } catch (err) {
-      req.payload?.logger?.error({ err }, '[updates] Mongo query failed')
-      return Response.json({ error: 'Failed to query OboApp database' }, { status: 500 })
-    }
-
-    // ── Map, filter and sort ─────────────────────────────────────────────
-    let messages = rawDocs
-      .map((doc) => {
-        const msg = docToUpdateMessage(doc)
-        if (!msg) {
-          req.payload?.logger?.warn(
-            { docId: String(doc._id ?? '') },
-            '[updates] Skipping malformed message document'
-          )
-        }
-        return msg
+      const result = await req.payload.find({
+        collection: 'obo-updates',
+        where: {
+          locality: { equals: SOFIA_LOCALITY },
+          timespanEnd: { greater_than_equal: cutoffDate.toISOString() },
+        },
+        // No DB sort: sortByRelevance() below re-sorts the full (unpaginated)
+        // set in JS, so any DB ordering would just be discarded.
+        pagination: false,
+        depth: 0,
+        overrideAccess: true,
       })
-      .filter((msg): msg is NonNullable<typeof msg> => msg !== null)
+      rows = result.docs as unknown as { data: UpdateMessage }[]
+    } catch (err) {
+      req.payload?.logger?.error({ err }, '[updates] Failed to query updates cache')
+      return Response.json({ error: 'Failed to query updates' }, { status: 500 })
+    }
+
+    // ── Map, filter and sort (shared JS helpers) ──────────────────────────
+    let messages = rows
+      .map((row) => row.data)
+      .filter((msg) => messageMatchesCategories(msg, categoriesFilter))
 
     // Drop messages with null pin timespan starts
     messages = messages.filter((msg) => {
@@ -301,11 +281,15 @@ export const updates: Endpoint = {
       messages = messages.filter((msg) => messageInBounds(msg, bounds))
     }
 
+    const sorted = sortByRelevance(messages)
+    const paginated = sorted.slice(offset, offset + limit)
+
     return Response.json({
-      messages: sortByRelevance(messages),
+      messages: paginated,
       pagination: {
         limit,
         offset,
+        total: sorted.length,
       },
     })
   },

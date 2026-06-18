@@ -108,6 +108,50 @@ export const updatesOpenApi: Endpoint = {
             },
           },
         },
+        '/api/updates/webhook': {
+          post: {
+            summary: 'Receive an update change from OboApp (push)',
+            description:
+              'Server-to-server webhook. OboApp calls this whenever an update is created, updated or deleted so the local cache stays in sync without waiting for the periodic crawl. Authenticated with the `X-Api-Key` header (OBO_WEBHOOK_API_KEY).',
+            parameters: [
+              {
+                name: 'X-Api-Key',
+                in: 'header',
+                required: true,
+                schema: { type: 'string' },
+              },
+            ],
+            requestBody: {
+              required: true,
+              content: {
+                'application/json': {
+                  schema: {
+                    type: 'object',
+                    required: ['event'],
+                    properties: {
+                      event: { type: 'string', enum: ['created', 'updated', 'deleted'] },
+                      message: {
+                        type: 'object',
+                        description: 'Full OBO message object. Required for created/updated.',
+                      },
+                      id: {
+                        type: 'string',
+                        description: 'Message id. Required for deleted (or read from message.id).',
+                      },
+                    },
+                  },
+                },
+              },
+            },
+            responses: {
+              '200': { description: 'Change applied ({ status, event, id, result })' },
+              '400': { description: 'Invalid body (bad event, missing message/id)' },
+              '401': { description: 'Missing or invalid X-Api-Key' },
+              '500': { description: 'Failed to persist the change' },
+              '503': { description: 'Webhook not configured (OBO_WEBHOOK_API_KEY unset)' },
+            },
+          },
+        },
         '/api/updates/sources': {
           get: {
             summary: 'List update sources (deprecated — legacy proxy)',
@@ -134,49 +178,6 @@ export const updatesOpenApi: Endpoint = {
                 description: 'Server error or upstream unavailable',
               },
             },
-          },
-        },
-        '/api/updates-export': {
-          get: {
-            summary: 'Private export endpoint — incremental messages since a given timestamp',
-            description:
-              'Requires X-Api-Key header. Returns messages updated since `since`. Returns 413 if count exceeds the configured limit.',
-            parameters: [
-              {
-                name: 'since',
-                in: 'query',
-                required: true,
-                schema: { type: 'string', format: 'date-time' },
-                description: 'ISO 8601 timestamp — return records updated after this point',
-              },
-            ],
-            security: [{ apiKeyAuth: [] }],
-            responses: {
-              '200': {
-                description: 'Export payload with messages',
-              },
-              '400': {
-                description: 'Missing or invalid since parameter',
-              },
-              '401': {
-                description: 'Missing or invalid X-Api-Key',
-              },
-              '413': {
-                description: 'limitExceeded — message count exceeds configured maximum',
-              },
-              '500': {
-                description: 'Server error (missing config or query failure)',
-              },
-            },
-          },
-        },
-      },
-      components: {
-        securitySchemes: {
-          apiKeyAuth: {
-            type: 'apiKey',
-            in: 'header',
-            name: 'X-Api-Key',
           },
         },
       },
