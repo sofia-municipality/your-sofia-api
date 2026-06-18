@@ -4,6 +4,9 @@
     "strict": true,
     "noUncheckedIndexedAccess": true,
     "noImplicitOverride": true,
+    // baseUrl is deprecated in TS 6 (removed in TS 7) but still required here for
+    // the bare `src/...` imports; silence the deprecation until those migrate.
+    "ignoreDeprecations": "6.0",
     "baseUrl": ".",
     "esModuleInterop": true,
     "target": "ES2022",
