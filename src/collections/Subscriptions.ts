@@ -24,6 +24,7 @@ export const Subscriptions: CollectionConfig = {
     defaultColumns: ['pushToken', 'user', 'categories', 'updatedAt'],
     description: 'Push notification subscriptions per device — categories + location filters',
     group: 'Известия',
+    hidden: ({ user }) => user?.role === 'wasteCollector',
   },
   access: {
     create: () => true, // anonymous devices can subscribe

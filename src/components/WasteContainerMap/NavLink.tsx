@@ -5,14 +5,15 @@ import { useAuth } from '@payloadcms/ui'
 import { usePathname } from 'next/navigation'
 import Link from 'next/link'
 import { MapPin } from 'lucide-react'
-import { isCityInfrastructureAdmin } from '@/access/cityInfrastructureAdmin'
+import { canViewCityInfrastructure } from '@/access/cityInfrastructureAdmin'
+import { PayloadRequest } from 'payload'
 
 const WasteContainerMapNavLink: React.FC = () => {
   const { user } = useAuth()
   const pathname = usePathname()
   const isActive = pathname?.startsWith('/admin/waste-map')
 
-  if (!isCityInfrastructureAdmin(user?.role)) return null
+  if (!canViewCityInfrastructure({ req: { user } } as { req: PayloadRequest })) return null
 
   return (
     <div style={{ padding: '0 8px' }}>
