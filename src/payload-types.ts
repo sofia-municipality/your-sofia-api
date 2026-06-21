@@ -147,7 +147,6 @@ export interface Config {
   jobs: {
     tasks: {
       processWasteCollectionEvents: TaskProcessWasteCollectionEvents;
-      syncWasteCollectionSchedules: TaskSyncWasteCollectionSchedules;
       sendUpdatesNotifications: TaskSendUpdatesNotifications;
       sendInspectorMetricsReport: TaskSendInspectorMetricsReport;
       createCollectionExport: TaskCreateCollectionExport;
@@ -1473,7 +1472,6 @@ export interface PayloadJob {
         taskSlug:
           | 'inline'
           | 'processWasteCollectionEvents'
-          | 'syncWasteCollectionSchedules'
           | 'sendUpdatesNotifications'
           | 'sendInspectorMetricsReport'
           | 'createCollectionExport'
@@ -1515,7 +1513,6 @@ export interface PayloadJob {
     | (
         | 'inline'
         | 'processWasteCollectionEvents'
-        | 'syncWasteCollectionSchedules'
         | 'sendUpdatesNotifications'
         | 'sendInspectorMetricsReport'
         | 'createCollectionExport'
@@ -2652,25 +2649,6 @@ export interface TaskProcessWasteCollectionEvents {
     pointsTotal: number;
     containersUpdated: number;
     observationsCreated: number;
-  };
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "TaskSyncWasteCollectionSchedules".
- */
-export interface TaskSyncWasteCollectionSchedules {
-  input: {
-    year?: number | null;
-    month?: number | null;
-    district?: string | null;
-    size?: string | null;
-  };
-  output: {
-    districtsProcessed: number;
-    filesDownloaded: number;
-    streetsMatched: number;
-    containersUpdated: number;
-    streetsUnmatched: number;
   };
 }
 /**
