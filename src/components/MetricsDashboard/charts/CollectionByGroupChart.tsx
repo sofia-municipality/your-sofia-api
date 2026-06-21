@@ -58,7 +58,7 @@ export function CollectionByGroupChart({
   groupBy: fixedGroupBy,
   ...props
 }: CollectionByGroupChartProps) {
-  const [tab, setTab] = useState<'zone' | 'district' | 'day'>(fixedGroupBy ?? 'district')
+  const [tab, setTab] = useState<'zone' | 'district' | 'day'>(fixedGroupBy ?? 'day')
   const groupBy = fixedGroupBy ?? tab
   const showTabs = fixedGroupBy === undefined
 
@@ -143,7 +143,7 @@ export function CollectionByGroupChart({
             marginBottom: 12,
           }}
         >
-          {(['district', 'zone', 'day'] as const).map((t) => (
+          {(['day', 'district', 'zone'] as const).map((t) => (
             <button
               key={t}
               type="button"
