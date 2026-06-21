@@ -38,6 +38,7 @@ export const collectionMetrics: Endpoint = {
           COUNT(DISTINCT wco.container_id)::int AS collected_containers
         FROM waste_containers wc
         JOIN city_districts cd ON cd.id = wc.district_id
+        JOIN waste_containers_collection_days_of_week wcdow ON wcdow.parent_id = wc.id
         LEFT JOIN waste_container_observations wco
           ON  wco.container_id = wc.id
           AND wco.cleaned_at  >= ${fromIso}::timestamptz
@@ -46,6 +47,7 @@ export const collectionMetrics: Endpoint = {
           AND cd.code = 'RTR'
           AND wc.capacity_volume = 1.1
           AND wc.status IN ('active', 'full')
+          AND wcdow.value::text = EXTRACT(ISODOW FROM NOW() AT TIME ZONE 'Europe/Sofia')::int::text
         GROUP BY cd.district_id, cd.name
         ORDER BY cd.district_id
       `
@@ -79,6 +81,7 @@ export const collectionMetrics: Endpoint = {
         FROM waste_collection_zones wcz
         LEFT JOIN city_districts cd ON cd.waste_collection_zone_id = wcz.id
         LEFT JOIN waste_containers wc ON wc.district_id = cd.id
+        JOIN waste_containers_collection_days_of_week wcdow ON wcdow.parent_id = wc.id
         LEFT JOIN waste_container_observations wco
           ON  wco.container_id = wc.id
           AND wco.cleaned_at  >= ${fromIso}::timestamptz
@@ -86,6 +89,7 @@ export const collectionMetrics: Endpoint = {
         WHERE cd.code = 'RTR'
           AND wc.capacity_volume = 1.1
           AND wc.status IN ('active', 'full')
+          AND wcdow.value::text = EXTRACT(ISODOW FROM NOW() AT TIME ZONE 'Europe/Sofia')::int::text
         GROUP BY wcz.id, wcz.number, wcz.name, wcz.service_company_id
         ORDER BY wcz.number
       `
@@ -166,13 +170,17 @@ export const collectionMetrics: Endpoint = {
             INTERVAL '1 day'
           )::date AS day
         ),
-        total_containers AS (
-          SELECT COUNT(DISTINCT wc.id)::int AS total_containers
+        total_containers_by_dow AS (
+          SELECT
+            wcdow.value::text::int             AS dow,
+            COUNT(DISTINCT wc.id)::int         AS total_containers
           FROM waste_containers wc
           LEFT JOIN city_districts cd ON cd.id = wc.district_id
+          JOIN waste_containers_collection_days_of_week wcdow ON wcdow.parent_id = wc.id
           WHERE cd.code = 'RTR'
             AND wc.capacity_volume = 1.1
             AND wc.status IN ('active', 'full')
+          GROUP BY wcdow.value::text::int
         ),
         collected_per_day AS (
           SELECT
@@ -189,11 +197,11 @@ export const collectionMetrics: Endpoint = {
           GROUP BY (wco.cleaned_at AT TIME ZONE 'Europe/Sofia')::date
         )
         SELECT
-          ds.day::text                                           AS day_iso,
-          tc.total_containers::int                               AS total_containers,
-          COALESCE(cpd.collected_containers, 0)::int             AS collected_containers
+          ds.day::text                                                     AS day_iso,
+          COALESCE(tc.total_containers, 0)::int                            AS total_containers,
+          COALESCE(cpd.collected_containers, 0)::int                       AS collected_containers
         FROM day_series ds
-        CROSS JOIN total_containers tc
+        LEFT JOIN total_containers_by_dow tc ON tc.dow = EXTRACT(ISODOW FROM ds.day)::int
         LEFT JOIN collected_per_day cpd ON cpd.day = ds.day
         ORDER BY ds.day
       `
