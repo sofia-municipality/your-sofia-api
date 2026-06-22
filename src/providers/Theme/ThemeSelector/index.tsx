@@ -35,6 +35,8 @@ export const ThemeSelector: React.FC = () => {
     })
   }, [])
 
+  // // TODO - fix theme change + logo transparency and in dark mode (currently the logos are invisible in dark mode, because it is black and has transparent background)
+
   return (
     <Select onValueChange={onThemeChange} value={value}>
       <SelectTrigger

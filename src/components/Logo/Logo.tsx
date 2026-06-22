@@ -23,7 +23,7 @@ export const Logo = (props: Props) => {
       fetchPriority={priority}
       decoding="async"
       className={clsx('w-[50px] h-[60px] rounded-full', className)}
-      src="/sofia-gerb.png"
+      src="/sofia-gerb-transparent.png"
     />
   )
 }
