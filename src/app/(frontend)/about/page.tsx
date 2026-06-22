@@ -18,11 +18,11 @@ export default function AboutPage() {
           <div className="text-center mb-12">
             <div className="mb-6 flex justify-center">
               <Image
-                src="/sofia-gerb.png"
+                src="/sofia-gerb-transparent.png"
                 alt="Герб на Столична община"
                 width={80}
                 height={80}
-                className="rounded-full shadow"
+                // className="rounded-full shadow"
               />
             </div>
             <h1 className="text-4xl font-bold text-gray-900 mb-3">За проекта</h1>

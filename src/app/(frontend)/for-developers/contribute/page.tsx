@@ -14,7 +14,7 @@ const steps: { num: string; title: string; body: ReactNode }[] = [
     title: 'Запознайте се с кодовата база',
     body: (
       <>
-        Проекта се състои от две хранилища, едното съдържа{' '}
+        Проекта се състои от две хранилища - едното съдържа{' '}
         <a
           href="https://github.com/sofia-municipality/your-sofia-mobile"
           target="_blank"
@@ -25,24 +25,17 @@ const steps: { num: string; title: string; body: ReactNode }[] = [
         </a>{' '}
         с технологии (React Native / Expo), а другото хранилище съдържа{' '}
         <a
-          href="https://github.com/sofia-municipality/your-sofia-mobile"
+          href="https://github.com/sofia-municipality/your-sofia-api"
           target="_blank"
           rel="noopener noreferrer"
           className="text-blue-600 hover:underline"
         >
-          програмния код за административния сайт и API бакенд.
+          програмния код за административния сайт и API / бекенд
         </a>
         <br />
-        Прочетете{' '}
-        <a
-          href="https://github.com/sofia-municipality/your-sofia-mobile/blob/main/CONTRIBUTING.md"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-blue-600 hover:underline"
-        >
-          CONTRIBUTING.md
-        </a>{' '}
-        за конвенции и изисквания.
+        <br />
+        Прочетете <u>CONTRIBUTING.md</u> файловете за съответното хранилище за конвенции и
+        изисквания
       </>
     ),
   },
@@ -93,7 +86,7 @@ const steps: { num: string; title: string; body: ReactNode }[] = [
 const contributions: { icon: string; title: string; desc: ReactNode }[] = [
   {
     icon: '🐛',
-    title: 'Репорт на грешки',
+    title: 'Докладване на грешки',
     desc: (
       <>
         Намерихте бъг? Отворете{' '}
@@ -147,8 +140,7 @@ export default function ContributePage() {
             <h1 className="text-4xl font-bold text-gray-900 mb-3">Как да се включа?</h1>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
               „Твоята София&ldquo; е проект с отворен код. Всяко подобрение е добре дошло –
-              независимо дали сте опитен разработчик или тепърва навлизате в разработката на
-              софтуер.
+              независимо дали сте опитен разработчик или тепърва навлизате в разработката на софтуер
             </p>
           </div>
 

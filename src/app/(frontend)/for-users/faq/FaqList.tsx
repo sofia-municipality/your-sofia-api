@@ -1,40 +1,65 @@
 'use client'
 
-import React, { type ReactNode, useEffect, useRef } from 'react'
+import React, { type ReactNode, useEffect, useRef, useState } from 'react'
 
 type FaqItem = { id: string; q: string; a: ReactNode }
 
-export default function FaqList({ faqs }: { faqs: FaqItem[] }) {
-  const refs = useRef<Record<string, HTMLDetailsElement | null>>({})
+function FaqItem({ id, q, a, defaultOpen }: FaqItem & { defaultOpen?: boolean }) {
+  const [open, setOpen] = useState(defaultOpen ?? false)
+  const bodyRef = useRef<HTMLDivElement>(null)
+  const [measuredHeight, setMeasuredHeight] = useState<number | null>(null)
 
   useEffect(() => {
-    const hash = window.location.hash.slice(1)
-    if (!hash) return
-    const el = refs.current[hash]
-    if (!el) return
-    el.open = true
-    el.scrollIntoView({ behavior: 'smooth', block: 'start' })
-  }, [])
+    if (open && bodyRef.current) {
+      setMeasuredHeight(bodyRef.current.scrollHeight)
+    }
+  }, [open])
+
+  return (
+    <div id={id} className="bg-white rounded-xl shadow-sm border border-gray-100">
+      <button
+        onClick={() => setOpen((o) => !o)}
+        className="w-full flex justify-between items-center cursor-pointer px-6 py-4 font-medium text-gray-900 text-left"
+        aria-expanded={open}
+      >
+        {q}
+        <span
+          className={`text-blue-600 text-lg ml-4 flex-shrink-0 transition-transform duration-200 ${open ? 'rotate-45' : ''}`}
+        >
+          +
+        </span>
+      </button>
+      <div
+        ref={bodyRef}
+        className="overflow-hidden transition-all duration-300 ease-in-out"
+        style={{ maxHeight: open ? (measuredHeight ?? 500) : 0 }}
+      >
+        <p className="px-6 pb-4 text-gray-600 leading-relaxed text-sm whitespace-pre-line">{a}</p>
+      </div>
+    </div>
+  )
+}
+
+function getHash() {
+  if (typeof window === 'undefined') return null
+  return window.location.hash.slice(1) || null
+}
+
+export default function FaqList({ faqs }: { faqs: FaqItem[] }) {
+  const [initialOpen] = useState(getHash)
+
+  useEffect(() => {
+    if (!initialOpen) return
+    const timer = setTimeout(() => {
+      document.getElementById(initialOpen)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }, 50)
+    return () => clearTimeout(timer)
+  }, [initialOpen])
 
   return (
     <>
-      {faqs.map(({ id, q, a }, idx) => (
-        <details
-          key={idx}
-          id={id}
-          ref={(el) => {
-            refs.current[id] = el
-          }}
-          className="bg-white rounded-xl shadow-sm border border-gray-100 group"
-        >
-          <summary className="flex justify-between items-center cursor-pointer px-6 py-4 font-medium text-gray-900 list-none">
-            {q}
-            <span className="text-blue-600 text-lg group-open:rotate-45 transition-transform duration-150 ml-4 flex-shrink-0">
-              +
-            </span>
-          </summary>
-          <p className="px-6 pb-4 text-gray-600 leading-relaxed text-sm">{a}</p>
-        </details>
+      {faqs.map(({ id, q, a }) => (
+        <FaqItem key={id} id={id} q={q} a={a} defaultOpen={initialOpen === id} />
       ))}
     </>
   )
