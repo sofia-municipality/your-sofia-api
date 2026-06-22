@@ -90,6 +90,7 @@
   }
   body {
     @apply bg-background text-foreground min-h-[100vh] flex flex-col;
+    font-family: var(--font-sofia-sans), sans-serif;
   }
 }
 
