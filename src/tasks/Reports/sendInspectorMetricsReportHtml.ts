@@ -9,6 +9,11 @@ function formatDayLabel(dateIso: string): string {
   return date.toLocaleDateString('bg-BG', { weekday: 'short' })
 }
 
+function svgToImg(svg: string, width: number, height: number): string {
+  const base64 = Buffer.from(svg.trim()).toString('base64')
+  return `<img src="data:image/svg+xml;base64,${base64}" width="${width}" height="${height}" style="display:block;max-width:100%;" alt="" />`
+}
+
 function renderCollectionTrendSvg(points: DailyCollectionPoint[]): string {
   const width = 700
   const height = 260
@@ -49,8 +54,7 @@ function renderCollectionTrendSvg(points: DailyCollectionPoint[]): string {
     })
     .join('')
 
-  return `
-      <svg width="100%" height="${height}" viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg" style="display:block;">
+  const svg = `<svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg" font-family="'Sofia Sans', Inter, sans-serif">
         <rect x="0" y="0" width="${width}" height="${height}" rx="20" fill="#f6f8ff" />
         ${gridLines}
         <path d="${path}" fill="none" stroke="#2F54C5" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" />
@@ -58,11 +62,12 @@ function renderCollectionTrendSvg(points: DailyCollectionPoint[]): string {
         ${xLabels}
         <text x="${margin}" y="24" fill="#2f3c5f" font-size="14" font-weight="700">Събрани контейнери</text>
       </svg>`
+  return svgToImg(svg, width, height)
 }
 
 function renderSignalStatusSvg(summary: MetricsSummary): string {
   const width = 700
-  const height = 220
+  const height = 260
   const categories = [
     { label: 'Чакащ', value: summary.pendingSignals, color: '#2F54C5' },
     { label: 'В процес', value: summary.inProgressSignals, color: '#65A0FF' },
@@ -72,12 +77,13 @@ function renderSignalStatusSvg(summary: MetricsSummary): string {
   const barWidth = 120
   const gap = 70
   const trackHeight = 120
+  const topPadding = 56
 
   const bars = categories
     .map((item, index) => {
       const x = 70 + index * (barWidth + gap)
       const barHeight = Math.max(24, Math.round((item.value / maxValue) * trackHeight))
-      const y = height - 60 - barHeight
+      const y = topPadding + (trackHeight - barHeight)
       return `
           <g>
             <rect x="${x}" y="${y}" width="${barWidth}" height="${barHeight}" rx="14" fill="${item.color}" />
@@ -87,12 +93,12 @@ function renderSignalStatusSvg(summary: MetricsSummary): string {
     })
     .join('')
 
-  return `
-      <svg width="100%" height="${height}" viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg" style="display:block;">
+  const svg = `<svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg" font-family="'Sofia Sans', Inter, sans-serif">
         <rect x="0" y="0" width="${width}" height="${height}" rx="20" fill="#f6f8ff" />
         <text x="40" y="28" fill="#2f3c5f" font-size="14" font-weight="700">Статус на активните сигнали</text>
         ${bars}
       </svg>`
+  return svgToImg(svg, width, height)
 }
 
 export function buildHtmlReport(
@@ -112,7 +118,7 @@ export function buildHtmlReport(
     <title>Оперативен доклад за метрики — Твоята София</title>
     <style>
       body {
-        font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        font-family: 'Sofia Sans', Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
         color: #1a1a1a;
         margin: 0;
         padding: 0;
@@ -159,7 +165,7 @@ export function buildHtmlReport(
         flex: 1 1 180px;
         display: flex;
         flex-direction: column;
-        align-items: flex-start;
+        align-items: center;
         border: 1px solid #e6ebf8;
       }
       .summary-label {
@@ -219,7 +225,7 @@ export function buildHtmlReport(
         border: 1px solid #e6ebf8;
         display: flex;
         flex-direction: column;
-        align-items: flex-start;
+        align-items: center;
       }
       .signal-label {
         color: #5d6a85;
