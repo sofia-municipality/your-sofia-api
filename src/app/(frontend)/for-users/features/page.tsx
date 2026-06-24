@@ -87,7 +87,7 @@ export default function FeaturesPage() {
             </p>
             <div className="flex gap-4 justify-center flex-wrap">
               <a
-                href="https://apps.apple.com/app/your-sofia"
+                href="https://apps.apple.com/bg/app/your-sofia/id6753916395"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-3 bg-black text-white px-6 py-3 rounded-xl hover:bg-gray-800 transition-colors"

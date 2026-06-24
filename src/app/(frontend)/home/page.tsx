@@ -52,7 +52,7 @@ export default function HomePage() {
             <div className="flex flex-col md:flex-row gap-4 justify-center items-center">
               {/* iOS App Store */}
               <Link
-                href="https://apps.apple.com/app/your-sofia"
+                href="https://apps.apple.com/bg/app/your-sofia/id6753916395"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-3 bg-black text-white px-8 py-4 rounded-xl hover:bg-gray-800 transition-colors shadow-lg w-full md:w-auto"
