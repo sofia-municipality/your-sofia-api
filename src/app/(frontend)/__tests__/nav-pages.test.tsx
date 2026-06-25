@@ -147,9 +147,9 @@ describe('Nav target pages render without errors', () => {
   })
 
   it('/for-users/faq — renders all FAQ accordion items', () => {
-    const { getAllByRole } = render(<FaqPage />)
+    const { container } = render(<FaqPage />)
     // Each FAQ is a <details> element — verify at least 5 are present
-    const details = getAllByRole('group')
+    const details = container.querySelectorAll('details')
     expect(details.length).toBeGreaterThanOrEqual(5)
   })
 
