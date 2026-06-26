@@ -39,22 +39,29 @@ function makeEvent(overrides: Partial<WasteCollectionEvent> = {}): WasteCollecti
 }
 
 // ── Helper: build a fully-wired mock payload object ─────────────────────────
+const MOCK_DISTRICTS = [
+  { id: 10, districtId: 24, code: 'RTR' },
+  { id: 11, districtId: 1, code: 'RSE' },
+]
+
 function makeMockPayload({
   drizzleRows = [] as any[],
   createResult = { id: 9999 },
-}: { drizzleRows?: any[]; createResult?: { id: number } } = {}) {
+  featureFlagEnabled = false,
+}: { drizzleRows?: any[]; createResult?: { id: number }; featureFlagEnabled?: boolean } = {}) {
   return {
     logger: {
       info: jest.fn(),
       warn: jest.fn(),
       error: jest.fn(),
     },
-    find: jest.fn(async () => ({
-      docs: [
-        { id: 10, districtId: 24, code: 'RTR' },
-        { id: 11, districtId: 1, code: 'RSE' },
-      ],
-    })),
+    find: jest.fn().mockImplementation(async ({ collection }: { collection: string }) => {
+      if (collection === 'city-districts') return { docs: MOCK_DISTRICTS }
+      if (collection === 'feature-config') {
+        return { docs: featureFlagEnabled ? [{ enabled: true }] : [] }
+      }
+      return { docs: [] }
+    }),
     create: jest.fn(async () => createResult),
     update: jest.fn(async () => ({})),
     db: {
@@ -145,12 +152,16 @@ describe('processWasteCollectionEvents handler', () => {
     expect(result.output.observationsCreated).toBe(0)
   })
 
-  it('creates a new container when no nearby container is found', async () => {
+  it('creates a new container when no nearby container is found (feature flag enabled)', async () => {
     const event = makeEvent({ Region: 24 })
     mockFetch([95], [event])
 
     // drizzle returns empty rows → no nearby container
-    const mockPayload = makeMockPayload({ drizzleRows: [], createResult: { id: 7777 } })
+    const mockPayload = makeMockPayload({
+      drizzleRows: [],
+      createResult: { id: 7777 },
+      featureFlagEnabled: true,
+    })
     const req: any = { payload: mockPayload }
     const input = { from: '2026-04-30 09:00', to: '2026-04-30 10:00' }
 
@@ -207,14 +218,13 @@ describe('processWasteCollectionEvents handler', () => {
     const mockPayload = makeMockPayload({
       drizzleRows: [{ id: 42, public_number: 'RTR-123', district_id: 10, status: 'full' }],
     })
-    mockPayload.find
-      .mockResolvedValueOnce({
-        docs: [
-          { id: 10, districtId: 24, code: 'RTR' },
-          { id: 11, districtId: 1, code: 'RSE' },
-        ],
-      })
-      .mockResolvedValueOnce({ docs: [{ id: 1, districtId: 24, code: 'RTR' }] })
+    // Extend base routing to also handle the signals find inside resolveOpenContainerSignals
+    mockPayload.find.mockImplementation(async ({ collection }: { collection: string }) => {
+      if (collection === 'city-districts') return { docs: MOCK_DISTRICTS }
+      if (collection === 'feature-config') return { docs: [] }
+      if (collection === 'signals') return { docs: [{ id: 1, districtId: 24, code: 'RTR' }] }
+      return { docs: [] }
+    })
 
     const req: any = { payload: mockPayload }
     const input = { from: '2026-04-30 09:00', to: '2026-04-30 10:00' }
@@ -335,5 +345,49 @@ describe('processWasteCollectionEvents handler', () => {
       containersUpdated: expect.any(Number),
       observationsCreated: expect.any(Number),
     })
+  })
+
+  it('warns and skips container creation when feature flag is disabled', async () => {
+    const event = makeEvent({ Region: 24 })
+    mockFetch([95], [event])
+
+    // No nearby container, feature flag OFF (default)
+    const mockPayload = makeMockPayload({ drizzleRows: [], featureFlagEnabled: false })
+    const req: any = { payload: mockPayload }
+    const input = { from: '2026-04-30 09:00', to: '2026-04-30 10:00' }
+
+    const { processWasteCollectionEvents } = await import('../processWasteCollectionEvents')
+    const result = await (processWasteCollectionEvents as any).handler({ input, req })
+
+    expect(mockPayload.create).not.toHaveBeenCalled()
+    expect(mockPayload.logger.warn).toHaveBeenCalledWith(
+      expect.stringContaining('creation disabled')
+    )
+    expect(result.output.observationsCreated).toBe(0)
+  })
+
+  it('creates a pending container when no nearby container found and feature flag is enabled', async () => {
+    const event = makeEvent({ Region: 24 })
+    mockFetch([95], [event])
+
+    const mockPayload = makeMockPayload({
+      drizzleRows: [],
+      createResult: { id: 8888 },
+      featureFlagEnabled: true,
+    })
+    const req: any = { payload: mockPayload }
+    const input = { from: '2026-04-30 09:00', to: '2026-04-30 10:00' }
+
+    const { processWasteCollectionEvents } = await import('../processWasteCollectionEvents')
+    const result = await (processWasteCollectionEvents as any).handler({ input, req })
+
+    expect(mockPayload.create).toHaveBeenCalledTimes(1)
+    const createCall = (mockPayload.create.mock.calls[0] as any[])[0] as any
+    expect(createCall.collection).toBe('waste-containers')
+    expect(createCall.data.status).toBe('pending')
+    expect(createCall.data.source).toBe('third_party')
+    expect(createCall.data.publicNumber).toMatch(/^RTR-/)
+    // observation is still inserted for the auto-created container
+    expect(result.output.observationsCreated).toBe(1)
   })
 })

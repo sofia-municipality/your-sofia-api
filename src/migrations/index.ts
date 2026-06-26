@@ -44,6 +44,7 @@ import * as migration_20260505_065206_user_verification from './20260505_065206_
 import * as migration_20260508_064250 from './20260508_064250';
 import * as migration_20260520_164303_inspectorMail from './20260520_164303_inspectorMail';
 import * as migration_20260621_074149 from './20260621_074149';
+import * as migration_20260626_152159_feature_config from './20260626_152159_feature_config';
 
 export const migrations = [
   {
@@ -274,6 +275,11 @@ export const migrations = [
   {
     up: migration_20260621_074149.up,
     down: migration_20260621_074149.down,
-    name: '20260621_074149'
+    name: '20260621_074149',
+  },
+  {
+    up: migration_20260626_152159_feature_config.up,
+    down: migration_20260626_152159_feature_config.down,
+    name: '20260626_152159_feature_config'
   },
 ];

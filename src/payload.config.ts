@@ -25,6 +25,7 @@ import { Signals } from './collections/Signals/index'
 import { Assignments } from './collections/Assignments'
 import { GeocodeAddresses } from './collections/GeocodeAddresses'
 import { Subscriptions } from './collections/Subscriptions'
+import { FeatureConfig } from './collections/FeatureConfig'
 import { Footer } from './Footer/config'
 import { Header } from './Header/config'
 import { NotificationSettings } from './globals/NotificationSettings'
@@ -169,6 +170,7 @@ export default buildConfig({
     Assignments,
     GeocodeAddresses,
     Subscriptions,
+    FeatureConfig,
   ],
   cors: [serverURL].filter(Boolean),
   email,
