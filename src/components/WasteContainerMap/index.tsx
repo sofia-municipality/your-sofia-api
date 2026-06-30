@@ -392,6 +392,7 @@ const WasteContainerMapView: React.FC = () => {
                   borderRadius: 6,
                   border: '1px solid #D1D5DB',
                   fontSize: 13,
+                  fontFamily: 'inherit',
                   outline: 'none',
                   background: '#fff',
                   color: '#374151',
@@ -408,6 +409,7 @@ const WasteContainerMapView: React.FC = () => {
                   color: '#374151',
                   cursor: addressLoading ? 'default' : 'pointer',
                   fontSize: 13,
+                  fontFamily: 'inherit',
                   whiteSpace: 'nowrap',
                 }}
               >
