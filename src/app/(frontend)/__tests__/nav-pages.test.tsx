@@ -148,9 +148,9 @@ describe('Nav target pages render without errors', () => {
 
   it('/for-users/faq — renders all FAQ accordion items', () => {
     const { getAllByRole } = render(<FaqPage />)
-    // Each FAQ is a <details> element — verify at least 5 are present
-    const details = getAllByRole('group')
-    expect(details.length).toBeGreaterThanOrEqual(5)
+    // Each FAQ is a button toggle (aria-expanded) — verify at least 5 are present
+    const toggles = getAllByRole('button')
+    expect(toggles.length).toBeGreaterThanOrEqual(5)
   })
 
   it('/for-users/features — renders all feature cards', () => {
