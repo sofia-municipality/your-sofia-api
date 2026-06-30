@@ -50,6 +50,7 @@ function Chip({
         color: active ? (color ?? '#1E40AF') : 'var(--theme-text)',
         fontWeight: active ? 600 : 400,
         fontSize: 12,
+        fontFamily: 'inherit',
         cursor: 'pointer',
         whiteSpace: 'nowrap',
       }}
@@ -126,6 +127,7 @@ export function MapFilters({ filters, onChange }: MapFiltersProps) {
               background: 'var(--theme-elevation-0, #fff)',
               color: 'var(--theme-text)',
               cursor: 'pointer',
+              fontFamily: 'inherit',
             }}
           >
             Изчисти
@@ -205,6 +207,7 @@ export function MapFilters({ filters, onChange }: MapFiltersProps) {
                     borderRadius: 6,
                     border: '1px solid var(--theme-elevation-200, #D1D5DB)',
                     fontSize: 12,
+                    fontFamily: 'inherit',
                     background: 'var(--theme-elevation-0, #fff)',
                     color: 'var(--theme-text)',
                   }}
