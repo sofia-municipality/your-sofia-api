@@ -4,7 +4,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useAuth } from '@payloadcms/ui'
 import dynamic from 'next/dynamic'
 import Link from 'next/link'
-import { useSearchParams } from 'next/navigation'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import {
   canViewCityInfrastructure,
   isCityInfrastructureAdmin,
@@ -15,10 +15,13 @@ import {
   Bounds,
   ContainerWithSignals,
   EMPTY_FILTERS,
+  FILTER_QUERY_KEYS,
   FilterState,
   MapItem,
   MarkerPoint,
   applyFilters,
+  filtersToQuery,
+  parseFiltersFromParams,
 } from './types'
 import { MapFilters } from './MapFilters'
 import { ContainerPopup } from './ContainerPopup'
@@ -57,6 +60,8 @@ interface NewPinLocation {
 const WasteContainerMapView: React.FC = () => {
   const { user } = useAuth()
   const searchParams = useSearchParams()
+  const router = useRouter()
+  const pathname = usePathname()
   const hasAccess = canViewCityInfrastructure({ req: { user } } as { req: PayloadRequest })
   const canAddContainer = isCityInfrastructureAdmin(user?.role)
   const [items, setItems] = useState<MapItem[]>([])
@@ -67,6 +72,7 @@ const WasteContainerMapView: React.FC = () => {
   const [addressError, setAddressError] = useState<string | null>(null)
   const [flyToTarget, setFlyToTarget] = useState<[number, number] | null>(null)
   const [filters, setFilters] = useState<FilterState>(EMPTY_FILTERS)
+  const [urlHydrated, setUrlHydrated] = useState(false)
   const [selectedContainer, setSelectedContainer] = useState<ContainerWithSignals | null>(null)
   const [selectMode, setSelectMode] = useState(false)
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set())
@@ -151,54 +157,37 @@ const WasteContainerMapView: React.FC = () => {
     []
   )
 
+  // Load filters once on page load from the URL query string, if present.
+  // This is only done once to avoid overwriting user changes to the filters
+  // while they are interacting with the map.
   useEffect(() => {
-    const status = searchParams.get('status')
-    const createdFrom = searchParams.get('createdFrom')
-    const createdTo = searchParams.get('createdTo')
-    const zoneNumber = searchParams.get('zoneNumber')
-    const lastCleanedFrom = searchParams.get('lastCleanedFrom')
-    const lastCleanedTo = searchParams.get('lastCleanedTo')
-    const lastCleanedIsNull = searchParams.get('lastCleanedIsNull') === 'true'
-    const scheduledToday = searchParams.get('scheduledToday') === 'true'
-    const scheduleCategory = searchParams.get('scheduleCategory')
-    const signalStatus = searchParams.get('signalStatus')
-    const signalContainerState = searchParams.get('signalContainerState')
-    const signalAgeBucket = searchParams.get('signalAgeBucket')
-
-    if (
-      !status &&
-      !createdFrom &&
-      !createdTo &&
-      !zoneNumber &&
-      !lastCleanedFrom &&
-      !lastCleanedTo &&
-      !lastCleanedIsNull &&
-      !scheduledToday &&
-      !scheduleCategory &&
-      !signalStatus &&
-      !signalContainerState &&
-      !signalAgeBucket
-    )
-      return
-
+    const parsed = parseFiltersFromParams(new URLSearchParams(searchParams.toString()))
     void Promise.resolve().then(() => {
-      setFilters((prev) => ({
-        ...prev,
-        statuses: status ? [status] : prev.statuses,
-        createdFrom: createdFrom ?? prev.createdFrom,
-        createdTo: createdTo ?? prev.createdTo,
-        zoneNumber: zoneNumber ?? prev.zoneNumber,
-        lastCleanedFrom: lastCleanedFrom ?? prev.lastCleanedFrom,
-        lastCleanedTo: lastCleanedTo ?? prev.lastCleanedTo,
-        lastCleanedIsNull: lastCleanedIsNull || prev.lastCleanedIsNull,
-        scheduledToday: scheduledToday || prev.scheduledToday,
-        scheduleCategory: scheduleCategory ?? prev.scheduleCategory,
-        signalStatus: signalStatus ?? prev.signalStatus,
-        signalContainerState: signalContainerState ?? prev.signalContainerState,
-        signalAgeBucket: signalAgeBucket ?? prev.signalAgeBucket,
-      }))
+      if (Object.keys(parsed).length > 0) {
+        setFilters((prev) => ({ ...prev, ...parsed }))
+      }
+      setUrlHydrated(true)
     })
-  }, [searchParams])
+
+    // Intentionally run once — subsequent URL updates are driven by the sync
+    // effect below, not read back into state.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  // Reflect the current filter state back into the URL so it survives reloads
+  // and can be shared. Preserves any unrelated params (e.g. `zoom`).
+  useEffect(() => {
+    if (!urlHydrated) return
+    const params = new URLSearchParams(searchParams.toString())
+    FILTER_QUERY_KEYS.forEach((key) => params.delete(key))
+    filtersToQuery(filters).forEach((value, key) => params.set(key, value))
+    const next = params.toString()
+    if (next === searchParams.toString()) return
+    // Keep commas readable in the URL — they're valid unencoded in a query
+    // string, and `get()` decodes `%2C` and `,` the same way when read back.
+    const pretty = next.replace(/%2C/g, ',')
+    router.replace(pretty ? `${pathname}?${pretty}` : pathname, { scroll: false })
+  }, [filters, urlHydrated, pathname, router, searchParams])
 
   const isClustered = items.length > 0 && items[0]?.type === 'cluster'
   const markers = useMemo(() => items.filter((i): i is MarkerPoint => i.type === 'marker'), [items])
