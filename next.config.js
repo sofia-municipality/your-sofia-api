@@ -13,6 +13,8 @@ const nextConfig = {
     ignoreBuildErrors: false,
   },
   images: {
+    qualities: [75, 100],
+    localPatterns: [{ pathname: '/api/media/**' }, { pathname: '**', search: '' }],
     remotePatterns: [
       ...[NEXT_PUBLIC_SERVER_URL].map((item) => {
         const url = new URL(item)
