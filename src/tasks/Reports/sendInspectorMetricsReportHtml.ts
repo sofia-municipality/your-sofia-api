@@ -9,96 +9,114 @@ function formatDayLabel(dateIso: string): string {
   return date.toLocaleDateString('bg-BG', { weekday: 'short' })
 }
 
-function svgToImg(svg: string, width: number, height: number): string {
-  const base64 = Buffer.from(svg.trim()).toString('base64')
-  return `<img src="data:image/svg+xml;base64,${base64}" width="${width}" height="${height}" style="display:block;max-width:100%;" alt="" />`
+const CHART_BG = '#f6f8ff'
+const TRACK_HEIGHT = 150
+
+type Bar = { label: string; value: number; color: string; valueLabel: string }
+
+function renderBarChart(title: string, bars: Bar[]): string {
+  const maxValue = Math.max(...bars.map((bar) => bar.value), 1)
+  const colWidth = `${Math.round(100 / bars.length)}%`
+
+  const trackCells = bars
+    .map((bar) => {
+      const barHeight = Math.max(6, Math.round((bar.value / maxValue) * TRACK_HEIGHT))
+      return `
+              <td valign="bottom" align="center" width="${colWidth}" style="padding:0 8px;">
+                <div style="font-size:14px;font-weight:700;color:#2f3c5f;margin-bottom:6px;">${bar.valueLabel}</div>
+                <table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center" style="margin:0 auto;">
+                  <tr>
+                    <td width="80" height="${barHeight}" bgcolor="${bar.color}" style="width:80px;max-width:80px;height:${barHeight}px;background:${bar.color};border-radius:12px;font-size:0;line-height:0;">&nbsp;</td>
+                  </tr>
+                </table>
+              </td>`
+    })
+    .join('')
+
+  const labelCells = bars
+    .map(
+      (bar) =>
+        `<td align="center" width="${colWidth}" style="padding:10px 8px 0;font-size:13px;color:#65758a;">${bar.label}</td>`
+    )
+    .join('')
+
+  return `
+    <div style="background:${CHART_BG};border-radius:20px;padding:24px 16px;">
+      <div style="font-size:14px;font-weight:700;color:#2f3c5f;padding:0 8px 12px;">${title}</div>
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">
+        <tr>${trackCells}
+        </tr>
+        <tr>${labelCells}</tr>
+      </table>
+    </div>`
 }
 
-function renderCollectionTrendSvg(points: DailyCollectionPoint[]): string {
-  const width = 700
-  const height = 260
-  const margin = 36
-  const innerWidth = width - margin * 2
-  const innerHeight = height - margin * 2
-  const values = points.map((point) => point.collectedContainers)
-  const maxValue = Math.max(...values, 1)
-  const xStep = points.length > 1 ? innerWidth / (points.length - 1) : innerWidth
-  const path = points
-    .map((point, index) => {
-      const x = margin + index * xStep
-      const y = margin + innerHeight - (point.collectedContainers / maxValue) * innerHeight
-      return `${index === 0 ? 'M' : 'L'} ${x.toFixed(1)} ${y.toFixed(1)}`
-    })
-    .join(' ')
-
-  const circles = points
-    .map((point, index) => {
-      const x = margin + index * xStep
-      const y = margin + innerHeight - (point.collectedContainers / maxValue) * innerHeight
-      return `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="6" fill="#2F54C5" />`
-    })
-    .join('')
-
-  const xLabels = points
-    .map((point, index) => {
-      const x = margin + index * xStep
-      return `<text x="${x.toFixed(1)}" y="${height - 8}" fill="#65758a" font-size="12" text-anchor="middle">${formatDayLabel(point.date)}</text>`
-    })
-    .join('')
-
-  const gridLines = [0, 0.25, 0.5, 0.75, 1]
-    .map((ratio) => {
-      const y = margin + innerHeight - ratio * innerHeight
-      const value = Math.round(maxValue * ratio)
-      return `<g><line x1="${margin}" y1="${y.toFixed(1)}" x2="${width - margin}" y2="${y.toFixed(1)}" stroke="#E9EEF8" stroke-width="1" /><text x="${margin - 8}" y="${y.toFixed(1)}" fill="#65758a" font-size="11" text-anchor="end" dominant-baseline="middle">${value}</text></g>`
-    })
-    .join('')
-
-  const svg = `<svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg" font-family="'Sofia Sans', Inter, sans-serif">
-        <rect x="0" y="0" width="${width}" height="${height}" rx="20" fill="#f6f8ff" />
-        ${gridLines}
-        <path d="${path}" fill="none" stroke="#2F54C5" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" />
-        ${circles}
-        ${xLabels}
-        <text x="${margin}" y="24" fill="#2f3c5f" font-size="14" font-weight="700">Събрани контейнери</text>
-      </svg>`
-  return svgToImg(svg, width, height)
+function renderCollectionTrendChart(points: DailyCollectionPoint[]): string {
+  const bars: Bar[] = points.map((point) => ({
+    label: formatDayLabel(point.date),
+    value: point.collectedContainers,
+    valueLabel: formatNumber(point.collectedContainers),
+    color: '#2F54C5',
+  }))
+  return renderBarChart('Събрани контейнери', bars)
 }
 
-function renderSignalStatusSvg(summary: MetricsSummary): string {
-  const width = 700
-  const height = 260
-  const categories = [
+function renderSignalStatusChart(summary: MetricsSummary): string {
+  const bars: Bar[] = [
     { label: 'Чакащ', value: summary.pendingSignals, color: '#2F54C5' },
     { label: 'В процес', value: summary.inProgressSignals, color: '#65A0FF' },
     { label: 'Разрешени', value: summary.resolvedSignals, color: '#85BBFF' },
-  ]
-  const maxValue = Math.max(...categories.map((item) => item.value), 1)
-  const barWidth = 120
-  const gap = 70
-  const trackHeight = 120
-  const topPadding = 56
+  ].map((bar) => ({ ...bar, valueLabel: formatNumber(bar.value) }))
+  return renderBarChart('Статус на активните сигнали', bars)
+}
 
-  const bars = categories
-    .map((item, index) => {
-      const x = 70 + index * (barWidth + gap)
-      const barHeight = Math.max(24, Math.round((item.value / maxValue) * trackHeight))
-      const y = topPadding + (trackHeight - barHeight)
-      return `
-          <g>
-            <rect x="${x}" y="${y}" width="${barWidth}" height="${barHeight}" rx="14" fill="${item.color}" />
-            <text x="${x + barWidth / 2}" y="${y - 12}" fill="#2f3c5f" font-size="14" font-weight="700" text-anchor="middle">${item.value}</text>
-            <text x="${x + barWidth / 2}" y="${height - 20}" fill="#65758a" font-size="13" text-anchor="middle">${item.label}</text>
-          </g>`
-    })
+type Card = { label: string; value: string }
+type CardStyle = {
+  bg: string
+  radius: number
+  padding: string
+  labelSize: number
+  valueSize: number
+}
+
+function renderCardRow(cards: Card[], style: CardStyle): string {
+  const colWidth = (100 / cards.length).toFixed(4)
+  const cells = cards
+    .map(
+      (card) => `
+            <td class="card-cell" width="${colWidth}%" valign="top" style="width:${colWidth}%;padding:0 8px;">
+              <div style="background:${style.bg};border:1px solid #e6ebf8;border-radius:${style.radius}px;padding:${style.padding};text-align:center;">
+                <div style="color:#5d6a85;font-size:${style.labelSize}px;line-height:1.35;margin-bottom:8px;">${card.label}</div>
+                <div style="color:#2f54c5;font-size:${style.valueSize}px;font-weight:700;line-height:1.1;">${card.value}</div>
+              </div>
+            </td>`
+    )
     .join('')
+  return `
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;table-layout:fixed;">
+        <tr>${cells}
+        </tr>
+      </table>`
+}
 
-  const svg = `<svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg" font-family="'Sofia Sans', Inter, sans-serif">
-        <rect x="0" y="0" width="${width}" height="${height}" rx="20" fill="#f6f8ff" />
-        <text x="40" y="28" fill="#2f3c5f" font-size="14" font-weight="700">Статус на активните сигнали</text>
-        ${bars}
-      </svg>`
-  return svgToImg(svg, width, height)
+const SUMMARY_CARD_STYLE: CardStyle = {
+  bg: '#ffffff',
+  radius: 14,
+  padding: '26px 12px',
+  labelSize: 14,
+  valueSize: 32,
+}
+
+const SIGNAL_CARD_STYLE: CardStyle = {
+  bg: '#f7f9ff',
+  radius: 12,
+  padding: '18px 10px',
+  labelSize: 13,
+  valueSize: 26,
+}
+
+function linkButton(href: string, label: string): string {
+  return `<a href="${href}" class="report-btn" style="display:inline-block;background:#2f54c5;border-radius:999px;padding:14px 28px;text-decoration:none;margin:0 12px 8px 0;font-family:'Sofia Sans',Inter,system-ui,sans-serif;transition:background-color 0.2s ease;"><span style="color:#ffffff;font-size:15px;font-weight:600;">${label}</span></a>`
 }
 
 export function buildHtmlReport(
@@ -116,7 +134,14 @@ export function buildHtmlReport(
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Оперативен доклад за метрики — Твоята София</title>
+    <!--[if !mso]><!-->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Sofia+Sans:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <!--<![endif]-->
     <style>
+      @import url('https://fonts.googleapis.com/css2?family=Sofia+Sans:wght@400;500;600;700&display=swap');
       body {
         font-family: 'Sofia Sans', Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
         color: #1a1a1a;
@@ -128,6 +153,17 @@ export function buildHtmlReport(
         max-width: 900px;
         margin: 0 auto;
         padding: 32px 24px;
+      }
+
+      .container,
+      .container h1,
+      .container p,
+      .container div,
+      .container span,
+      .container td,
+      .container a {
+        font-family: 'Sofia Sans', Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI',
+          sans-serif;
       }
       .dashboard-header {
         display: flex;
@@ -194,9 +230,6 @@ export function buildHtmlReport(
       .links-section {
         padding: 28px;
         margin-bottom: 32px;
-        display: flex;
-        gap: 18px;
-        flex-wrap: wrap;
       }
       .chart-title,
       .signals-title {
@@ -237,25 +270,26 @@ export function buildHtmlReport(
         font-weight: 700;
         color: #2f54c5;
       }
-      .link-button {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        padding: 14px 28px;
-        border-radius: 999px;
-        color: #fff;
-        background: #2f54c5;
-        text-decoration: none;
-        font-weight: 600;
-        font-size: 15px;
-        margin-right: 12px;
-        margin-bottom: 8px;
-        border: none;
-        box-shadow: 0 2px 8px rgba(47, 84, 197, 0.08);
-        transition: background 0.2s;
+      .report-btn:hover {
+        background-color: #082e8e !important;
       }
-      .link-button:hover {
-        background: #082e8e;
+
+      @media only screen and (max-width: 600px) {
+        .container {
+          padding: 20px 14px !important;
+        }
+        .card-cell {
+          display: block !important;
+          width: 100% !important;
+          padding: 0 0 10px 0 !important;
+        }
+        .report-btn {
+          display: block !important;
+          width: 100% !important;
+          box-sizing: border-box !important;
+          text-align: center !important;
+          margin: 0 0 12px 0 !important;
+        }
       }
       .footer {
         font-size: 13px;
@@ -266,7 +300,7 @@ export function buildHtmlReport(
     </style>
   </head>
   <body>
-    <div class="container">
+    <div class="container" style="font-family:'Sofia Sans', Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;">
       <div class="dashboard-header">
         <div>
           <h1>Оперативен доклад за метрики</h1>
@@ -275,24 +309,23 @@ export function buildHtmlReport(
       </div>
 
       <div class="summary-cards">
-        <div class="summary-card">
-          <div class="summary-label">Общо контейнери</div>
-          <div class="summary-value">${formatNumber(summary.totalContainers)}</div>
-        </div>
-        <div class="summary-card">
-          <div class="summary-label">Събрани през последните 24 ч.</div>
-          <div class="summary-value">${formatNumber(summary.containersCollectedLast24h)}</div>
-        </div>
-        <div class="summary-card">
-          <div class="summary-label">Активни сигнали</div>
-          <div class="summary-value">${formatNumber(summary.activeSignals)}</div>
-        </div>
+        ${renderCardRow(
+          [
+            { label: 'Общо контейнери', value: formatNumber(summary.totalContainers) },
+            {
+              label: 'Събрани през последните 24 ч.',
+              value: formatNumber(summary.containersCollectedLast24h),
+            },
+            { label: 'Активни сигнали', value: formatNumber(summary.activeSignals) },
+          ],
+          SUMMARY_CARD_STYLE
+        )}
       </div>
 
       <div class="chart-section">
         <div class="chart-title">Тенденция на събирането през последните 7 дни</div>
         <a href="${metricsUrl}" style="display:block; color:inherit; text-decoration:none;">
-          ${renderCollectionTrendSvg(collectionTrend)}
+          ${renderCollectionTrendChart(collectionTrend)}
         </a>
         <div class="chart-caption">Кликнете върху графиката, за да отворите пълната метрика и да видите дългосрочна тенденция.</div>
       </div>
@@ -300,31 +333,24 @@ export function buildHtmlReport(
       <div class="signals-section">
         <div class="signals-title">Сигнали</div>
         <div class="signals-grid">
-          <div class="signal-card">
-            <div class="signal-label">Новопостъпили за 24 ч.</div>
-            <div class="signal-value">${formatNumber(summary.newSignalsLast24h)}</div>
-          </div>
-          <div class="signal-card">
-            <div class="signal-label">В процес</div>
-            <div class="signal-value">${formatNumber(summary.inProgressSignals)}</div>
-          </div>
-          <div class="signal-card">
-            <div class="signal-label">Активни</div>
-            <div class="signal-value">${formatNumber(summary.activeSignals)}</div>
-          </div>
-          <div class="signal-card">
-            <div class="signal-label">Решени</div>
-            <div class="signal-value">${formatNumber(summary.resolvedSignals)}</div>
-          </div>
+          ${renderCardRow(
+            [
+              { label: 'Новопостъпили за 24 ч.', value: formatNumber(summary.newSignalsLast24h) },
+              { label: 'В процес', value: formatNumber(summary.inProgressSignals) },
+              { label: 'Активни', value: formatNumber(summary.activeSignals) },
+              { label: 'Решени', value: formatNumber(summary.resolvedSignals) },
+            ],
+            SIGNAL_CARD_STYLE
+          )}
         </div>
         <a href="${metricsUrl}" style="display:block; color:inherit; text-decoration:none;">
-          ${renderSignalStatusSvg(summary)}
+          ${renderSignalStatusChart(summary)}
         </a>
       </div>
 
       <div class="links-section">
-        <a href="${metricsUrl}" class="link-button">Отвори метрики</a>
-        <a href="${mapUrl}" class="link-button">Отвори административната карта</a>
+        ${linkButton(metricsUrl, 'Отвори метрики')}
+        ${linkButton(mapUrl, 'Отвори административната карта')}
       </div>
 
       <div class="footer">
