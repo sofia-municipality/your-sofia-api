@@ -41,7 +41,7 @@ RUN pnpm next build --experimental-build-mode compile
 
 # Production image, copy all the files and run next
 FROM base AS runner
-LABEL sevice='your-sofia-api'
+LABEL service='your-sofia-api'
 WORKDIR /app
 
 ENV NODE_ENV=production
