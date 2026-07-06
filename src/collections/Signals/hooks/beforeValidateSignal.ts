@@ -11,6 +11,21 @@ export const beforeValidateSignal: CollectionBeforeValidateHook = async ({
   // Only run on create operation
   if (operation !== 'create' || !data) return data
 
+  // Signals must be pinned: require a location or an existing object reference
+  const hasLocation = Boolean(
+    Array.isArray(data.location) &&
+      data.location.length === 2 &&
+      data.location[0] != null &&
+      data.location[1] != null
+  )
+  const hasObjectRef = Boolean(data.cityObject?.referenceId)
+  if (!hasLocation && !hasObjectRef) {
+    req.payload.logger.warn(
+      `Signal rejected: no location and no cityObject.referenceId provided (reporter: ${data.reporterUniqueId || 'unknown'})`
+    )
+    throw new APIError('Signal must have a location or an assigned city object.', 400)
+  }
+
   // Check for proximity restriction for non-admin users
   if (
     data.category === 'waste-container' &&
