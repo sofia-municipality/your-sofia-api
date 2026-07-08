@@ -35,10 +35,39 @@ export async function sendPushNotifications(
       return
     }
 
+    // Exclude devices that have explicitly disabled notifications. A device
+    // with no subscription doc yet (never opened the settings screen) keeps
+    // the implicit default of enabled — only an explicit enabled:false opts out.
+    const optedOutResult = await payload.find({
+      collection: 'subscriptions',
+      where: {
+        enabled: {
+          equals: false,
+        },
+      },
+      depth: 0,
+      pagination: false,
+    })
+
+    const optedOutTokenIds = new Set(
+      optedOutResult.docs.map((sub: any) =>
+        typeof sub.pushToken === 'object' && sub.pushToken !== null
+          ? sub.pushToken.id
+          : sub.pushToken
+      )
+    )
+
+    const eligibleTokens = tokensResult.docs.filter((tokenDoc) => !optedOutTokenIds.has(tokenDoc.id))
+
+    if (eligibleTokens.length === 0) {
+      payload.logger.info('No eligible push tokens after excluding opted-out subscriptions')
+      return
+    }
+
     // Create messages
     const messages: ExpoPushMessage[] = []
 
-    for (const tokenDoc of tokensResult.docs) {
+    for (const tokenDoc of eligibleTokens) {
       const pushToken = tokenDoc.token as string
 
       // Check that the token is valid
