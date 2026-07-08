@@ -57,7 +57,9 @@ export async function sendPushNotifications(
       )
     )
 
-    const eligibleTokens = tokensResult.docs.filter((tokenDoc) => !optedOutTokenIds.has(tokenDoc.id))
+    const eligibleTokens = tokensResult.docs.filter(
+      (tokenDoc) => !optedOutTokenIds.has(tokenDoc.id)
+    )
 
     if (eligibleTokens.length === 0) {
       payload.logger.info('No eligible push tokens after excluding opted-out subscriptions')
