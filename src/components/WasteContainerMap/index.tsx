@@ -112,6 +112,9 @@ const WasteContainerMapView: React.FC = () => {
         ...(serverStatuses.length > 0 && { statuses: serverStatuses.join(',') }),
         ...(f.wasteTypes.length > 0 && { wasteTypes: f.wasteTypes.join(',') }),
         ...(f.districtId && { districtId: f.districtId }),
+        ...(f.volumeOptions.length > 0 && {
+          volumeOptions: f.volumeOptions.join(','),
+        }),
         ...(f.hasActiveSignals && { hasActiveSignals: 'true' }),
         ...(f.createdFrom && { createdFrom: f.createdFrom }),
         ...(f.createdTo && { createdTo: f.createdTo }),
