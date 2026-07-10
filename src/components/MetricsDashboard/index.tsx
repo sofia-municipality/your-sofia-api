@@ -279,7 +279,9 @@ const MetricsDashboard: React.FC = () => {
               active={range === 'week'}
               onClick={() => setRange('week')}
             />
+            {/* Day range temporarily removed, may be added back later
             <RangeButton label="Днес" active={range === 'day'} onClick={() => setRange('day')} />
+            */}
           </div>
 
           <CollectionByGroupChart
