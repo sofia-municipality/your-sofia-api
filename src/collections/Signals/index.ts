@@ -1,7 +1,11 @@
-import type { CollectionConfig, Access, TextFieldSingleValidation } from 'payload'
+import type { CollectionConfig, Access } from 'payload'
 import { canViewCityInfrastructure } from '@/access/cityInfrastructureAdmin'
 import { isAdmin } from '@/access/isAdmin'
-import { beforeValidateSignal } from './hooks/beforeValidateSignal'
+import {
+  beforeValidateSignal,
+  validateSignalLocation,
+  validateSignalReferenceId,
+} from './hooks/beforeValidateSignal'
 import { beforeChangeSetReporter } from './hooks/beforeChangeSetReporter'
 import { afterChangeUpdateContainer } from './hooks/afterChangeUpdateContainer'
 import { afterChangeNotifyReporter } from './hooks/afterChangeNotifyReporter'
@@ -133,17 +137,7 @@ export const Signals: CollectionConfig = {
             description:
               'Идентификатор или референтен номер на свързания обект. Задължително, ако не е посочено местоположение.',
           },
-          validate: ((value, { data, operation }) => {
-            if (operation !== 'create') return true
-            const doc = data as { location?: unknown }
-            const loc = doc?.location
-            const hasLocation =
-              Array.isArray(loc) && loc.length === 2 && loc[0] != null && loc[1] != null
-            if (!value && !hasLocation) {
-              return 'Signal must have a location or an assigned city object.'
-            }
-            return true
-          }) as TextFieldSingleValidation,
+          validate: validateSignalReferenceId,
         },
         {
           name: 'name',
@@ -187,16 +181,7 @@ export const Signals: CollectionConfig = {
         description:
           'Географски координати [дължина, ширина] на сигнализирания проблем. Задължително, ако няма посочен свързан обект.',
       },
-      validate: (value, { data, operation }) => {
-        if (operation !== 'create') return true
-        const doc = data as { cityObject?: { referenceId?: string | null } }
-        const hasLocation =
-          Array.isArray(value) && value.length === 2 && value[0] != null && value[1] != null
-        if (!hasLocation && !doc?.cityObject?.referenceId) {
-          return 'Signal must have a location or an assigned city object.'
-        }
-        return true
-      },
+      validate: validateSignalLocation,
     },
     {
       name: 'address',
