@@ -1,7 +1,38 @@
-import type { CollectionBeforeValidateHook } from 'payload'
+import type {
+  CollectionBeforeValidateHook,
+  PointFieldValidation,
+  TextFieldSingleValidation,
+} from 'payload'
 import { APIError } from 'payload'
 import { randomUUID } from 'crypto'
 import { calculateDistance } from '@/utilities/mapUtils'
+
+const UNPINNED_SIGNAL_ERROR = 'Signal must have a location or an assigned city object.'
+
+const hasValidLocation = (location: unknown): boolean =>
+  Array.isArray(location) && location.length === 2 && Boolean(location[0]) && Boolean(location[1])
+
+// Field-level validation: on create, a signal needs a location or an object reference
+export const validateSignalReferenceId: TextFieldSingleValidation = (
+  value,
+  { data, operation }
+) => {
+  if (operation !== 'create') return true
+  const doc = data as { location?: unknown } | undefined
+  if (!value && !hasValidLocation(doc?.location)) {
+    return UNPINNED_SIGNAL_ERROR
+  }
+  return true
+}
+
+export const validateSignalLocation: PointFieldValidation = (value, { data, operation }) => {
+  if (operation !== 'create') return true
+  const doc = data as { cityObject?: { referenceId?: string | null } } | undefined
+  if (!hasValidLocation(value) && !doc?.cityObject?.referenceId) {
+    return UNPINNED_SIGNAL_ERROR
+  }
+  return true
+}
 
 export const beforeValidateSignal: CollectionBeforeValidateHook = async ({
   data,
@@ -10,6 +41,16 @@ export const beforeValidateSignal: CollectionBeforeValidateHook = async ({
 }) => {
   // Only run on create operation
   if (operation !== 'create' || !data) return data
+
+  // Signals must be pinned: require a location or an existing object reference
+  const hasLocation = hasValidLocation(data.location)
+  const hasObjectRef = Boolean(data.cityObject?.referenceId)
+  if (!hasLocation && !hasObjectRef) {
+    req.payload.logger.warn(
+      `Signal rejected: no location and no cityObject.referenceId provided (reporter: ${data.reporterUniqueId || 'unknown'})`
+    )
+    throw new APIError(UNPINNED_SIGNAL_ERROR, 400)
+  }
 
   // Check for proximity restriction for non-admin users
   if (
