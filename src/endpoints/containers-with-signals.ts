@@ -55,8 +55,19 @@ export const containersWithSignalCount: Endpoint = {
         .map((s) => s.trim())
         .filter((s) => allowedWasteTypes.includes(s))
 
-      const districtIdRaw = parseInt((req.query?.districtId as string) || '', 10)
-      const districtId = isNaN(districtIdRaw) ? null : districtIdRaw
+      const volumeOptions = ((req.query?.volumeOptions as string) || '')
+        .split(',')
+        .map((s) => s.trim())
+        .filter(Boolean)
+        .map(Number)
+        .filter((n) => Number.isFinite(n))
+
+      const districtIds = ((req.query?.districtIds as string) || '')
+        .split(',')
+        .map((s) => s.trim())
+        .filter(Boolean)
+        .map(Number)
+        .filter((n) => Number.isFinite(n))
 
       const zoneNumberRaw = parseInt((req.query?.zoneNumber as string) || '', 10)
       const zoneNumber = isNaN(zoneNumberRaw) ? null : zoneNumberRaw
@@ -124,7 +135,21 @@ export const containersWithSignalCount: Endpoint = {
               sql`, `
             )})`
           : sql``
-      const districtFilter = districtId !== null ? sql`AND wc.district_id = ${districtId}` : sql``
+
+      const volumeFilter =
+        volumeOptions.length > 0
+          ? sql`AND wc.capacity_volume IN (${sql.join(
+              volumeOptions.map((v) => sql`${v}`),
+              sql`, `
+            )})`
+          : sql``
+      const districtFilter =
+        districtIds.length > 0
+          ? sql`AND wc.district_id IN (${sql.join(
+              districtIds.map((id) => sql`${id}`),
+              sql`, `
+            )})`
+          : sql``
       const activeSignalsFilter = hasActiveSignals
         ? sql`AND EXISTS (
             SELECT 1 FROM signals s2
@@ -252,6 +277,7 @@ export const containersWithSignalCount: Endpoint = {
             ${statusFilter}
             ${wasteTypeFilter}
             ${districtFilter}
+            ${volumeFilter}
             ${zoneFilter}
             ${serviceCompanyFilter}
             ${activeSignalsFilter}
@@ -327,6 +353,7 @@ export const containersWithSignalCount: Endpoint = {
             ${statusFilter}
             ${wasteTypeFilter}
             ${districtFilter}
+            ${volumeFilter}
             ${zoneFilter}
             ${serviceCompanyFilter}
             ${activeSignalsFilter}
