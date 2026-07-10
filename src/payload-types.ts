@@ -82,6 +82,7 @@ export interface Config {
     assignments: Assignment;
     'geocode-addresses': GeocodeAddress;
     subscriptions: Subscription;
+    'feature-config': FeatureConfig;
     redirects: Redirect;
     forms: Form;
     'form-submissions': FormSubmission;
@@ -111,6 +112,7 @@ export interface Config {
     assignments: AssignmentsSelect<false> | AssignmentsSelect<true>;
     'geocode-addresses': GeocodeAddressesSelect<false> | GeocodeAddressesSelect<true>;
     subscriptions: SubscriptionsSelect<false> | SubscriptionsSelect<true>;
+    'feature-config': FeatureConfigSelect<false> | FeatureConfigSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
     'form-submissions': FormSubmissionsSelect<false> | FormSubmissionsSelect<true>;
@@ -147,7 +149,6 @@ export interface Config {
   jobs: {
     tasks: {
       processWasteCollectionEvents: TaskProcessWasteCollectionEvents;
-      syncWasteCollectionSchedules: TaskSyncWasteCollectionSchedules;
       sendUpdatesNotifications: TaskSendUpdatesNotifications;
       sendInspectorMetricsReport: TaskSendInspectorMetricsReport;
       createCollectionExport: TaskCreateCollectionExport;
@@ -1254,6 +1255,26 @@ export interface Subscription {
   createdAt: string;
 }
 /**
+ * Включване/изключване на функционалности на системата
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "feature-config".
+ */
+export interface FeatureConfig {
+  id: number;
+  /**
+   * Уникално име на функционалността (напр. enable_container_creation_on_collection)
+   */
+  feature: string;
+  enabled: boolean;
+  /**
+   * Кратко описание на какво прави тази функционалност
+   */
+  description?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "redirects".
  */
@@ -1473,7 +1494,6 @@ export interface PayloadJob {
         taskSlug:
           | 'inline'
           | 'processWasteCollectionEvents'
-          | 'syncWasteCollectionSchedules'
           | 'sendUpdatesNotifications'
           | 'sendInspectorMetricsReport'
           | 'createCollectionExport'
@@ -1515,7 +1535,6 @@ export interface PayloadJob {
     | (
         | 'inline'
         | 'processWasteCollectionEvents'
-        | 'syncWasteCollectionSchedules'
         | 'sendUpdatesNotifications'
         | 'sendInspectorMetricsReport'
         | 'createCollectionExport'
@@ -1604,6 +1623,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'subscriptions';
         value: number | Subscription;
+      } | null)
+    | ({
+        relationTo: 'feature-config';
+        value: number | FeatureConfig;
       } | null)
     | ({
         relationTo: 'redirects';
@@ -2151,6 +2174,17 @@ export interface SubscriptionsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "feature-config_select".
+ */
+export interface FeatureConfigSelect<T extends boolean = true> {
+  feature?: T;
+  enabled?: T;
+  description?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "redirects_select".
  */
 export interface RedirectsSelect<T extends boolean = true> {
@@ -2656,25 +2690,6 @@ export interface TaskProcessWasteCollectionEvents {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "TaskSyncWasteCollectionSchedules".
- */
-export interface TaskSyncWasteCollectionSchedules {
-  input: {
-    year?: number | null;
-    month?: number | null;
-    district?: string | null;
-    size?: string | null;
-  };
-  output: {
-    districtsProcessed: number;
-    filesDownloaded: number;
-    streetsMatched: number;
-    containersUpdated: number;
-    streetsUnmatched: number;
-  };
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "TaskSendUpdatesNotifications".
  */
 export interface TaskSendUpdatesNotifications {
@@ -2719,6 +2734,7 @@ export interface TaskCreateCollectionExport {
       | 'assignments'
       | 'geocode-addresses'
       | 'subscriptions'
+      | 'feature-config'
       | 'redirects'
       | 'forms'
       | 'form-submissions'

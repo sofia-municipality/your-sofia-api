@@ -71,6 +71,99 @@ export const EMPTY_FILTERS: FilterState = {
   signalAgeBucket: null,
 }
 
+// Query-param keys owned by the map's filter state. Anything else in the URL
+// (e.g. `zoom`) is left untouched when we write filters back.
+export const FILTER_QUERY_KEYS = [
+  'status',
+  'statuses',
+  'wasteTypes',
+  'volumeOptions',
+  'districtId',
+  'zoneNumber',
+  'hasActiveSignals',
+  'createdFrom',
+  'createdTo',
+  'lastCleanedFrom',
+  'lastCleanedTo',
+  'lastCleanedIsNull',
+  'scheduledToday',
+  'scheduleCategory',
+  'signalStatus',
+  'signalContainerState',
+  'signalAgeBucket',
+] as const
+
+// Serialize the current filter state into query params.
+export function filtersToQuery(filters: FilterState): URLSearchParams {
+  const p = new URLSearchParams()
+  if (filters.statuses.length > 0) p.set('statuses', filters.statuses.join(','))
+  if (filters.wasteTypes.length > 0) p.set('wasteTypes', filters.wasteTypes.join(','))
+  if (filters.volumeOptions.length > 0) p.set('volumeOptions', filters.volumeOptions.join(','))
+  if (filters.districtId) p.set('districtId', filters.districtId)
+  if (filters.zoneNumber) p.set('zoneNumber', filters.zoneNumber)
+  if (filters.hasActiveSignals) p.set('hasActiveSignals', 'true')
+  if (filters.createdFrom) p.set('createdFrom', filters.createdFrom)
+  if (filters.createdTo) p.set('createdTo', filters.createdTo)
+  if (filters.lastCleanedFrom) p.set('lastCleanedFrom', filters.lastCleanedFrom)
+  if (filters.lastCleanedTo) p.set('lastCleanedTo', filters.lastCleanedTo)
+  if (filters.lastCleanedIsNull) p.set('lastCleanedIsNull', 'true')
+  if (filters.scheduledToday) p.set('scheduledToday', 'true')
+  if (filters.scheduleCategory) p.set('scheduleCategory', filters.scheduleCategory)
+  if (filters.signalStatus) p.set('signalStatus', filters.signalStatus)
+  if (filters.signalContainerState) p.set('signalContainerState', filters.signalContainerState)
+  if (filters.signalAgeBucket) p.set('signalAgeBucket', filters.signalAgeBucket)
+  return p
+}
+
+// Parse filter state out of query params. Accepts both the map's own plural
+// `statuses` key and the legacy singular `status` used by deep links from the
+// metrics dashboard. Returns only the keys that are present.
+export function parseFiltersFromParams(sp: URLSearchParams): Partial<FilterState> {
+  const list = (key: string): string[] => {
+    const v = sp.get(key)
+    return v ? v.split(',').filter(Boolean) : []
+  }
+  const out: Partial<FilterState> = {}
+
+  const statuses = list('statuses')
+  const singleStatus = sp.get('status')
+  if (statuses.length > 0) out.statuses = statuses
+  else if (singleStatus) out.statuses = [singleStatus]
+
+  const wasteTypes = list('wasteTypes')
+  if (wasteTypes.length > 0) out.wasteTypes = wasteTypes
+  const volumeOptions = list('volumeOptions')
+  if (volumeOptions.length > 0) out.volumeOptions = volumeOptions
+
+  const districtId = sp.get('districtId')
+  if (districtId) out.districtId = districtId
+  const zoneNumber = sp.get('zoneNumber')
+  if (zoneNumber) out.zoneNumber = zoneNumber
+  if (sp.get('hasActiveSignals') === 'true') out.hasActiveSignals = true
+
+  const createdFrom = sp.get('createdFrom')
+  if (createdFrom) out.createdFrom = createdFrom
+  const createdTo = sp.get('createdTo')
+  if (createdTo) out.createdTo = createdTo
+  const lastCleanedFrom = sp.get('lastCleanedFrom')
+  if (lastCleanedFrom) out.lastCleanedFrom = lastCleanedFrom
+  const lastCleanedTo = sp.get('lastCleanedTo')
+  if (lastCleanedTo) out.lastCleanedTo = lastCleanedTo
+  if (sp.get('lastCleanedIsNull') === 'true') out.lastCleanedIsNull = true
+  if (sp.get('scheduledToday') === 'true') out.scheduledToday = true
+
+  const scheduleCategory = sp.get('scheduleCategory')
+  if (scheduleCategory) out.scheduleCategory = scheduleCategory
+  const signalStatus = sp.get('signalStatus')
+  if (signalStatus) out.signalStatus = signalStatus
+  const signalContainerState = sp.get('signalContainerState')
+  if (signalContainerState) out.signalContainerState = signalContainerState
+  const signalAgeBucket = sp.get('signalAgeBucket')
+  if (signalAgeBucket) out.signalAgeBucket = signalAgeBucket
+
+  return out
+}
+
 function getUncollectedBucket(lastCleaned?: string | null): 'green' | 'orange' | 'red' {
   if (!lastCleaned) return 'red'
 

@@ -8,7 +8,7 @@ export function SofiaGerbMark({ size = 44 }: SofiaGerbMarkProps) {
   return (
     <img
       alt="Герб на София"
-      src="/sofia-gerb.png"
+      src="/sofia-gerb-transparent.png"
       width={size}
       height={size}
       style={{

@@ -102,7 +102,7 @@ function RangeButton({
 // ─── Main Component ────────────────────────────────────────────────────────
 
 const MetricsDashboard: React.FC = () => {
-  const [range, setRange] = useState<Range>('week')
+  const [range, setRange] = useState<Range>('month')
   const [data, setData] = useState<MetricsData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -269,17 +269,17 @@ const MetricsDashboard: React.FC = () => {
       {!loading && !error && data && (
         <>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 8 }}>
-            <RangeButton label="Днес" active={range === 'day'} onClick={() => setRange('day')} />
-            <RangeButton
-              label="Последните 7 дни"
-              active={range === 'week'}
-              onClick={() => setRange('week')}
-            />
             <RangeButton
               label="Последните 30 дни"
               active={range === 'month'}
               onClick={() => setRange('month')}
             />
+            <RangeButton
+              label="Последните 7 дни"
+              active={range === 'week'}
+              onClick={() => setRange('week')}
+            />
+            <RangeButton label="Днес" active={range === 'day'} onClick={() => setRange('day')} />
           </div>
 
           <CollectionByGroupChart

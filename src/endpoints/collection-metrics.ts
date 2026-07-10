@@ -38,6 +38,7 @@ export const collectionMetrics: Endpoint = {
           COUNT(DISTINCT wco.container_id)::int AS collected_containers
         FROM waste_containers wc
         JOIN city_districts cd ON cd.id = wc.district_id
+        JOIN waste_containers_collection_days_of_week wcdow ON wcdow.parent_id = wc.id
         LEFT JOIN waste_container_observations wco
           ON  wco.container_id = wc.id
           AND wco.cleaned_at  >= ${fromIso}::timestamptz
@@ -46,6 +47,7 @@ export const collectionMetrics: Endpoint = {
           AND cd.code = 'RTR'
           AND wc.capacity_volume = 1.1
           AND wc.status IN ('active', 'full')
+          AND wcdow.value::text = EXTRACT(ISODOW FROM NOW() AT TIME ZONE 'Europe/Sofia')::int::text
         GROUP BY cd.district_id, cd.name
         ORDER BY cd.district_id
       `
@@ -79,6 +81,7 @@ export const collectionMetrics: Endpoint = {
         FROM waste_collection_zones wcz
         LEFT JOIN city_districts cd ON cd.waste_collection_zone_id = wcz.id
         LEFT JOIN waste_containers wc ON wc.district_id = cd.id
+        JOIN waste_containers_collection_days_of_week wcdow ON wcdow.parent_id = wc.id
         LEFT JOIN waste_container_observations wco
           ON  wco.container_id = wc.id
           AND wco.cleaned_at  >= ${fromIso}::timestamptz
@@ -86,6 +89,7 @@ export const collectionMetrics: Endpoint = {
         WHERE cd.code = 'RTR'
           AND wc.capacity_volume = 1.1
           AND wc.status IN ('active', 'full')
+          AND wcdow.value::text = EXTRACT(ISODOW FROM NOW() AT TIME ZONE 'Europe/Sofia')::int::text
         GROUP BY wcz.id, wcz.number, wcz.name, wcz.service_company_id
         ORDER BY wcz.number
       `
@@ -107,41 +111,56 @@ export const collectionMetrics: Endpoint = {
         collectedContainers: row.collected_containers,
       }))
 
-      // ── Time-since-last-collection histogram ───────────────────────────────
-      // LEFT JOIN from all containers so that those with no observations at all
-      // land in the "never" bucket (last_cleaned_at IS NULL).
+      // ── Days-overdue histogram ─────────────────────────────────────────────
+      // For each container, find its most recent scheduled pickup window (04:00
+      // Sofia local time on the scheduled day-of-week within the last 7 days).
+      // Containers cleaned after that window are "on time"; all others are
+      // bucketed by how many hours have elapsed since their expected pickup.
       const histogramQuery = sql`
-        WITH last_coll AS (
-          SELECT
-            wc.id AS container_id,
-            wc.last_cleaned AS last_cleaned_at
+        WITH RECURSIVE last_7_days AS (
+          SELECT (CURRENT_TIMESTAMP AT TIME ZONE 'Europe/Sofia')::date AS check_date
+          UNION ALL
+          SELECT (check_date - INTERVAL '1 day')::date
+          FROM last_7_days
+          WHERE check_date > (CURRENT_TIMESTAMP AT TIME ZONE 'Europe/Sofia')::date - INTERVAL '7 days'
+        ),
+        latest_expected AS (
+          SELECT DISTINCT ON (wc.id)
+            wc.id           AS container_id,
+            wc.last_cleaned,
+            (d.check_date::timestamp + TIME '04:00:00') AT TIME ZONE 'Europe/Sofia' AS expected_at
           FROM waste_containers wc
+          JOIN waste_containers_collection_days_of_week wcdow ON wcdow.parent_id = wc.id
+          CROSS JOIN last_7_days d
           LEFT JOIN city_districts cd ON cd.id = wc.district_id
-          WHERE cd.code = 'RTR'
-            AND wc.capacity_volume = 1.1
+          WHERE EXTRACT(ISODOW FROM d.check_date)::int = wcdow.value::text::int
+            AND (d.check_date::timestamp + TIME '04:00:00') AT TIME ZONE 'Europe/Sofia' <= NOW()
             AND wc.status IN ('active', 'full')
+            AND cd.code = 'RTR'
+            AND wc.capacity_volume = 1.1
+          ORDER BY wc.id, d.check_date DESC
         )
         SELECT
           CASE
-            WHEN EXTRACT(EPOCH FROM (NOW() - last_cleaned_at)) / 3600 < 24  THEN '<1 ден'
-            WHEN EXTRACT(EPOCH FROM (NOW() - last_cleaned_at)) / 3600 < 48  THEN '1-2 дни'
-            WHEN EXTRACT(EPOCH FROM (NOW() - last_cleaned_at)) / 3600 < 72  THEN '2-3 дни'
-            WHEN EXTRACT(EPOCH FROM (NOW() - last_cleaned_at)) / 3600 < 168 THEN '3-7 дни'
-            WHEN EXTRACT(EPOCH FROM (NOW() - last_cleaned_at)) / 3600 < 336 THEN '7-14 дни'
-            WHEN last_cleaned_at IS NULL                                    THEN 'N/A'
+            WHEN last_cleaned >= expected_at
+              OR EXTRACT(EPOCH FROM (NOW() - expected_at)) / 3600 < 24   THEN '<1 ден'
+            WHEN EXTRACT(EPOCH FROM (NOW() - expected_at)) / 3600 < 48   THEN '1-2 дни'
+            WHEN EXTRACT(EPOCH FROM (NOW() - expected_at)) / 3600 < 72   THEN '2-3 дни'
+            WHEN EXTRACT(EPOCH FROM (NOW() - expected_at)) / 3600 < 168  THEN '3-7 дни'
+            WHEN EXTRACT(EPOCH FROM (NOW() - expected_at)) / 3600 < 336  THEN '7-14 дни'
             ELSE '14+'
           END AS bucket,
           CASE
-            WHEN EXTRACT(EPOCH FROM (NOW() - last_cleaned_at)) / 3600 < 24  THEN 0
-            WHEN EXTRACT(EPOCH FROM (NOW() - last_cleaned_at)) / 3600 < 48  THEN 1
-            WHEN EXTRACT(EPOCH FROM (NOW() - last_cleaned_at)) / 3600 < 72  THEN 2
-            WHEN EXTRACT(EPOCH FROM (NOW() - last_cleaned_at)) / 3600 < 168 THEN 3
-            WHEN EXTRACT(EPOCH FROM (NOW() - last_cleaned_at)) / 3600 < 336 THEN 4
-            WHEN last_cleaned_at IS NULL                                    THEN 10
+            WHEN last_cleaned >= expected_at
+              OR EXTRACT(EPOCH FROM (NOW() - expected_at)) / 3600 < 24   THEN 0
+            WHEN EXTRACT(EPOCH FROM (NOW() - expected_at)) / 3600 < 48   THEN 1
+            WHEN EXTRACT(EPOCH FROM (NOW() - expected_at)) / 3600 < 72   THEN 2
+            WHEN EXTRACT(EPOCH FROM (NOW() - expected_at)) / 3600 < 168  THEN 3
+            WHEN EXTRACT(EPOCH FROM (NOW() - expected_at)) / 3600 < 336  THEN 4
             ELSE 5
           END AS bucket_order,
           COUNT(*)::int AS container_count
-        FROM last_coll
+        FROM latest_expected
         GROUP BY bucket, bucket_order
         ORDER BY bucket_order
       `
@@ -166,13 +185,17 @@ export const collectionMetrics: Endpoint = {
             INTERVAL '1 day'
           )::date AS day
         ),
-        total_containers AS (
-          SELECT COUNT(DISTINCT wc.id)::int AS total_containers
+        total_containers_by_dow AS (
+          SELECT
+            wcdow.value::text::int             AS dow,
+            COUNT(DISTINCT wc.id)::int         AS total_containers
           FROM waste_containers wc
           LEFT JOIN city_districts cd ON cd.id = wc.district_id
+          JOIN waste_containers_collection_days_of_week wcdow ON wcdow.parent_id = wc.id
           WHERE cd.code = 'RTR'
             AND wc.capacity_volume = 1.1
             AND wc.status IN ('active', 'full')
+          GROUP BY wcdow.value::text::int
         ),
         collected_per_day AS (
           SELECT
@@ -189,11 +212,11 @@ export const collectionMetrics: Endpoint = {
           GROUP BY (wco.cleaned_at AT TIME ZONE 'Europe/Sofia')::date
         )
         SELECT
-          ds.day::text                                           AS day_iso,
-          tc.total_containers::int                               AS total_containers,
-          COALESCE(cpd.collected_containers, 0)::int             AS collected_containers
+          ds.day::text                                                     AS day_iso,
+          COALESCE(tc.total_containers, 0)::int                            AS total_containers,
+          COALESCE(cpd.collected_containers, 0)::int                       AS collected_containers
         FROM day_series ds
-        CROSS JOIN total_containers tc
+        LEFT JOIN total_containers_by_dow tc ON tc.dow = EXTRACT(ISODOW FROM ds.day)::int
         LEFT JOIN collected_per_day cpd ON cpd.day = ds.day
         ORDER BY ds.day
       `
@@ -212,28 +235,58 @@ export const collectionMetrics: Endpoint = {
       }))
 
       // ── Schedule compliance ─────────────────────────────────────────────────
-      // Counts containers scheduled for today that are delayed (>24h) or missed (>36h).
-      // Uses Sofia local time (Europe/Sofia = UTC+2/+3) to avoid day boundary mismatch.
+      // For each container, find the most recently past scheduled collection day
+      // (days_ago = 0 means today, 1 = yesterday, etc.) by picking the smallest
+      // offset from today's ISO day-of-week back to each scheduled day.
+      // delayed = not cleaned since that day AND that day was > 24 h ago
+      // missed  = not cleaned since that day AND that day was > 36 h ago
+      // Uses Sofia local time throughout to avoid day-boundary mismatch.
       const complianceQuery = sql`
+        WITH RECURSIVE last_7_days AS (
+          SELECT (CURRENT_TIMESTAMP AT TIME ZONE 'Europe/Sofia')::date AS check_date
+          UNION ALL
+          SELECT (check_date - INTERVAL '1 day')::date
+          FROM last_7_days
+          WHERE check_date > (CURRENT_TIMESTAMP AT TIME ZONE 'Europe/Sofia')::date - INTERVAL '7 days'
+        ),
+        scheduled_today_cte AS (
+          SELECT COUNT(DISTINCT wc.id)::int AS scheduled_today
+          FROM waste_containers wc
+          JOIN waste_containers_collection_days_of_week wcdow ON wcdow.parent_id = wc.id
+          LEFT JOIN city_districts cd ON cd.id = wc.district_id
+          WHERE EXTRACT(ISODOW FROM (CURRENT_TIMESTAMP AT TIME ZONE 'Europe/Sofia'))::int = wcdow.value::text::int
+            AND wc.status IN ('active', 'full')
+            AND cd.code = 'RTR'
+            AND wc.capacity_volume = 1.1
+        ),
+        latest_expected AS (
+          SELECT DISTINCT ON (wc.id)
+            wc.id          AS container_id,
+            wc.last_cleaned,
+            (d.check_date::timestamp + TIME '04:00:00') AT TIME ZONE 'Europe/Sofia' AS expected_at
+          FROM waste_containers wc
+          JOIN waste_containers_collection_days_of_week wcdow ON wcdow.parent_id = wc.id
+          CROSS JOIN last_7_days d
+          LEFT JOIN city_districts cd ON cd.id = wc.district_id
+          WHERE EXTRACT(ISODOW FROM d.check_date)::int = wcdow.value::text::int
+            AND (d.check_date::timestamp + TIME '04:00:00') AT TIME ZONE 'Europe/Sofia' <= NOW()
+            AND wc.status IN ('active', 'full')
+            AND cd.code = 'RTR'
+            AND wc.capacity_volume = 1.1
+          ORDER BY wc.id, d.check_date DESC
+        )
         SELECT
-          COUNT(DISTINCT wc.id) FILTER (
-            WHERE wcdow.value::text = EXTRACT(ISODOW FROM NOW() AT TIME ZONE 'Europe/Sofia')::int::text
-          )::int AS scheduled_today,
-          COUNT(DISTINCT wc.id) FILTER (
-            WHERE wcdow.value::text = EXTRACT(ISODOW FROM NOW() AT TIME ZONE 'Europe/Sofia')::int::text
-            AND (wc.last_cleaned IS NULL OR wc.last_cleaned < NOW() - INTERVAL '24 hours')
-          )::int AS delayed,
-          COUNT(DISTINCT wc.id) FILTER (
-            WHERE wcdow.value::text = EXTRACT(ISODOW FROM NOW() AT TIME ZONE 'Europe/Sofia')::int::text
-            AND (wc.last_cleaned IS NULL OR wc.last_cleaned < NOW() - INTERVAL '36 hours')
-          )::int AS missed
-        FROM waste_containers wc
-        LEFT JOIN waste_containers_collection_days_of_week wcdow ON wcdow.parent_id = wc.id
-        LEFT JOIN city_districts cd ON cd.id = wc.district_id
-        WHERE wc.status IN ('active', 'full')
-          AND cd.code = 'RTR'
-          AND wc.capacity_volume = 1.1
-
+          (SELECT scheduled_today FROM scheduled_today_cte)                         AS scheduled_today,
+          COUNT(*) FILTER (
+            WHERE (last_cleaned IS NULL OR last_cleaned < expected_at)
+              AND EXTRACT(EPOCH FROM (NOW() - expected_at)) / 3600 >= 24
+              AND EXTRACT(EPOCH FROM (NOW() - expected_at)) / 3600 < 36
+          )::int                                                                     AS delayed,
+          COUNT(*) FILTER (
+            WHERE (last_cleaned IS NULL OR last_cleaned < expected_at)
+              AND EXTRACT(EPOCH FROM (NOW() - expected_at)) / 3600 >= 36
+          )::int                                                                     AS missed
+        FROM latest_expected
       `
 
       const complianceResult = await payload.db.drizzle.execute(complianceQuery)

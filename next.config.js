@@ -13,6 +13,8 @@ const nextConfig = {
     ignoreBuildErrors: false,
   },
   images: {
+    qualities: [75, 100],
+    localPatterns: [{ pathname: '/api/media/**' }, { pathname: '**', search: '' }],
     remotePatterns: [
       ...[NEXT_PUBLIC_SERVER_URL].map((item) => {
         const url = new URL(item)
@@ -27,6 +29,11 @@ const nextConfig = {
   reactStrictMode: true,
   redirects,
   output: 'standalone', // Enable for Docker deployment
+  sassOptions: {
+    // Let Sass resolve @payloadcms/ui's bare partial imports (@import 'vars', etc.)
+    // Works around "Can't find stylesheet to import" on Windows.
+    loadPaths: ['./node_modules/@payloadcms/ui/dist/scss/'],
+  },
   webpack: (config) => {
     // Replace chunkhash with contenthash for consistent hashing
     // https://www.reddit.com/r/nextjs/comments/1o4a0fv/deploying_payload_cms_3x_with_docker_compose/

@@ -57,13 +57,13 @@ export default function ForgetMePage() {
             {language === 'bg' ? (
               <div className="prose prose-lg max-w-none">
                 {/* Warning Banner */}
-                <div className="bg-red-50 border-l-4 border-red-600 p-6 rounded-r-lg mb-8">
+                <div className="bg-red-50 border-l-4 border-red-600 p-2 rounded-r-lg ">
                   <div className="flex items-start gap-4">
                     <AlertTriangle size={24} className="text-red-600 flex-shrink-0 mt-1" />
                     <div>
                       <h3 className="text-xl font-bold text-red-900 mb-2">Важно предупреждение</h3>
                       <p className="text-red-800 mb-0">
-                        Изтриването на акаунт е необратима операция. След изтриване, всички ваши
+                        Изтриването на акаунт е необратима операция. След изтриване всички Ваши
                         данни ще бъдат премахнати завинаги и не могат да бъдат възстановени.
                       </p>
                     </div>
@@ -73,8 +73,8 @@ export default function ForgetMePage() {
                 <section>
                   <h2 className="text-2xl font-bold text-gray-900 mb-4">Какво ще бъде изтрито?</h2>
                   <p className="text-gray-700 mb-4">
-                    При изтриване на вашия акаунт, следната информация ще бъде окончателно
-                    премахната от нашите системи:
+                    При изтриване на Вашия акаунт следната информация ще бъде окончателно премахната
+                    от нашите системи:
                   </p>
                   <ul className="list-disc pl-6 text-gray-700 space-y-2 mb-4">
                     <li>
@@ -129,7 +129,7 @@ export default function ForgetMePage() {
                           <li>Натиснете бутона и прочетете тази информация отново</li>
                           <li>Ще бъдете помолени да потвърдите решението си</li>
                           <li>
-                            След потвърждение, акаунтът ще бъде изтрит автоматично и няма да можете
+                            След потвърждение акаунтът ще бъде изтрит автоматично и няма да можете
                             да влезете отново
                           </li>
                         </ol>
@@ -157,7 +157,7 @@ export default function ForgetMePage() {
                 <section>
                   <h2 className="text-2xl font-bold text-gray-900 mb-4">Алтернативи</h2>
                   <p className="text-gray-700 mb-4">
-                    Ако не искате да изтриете напълно акаунта си, можете да разгледате следните
+                    Ако не искате да изтриете напълно акаунта си можете да разгледате следните
                     опции:
                   </p>
                   <ul className="list-disc pl-6 text-gray-700 space-y-2 mb-4">
@@ -171,26 +171,24 @@ export default function ForgetMePage() {
                     </li>
                     <li>
                       <strong>Временна неактивност:</strong> Можете просто да спрете да използвате
-                      приложението, без да изтривате акаунта
+                      приложението без да изтривате акаунта
                     </li>
                   </ul>
                 </section>
 
                 <section>
-                  <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                    Правна информация (GDPR)
-                  </h2>
+                  <h2 className="text-2xl font-bold text-gray-900">Правна информация (GDPR)</h2>
                   <div className="bg-gray-50 border border-gray-200 rounded-lg p-6">
                     <div className="flex items-start gap-4">
                       <Info size={24} className="text-gray-600 flex-shrink-0 mt-1" />
                       <div>
                         <p className="text-gray-700 mb-4">
-                          Съгласно Общия регламент за защита на данните (GDPR), вие имате право да
-                          поискате изтриване на вашите лични данни (&quot;правото да бъдете
+                          Съгласно Общия регламент за защита на данните (GDPR) имате право да
+                          поискате изтриване на Вашите лични данни (&quot;правото да бъдете
                           забравен&quot;).
                         </p>
                         <p className="text-gray-700 mb-4">
-                          Столична община се ангажира да защитава вашите лични данни и да спазва
+                          Столична община се ангажира да защитава Вашите лични данни и да спазва
                           всички приложими законови изисквания. За повече информация относно нашата
                           политика за поверителност, моля посетете:
                         </p>
@@ -210,7 +208,7 @@ export default function ForgetMePage() {
                               rel="noopener noreferrer"
                               className="text-blue-600 hover:underline inline-flex items-center gap-2"
                             >
-                              Защита на личните данни - София.бг
+                              Защита на личните данни - sofia.bg
                             </Link>
                           </li>
                         </ul>
@@ -222,15 +220,15 @@ export default function ForgetMePage() {
                 <section>
                   <h2 className="text-2xl font-bold text-gray-900 mb-4">Нуждаете се от помощ?</h2>
                   <p className="text-gray-700 mb-4">
-                    Ако имате въпроси относно изтриването на акаунт или нуждата от помощ, можете да
-                    се свържете с нас, като посетите:&nbsp;
+                    Ако имате въпроси относно изтриването на акаунт можете да се свържете с нас,
+                    като посетите&nbsp;
                     <a
                       href="https://call.sofia.bg"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-blue-600 hover:underline"
                     >
-                      call.sofia.bg
+                      Контактния център на Столична община (call.sofia.bg)
                     </a>
                   </p>
                 </section>

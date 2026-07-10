@@ -39,8 +39,18 @@ const handler: TaskHandler<'processWasteCollectionEvents'> = async ({ input, req
     allDistricts.docs.map((d) => [d.districtId as number, d.id as number])
   )
   const districtCodeByRegion = new Map<number, string>(
-    allDistricts.docs.map((d) => [d.districtId as number, (d as any).code as string])
+    allDistricts.docs.map((d) => [d.districtId as number, (d.code as string | undefined) ?? ''])
   )
+
+  // ── Read feature flags ─────────────────────────────────────────────────────
+  const featureFlagResult = await payload.find({
+    collection: 'feature-config' as 'payload-jobs',
+    where: { feature: { equals: 'enable_container_creation_on_collection' } },
+    limit: 1,
+    overrideAccess: true,
+  })
+  const enableContainerCreation =
+    (featureFlagResult.docs[0] as unknown as { enabled?: boolean })?.enabled === true
 
   // ── T1: Retrieve active fleet firm IDs ─────────────────────────────────────
   const fidResponse = await fetch(`${baseUrl}/get_fid.php`, { headers: gpsHeaders })
@@ -126,7 +136,16 @@ const handler: TaskHandler<'processWasteCollectionEvents'> = async ({ input, req
       const containerState = Array.isArray(nearestContainer?.state) ? nearestContainer.state : []
       const keepBulkyWasteState = containerState.includes('bulkyWaste')
       if (!containerId) {
-        //insert container on the missing spot and mark it prending for approval
+        missingContainers++
+        if (!enableContainerCreation) {
+          payload.logger.warn(
+            `[processWasteCollectionEvents] No container found within ${SEARCH_RADIUS_METERS}m of ` +
+              `(${spot.centroidLat}, ${spot.centroidLng}). Skipping (creation disabled). ` +
+              `FirmId: ${firmId}, VehicleId: ${spot.latestEvent.VehicleId}`
+          )
+          continue
+        }
+        // Auto-create container and mark it pending for approval
         const newContainer = await payload.create({
           collection: 'waste-containers',
           data: {
@@ -144,7 +163,6 @@ const handler: TaskHandler<'processWasteCollectionEvents'> = async ({ input, req
             notes: `Auto-created from GPS data. FirmId: ${firmId}, VehicleId: ${spot.latestEvent.VehicleId}. Please verify location and details before activating.`,
           },
         })
-        missingContainers++
         containerId = newContainer.id
       } else {
         //container exists, but we can update its lastCleaned and servicedBy fields based on the GPS event
