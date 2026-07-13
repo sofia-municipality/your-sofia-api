@@ -1,6 +1,5 @@
 import type { CollectionConfig } from 'payload'
 
-import { APIError } from 'payload'
 import { deleteAccount } from '../../endpoints/deleteAccount'
 import { resendVerificationEmail } from '../../endpoints/resendVerificationEmail'
 import { isAdmin } from '@/access/isAdmin'
@@ -8,35 +7,15 @@ import { hasAdminPanelAccess } from '@/access/hasAdminPanelAccess'
 import { adminOnly } from '@/access/adminOnly'
 import { getServerSideURL } from '@/utilities/getURL'
 
+import { validatePassword } from '@/hooks/validatePassword'
+import { requireVerifiedEmail } from '@/hooks/requireVerifiedEmail'
+
 export const Users: CollectionConfig = {
   slug: 'users',
   endpoints: [deleteAccount, resendVerificationEmail],
   hooks: {
-    beforeChange: [
-      ({ data, operation }) => {
-        if ((operation === 'create' || data?.password) && typeof data?.password === 'string') {
-          const p = data.password
-          if (p.length < 6) throw new APIError('Password must be at least 6 characters.', 400)
-          if (!/[a-z]/.test(p)) throw new APIError('Password must contain a lowercase letter.', 400)
-          if (!/[A-Z]/.test(p))
-            throw new APIError('Password must contain an uppercase letter.', 400)
-          if (!/[0-9]/.test(p)) throw new APIError('Password must contain a digit.', 400)
-          if (!/[^a-zA-Z0-9]/.test(p))
-            throw new APIError('Password must contain a special character.', 400)
-        }
-        return data
-      },
-    ],
-    beforeLogin: [
-      ({ user }) => {
-        if (user._verified !== true) {
-          throw new APIError(
-            'Your email address has not been verified. Please check your inbox.',
-            403
-          )
-        }
-      },
-    ],
+    beforeChange: [validatePassword],
+    beforeLogin: [requireVerifiedEmail],
   },
   access: {
     admin: hasAdminPanelAccess,
