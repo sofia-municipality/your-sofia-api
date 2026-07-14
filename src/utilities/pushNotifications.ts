@@ -11,6 +11,10 @@ interface PushNotificationData {
   data?: Record<string, unknown>
 }
 
+interface SubscriptionWithPushTokenRef {
+  pushToken: { id: string | number } | string | number
+}
+
 /**
  * Send push notifications to all active devices
  */
@@ -19,59 +23,54 @@ export async function sendPushNotifications(
   notification: PushNotificationData
 ): Promise<void> {
   try {
-    // Fetch all active push tokens
-    const tokensResult = await payload.find({
-      collection: 'push-tokens',
-      where: {
-        active: {
-          equals: true,
-        },
-      },
-      limit: 1000, // Adjust as needed
-    })
-
-    if (!tokensResult.docs || tokensResult.docs.length === 0) {
-      payload.logger.info('No active push tokens found')
-      return
-    }
-
-    // Exclude devices that have explicitly disabled notifications. A device
-    // with no subscription doc yet (never opened the settings screen) keeps
-    // the implicit default of enabled — only an explicit enabled:false opts out.
-    const optedOutResult = await payload.find({
+    // Load the subscribed set first (enabled: true), then resolve those
+    // push-token IDs against push-tokens to get the active token strings.
+    const subscriptionsResult = await payload.find({
       collection: 'subscriptions',
       where: {
         enabled: {
-          equals: false,
+          equals: true,
         },
       },
       depth: 0,
       pagination: false,
     })
 
-    const optedOutTokenIds = new Set(
-      optedOutResult.docs.map((sub: any) =>
-        typeof sub.pushToken === 'object' && sub.pushToken !== null
-          ? sub.pushToken.id
-          : sub.pushToken
-      )
+    if (!subscriptionsResult.docs || subscriptionsResult.docs.length === 0) {
+      payload.logger.info('No enabled subscriptions found')
+      return
+    }
+
+    const subscribedTokenIds = (
+      subscriptionsResult.docs as unknown as SubscriptionWithPushTokenRef[]
+    ).map((sub) =>
+      typeof sub.pushToken === 'object' && sub.pushToken !== null ? sub.pushToken.id : sub.pushToken
     )
 
-    const eligibleTokens = tokensResult.docs.filter(
-      (tokenDoc) => !optedOutTokenIds.has(tokenDoc.id)
-    )
+    const tokensResult = await payload.find({
+      collection: 'push-tokens',
+      where: {
+        id: {
+          in: subscribedTokenIds,
+        },
+        active: {
+          equals: true,
+        },
+      },
+      pagination: false,
+    })
 
-    if (eligibleTokens.length === 0) {
-      payload.logger.info('No eligible push tokens after excluding opted-out subscriptions')
+    const eligibleTokens = new Set(tokensResult.docs.map((tokenDoc) => tokenDoc.token as string))
+
+    if (eligibleTokens.size === 0) {
+      payload.logger.info('No eligible push tokens after filtering enabled subscriptions')
       return
     }
 
     // Create messages
     const messages: ExpoPushMessage[] = []
 
-    for (const tokenDoc of eligibleTokens) {
-      const pushToken = tokenDoc.token as string
-
+    for (const pushToken of eligibleTokens) {
       // Check that the token is valid
       if (!Expo.isExpoPushToken(pushToken)) {
         payload.logger.warn(`Push token ${pushToken} is not a valid Expo push token`)
