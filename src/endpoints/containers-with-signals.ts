@@ -62,12 +62,17 @@ export const containersWithSignalCount: Endpoint = {
         .map(Number)
         .filter((n) => Number.isFinite(n))
 
-      const districtIds = ((req.query?.districtIds as string) || '')
-        .split(',')
-        .map((s) => s.trim())
-        .filter(Boolean)
+      const districtIdParam = req.query?.districtId
+
+      const districtIds = (
+        Array.isArray(districtIdParam)
+          ? districtIdParam
+          : districtIdParam != null
+            ? [districtIdParam]
+            : []
+      )
         .map(Number)
-        .filter((n) => Number.isFinite(n))
+        .filter(Number.isFinite)
 
       const zoneNumberRaw = parseInt((req.query?.zoneNumber as string) || '', 10)
       const zoneNumber = isNaN(zoneNumberRaw) ? null : zoneNumberRaw
