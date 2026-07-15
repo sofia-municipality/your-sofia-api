@@ -171,8 +171,10 @@ export function MapFilters({ filters, onChange }: MapFiltersProps) {
 
           <FilterRow label="Обем">
             {[
-              { value: '1.1', label: '1100' },
               { value: '0.12', label: '120' },
+              { value: '1.1', label: '1100' },
+              { value: '2.25', label: 'NORD 2250' },
+              { value: '3', label: 'NORD 3000' },
             ].map(({ value, label }) => (
               <Chip
                 key={value}

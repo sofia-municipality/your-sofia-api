@@ -1,7 +1,11 @@
 import type { CollectionConfig, Access } from 'payload'
 import { canViewCityInfrastructure } from '@/access/cityInfrastructureAdmin'
 import { isAdmin } from '@/access/isAdmin'
-import { beforeValidateSignal } from './hooks/beforeValidateSignal'
+import {
+  beforeValidateSignal,
+  validateSignalLocation,
+  validateSignalReferenceId,
+} from './hooks/beforeValidateSignal'
 import { beforeChangeSetReporter } from './hooks/beforeChangeSetReporter'
 import { afterChangeUpdateContainer } from './hooks/afterChangeUpdateContainer'
 import { afterChangeNotifyReporter } from './hooks/afterChangeNotifyReporter'
@@ -130,8 +134,10 @@ export const Signals: CollectionConfig = {
           label: 'Идентификатор на обекта',
           type: 'text',
           admin: {
-            description: 'Идентификатор или референтен номер на свързания обект',
+            description:
+              'Идентификатор или референтен номер на свързания обект. Задължително, ако не е посочено местоположение.',
           },
+          validate: validateSignalReferenceId,
         },
         {
           name: 'name',
@@ -172,8 +178,10 @@ export const Signals: CollectionConfig = {
       type: 'point',
       label: 'Местоположение',
       admin: {
-        description: 'Географски координати [дължина, ширина] на сигнализирания проблем',
+        description:
+          'Географски координати [дължина, ширина] на сигнализирания проблем. Задължително, ако няма посочен свързан обект.',
       },
+      validate: validateSignalLocation,
     },
     {
       name: 'address',

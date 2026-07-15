@@ -1072,7 +1072,7 @@ export interface Signal {
   cityObject?: {
     type?: ('waste-container' | 'street' | 'park' | 'building' | 'other') | null;
     /**
-     * Идентификатор или референтен номер на свързания обект
+     * Идентификатор или референтен номер на свързания обект. Задължително, ако не е посочено местоположение.
      */
     referenceId?: string | null;
     /**
@@ -1087,7 +1087,7 @@ export interface Signal {
     | ('full' | 'dirty' | 'damaged' | 'leaves' | 'maintenance' | 'bagged' | 'fallen' | 'bulkyWaste')[]
     | null;
   /**
-   * Географски координати [дължина, ширина] на сигнализирания проблем
+   * Географски координати [дължина, ширина] на сигнализирания проблем. Задължително, ако няма посочен свързан обект.
    *
    * @minItems 2
    * @maxItems 2
