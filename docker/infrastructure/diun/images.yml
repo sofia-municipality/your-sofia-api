@@ -1,0 +1,8 @@
+- name: ghcr.io/sofia-municipality/your-sofia-api
+  watch_repo: true
+  max_tags: 0
+  include_tags:
+    - '^main-[0-9a-f]+$'
+  notify_on:
+    - new
+    - update

@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  api:
+    image: ${API_IMAGE:-ghcr.io/sofia-municipality/your-sofia-api:main}
+    env_file:
+      - .env
+    environment:
+      NODE_ENV: production
+      PORT: '3000'
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+    ports:
+      - target: 3000
+        published: 3003
+        protocol: tcp
+        mode: ingress
+    volumes:
+      - media:/app/public/media
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'node',
+          '-e',
+          "require('http').get('http://localhost:3000/api/health', (r) => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    networks:
+      - your-sofia
+    deploy:
+      replicas: 1
+      update_config:
+        order: start-first
+        parallelism: 1
+        delay: 10s
+        failure_action: rollback
+        monitor: 60s
+      rollback_config:
+        order: start-first
+        parallelism: 1
+      restart_policy:
+        condition: any
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+volumes:
+  media:
+    driver: local
+networks:
+  your-sofia:
+    driver: overlay
