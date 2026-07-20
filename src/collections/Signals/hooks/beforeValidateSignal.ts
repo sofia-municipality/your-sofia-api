@@ -155,7 +155,7 @@ export const beforeValidateSignal: CollectionBeforeValidateHook = async ({
     }
   }
 
-  // Daily rate limit: max 10 signals per reporterUniqueId per calendar day (admins exempt)
+  // Daily rate limit: max 5 signals per reporterUniqueId per calendar day (admins exempt)
   if (data.reporterUniqueId && req.user?.role !== 'admin') {
     try {
       const startOfDay = new Date()
@@ -181,12 +181,12 @@ export const beforeValidateSignal: CollectionBeforeValidateHook = async ({
         limit: 0, // count only
       })
 
-      if (todayCount.totalDocs >= 10) {
+      if (todayCount.totalDocs >= 5) {
         req.payload.logger.warn(
           `Daily limit reached: Reporter ${data.reporterUniqueId} has ${todayCount.totalDocs} signals today`
         )
         throw new APIError(
-          `Daily signal limit reached. You can submit up to 10 signals per day.`,
+          `Daily signal limit reached. You can submit up to 5 signals per day.`,
           429
         )
       }
