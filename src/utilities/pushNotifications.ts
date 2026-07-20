@@ -12,7 +12,7 @@ interface PushNotificationData {
 }
 
 interface SubscriptionWithPushTokenRef {
-  pushToken: { id: string | number } | string | number
+  pushToken: { id: string | number; token: string; active?: boolean | null } | string | number
 }
 
 /**
@@ -23,8 +23,8 @@ export async function sendPushNotifications(
   notification: PushNotificationData
 ): Promise<void> {
   try {
-    // Load the subscribed set first (enabled: true), then resolve those
-    // push-token IDs against push-tokens to get the active token strings.
+    // Load the subscribed set (enabled: true) with the pushToken relationship
+    // populated, so the active flag and token string are already available.
     const subscriptionsResult = await payload.find({
       collection: 'subscriptions',
       where: {
@@ -32,7 +32,7 @@ export async function sendPushNotifications(
           equals: true,
         },
       },
-      depth: 0,
+      depth: 1,
       pagination: false,
     })
 
@@ -41,26 +41,13 @@ export async function sendPushNotifications(
       return
     }
 
-    const subscribedTokenIds = (
-      subscriptionsResult.docs as unknown as SubscriptionWithPushTokenRef[]
-    ).map((sub) =>
-      typeof sub.pushToken === 'object' && sub.pushToken !== null ? sub.pushToken.id : sub.pushToken
-    )
-
-    const tokensResult = await payload.find({
-      collection: 'push-tokens',
-      where: {
-        id: {
-          in: subscribedTokenIds,
-        },
-        active: {
-          equals: true,
-        },
-      },
-      pagination: false,
-    })
-
-    const eligibleTokens = new Set(tokensResult.docs.map((tokenDoc) => tokenDoc.token as string))
+    const eligibleTokens = new Set<string>()
+    for (const sub of subscriptionsResult.docs as unknown as SubscriptionWithPushTokenRef[]) {
+      const tokenRef = sub.pushToken
+      if (typeof tokenRef !== 'object' || tokenRef === null) continue
+      if (tokenRef.active === false) continue
+      eligibleTokens.add(tokenRef.token)
+    }
 
     if (eligibleTokens.size === 0) {
       payload.logger.info('No eligible push tokens after filtering enabled subscriptions')
