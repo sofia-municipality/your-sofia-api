@@ -11,6 +11,10 @@ interface PushNotificationData {
   data?: Record<string, unknown>
 }
 
+interface SubscriptionWithPushTokenRef {
+  pushToken: { id: string | number; token: string; active?: boolean | null } | string | number
+}
+
 /**
  * Send push notifications to all active devices
  */
@@ -19,28 +23,41 @@ export async function sendPushNotifications(
   notification: PushNotificationData
 ): Promise<void> {
   try {
-    // Fetch all active push tokens
-    const tokensResult = await payload.find({
-      collection: 'push-tokens',
+    // Load the subscribed set (enabled: true) with the pushToken relationship
+    // populated, so the active flag and token string are already available.
+    const subscriptionsResult = await payload.find({
+      collection: 'subscriptions',
       where: {
-        active: {
+        enabled: {
           equals: true,
         },
       },
-      limit: 1000, // Adjust as needed
+      depth: 1,
+      pagination: false,
     })
 
-    if (!tokensResult.docs || tokensResult.docs.length === 0) {
-      payload.logger.info('No active push tokens found')
+    if (!subscriptionsResult.docs || subscriptionsResult.docs.length === 0) {
+      payload.logger.info('No enabled subscriptions found')
+      return
+    }
+
+    const eligibleTokens = new Set<string>()
+    for (const sub of subscriptionsResult.docs as unknown as SubscriptionWithPushTokenRef[]) {
+      const tokenRef = sub.pushToken
+      if (typeof tokenRef !== 'object' || tokenRef === null) continue
+      if (tokenRef.active === false) continue
+      eligibleTokens.add(tokenRef.token)
+    }
+
+    if (eligibleTokens.size === 0) {
+      payload.logger.info('No eligible push tokens after filtering enabled subscriptions')
       return
     }
 
     // Create messages
     const messages: ExpoPushMessage[] = []
 
-    for (const tokenDoc of tokensResult.docs) {
-      const pushToken = tokenDoc.token as string
-
+    for (const pushToken of eligibleTokens) {
       // Check that the token is valid
       if (!Expo.isExpoPushToken(pushToken)) {
         payload.logger.warn(`Push token ${pushToken} is not a valid Expo push token`)
