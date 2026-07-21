@@ -1,5 +1,9 @@
-import type { CollectionConfig, Access } from 'payload'
-import { canViewCityInfrastructure } from '@/access/cityInfrastructureAdmin'
+import type { CollectionConfig, Access, Where } from 'payload'
+import {
+  canManageFountains,
+  canViewCityInfrastructure,
+  canViewFountains,
+} from '@/access/cityInfrastructureAdmin'
 import { isAdmin } from '@/access/isAdmin'
 import {
   beforeValidateSignal,
@@ -16,9 +20,10 @@ import {
 } from '@/endpoints/signals-metrics'
 
 const canUpdate: Access = async ({ req, id }) => {
-  if (canViewCityInfrastructure({ req })) return true
-
-  if (!req.user || !id) return false
+  if (!req.user) return false
+  // Admin is a superuser.
+  if (req.user.role === 'admin') return true
+  if (!id) return false
 
   try {
     const existingSignal = await req.payload.findByID({
@@ -26,6 +31,19 @@ const canUpdate: Access = async ({ req, id }) => {
       id: id.toString(),
       overrideAccess: true,
     })
+
+    const isFountainSignal =
+      existingSignal.category === 'drinking-fountain' ||
+      existingSignal.cityObject?.type === 'drinking-fountain'
+
+    if (isFountainSignal) {
+      // Fountain signals are reviewed by the fountain-management roles
+      // (admin, inspector, fountainAdmin) — not containerAdmin.
+      if (canManageFountains(req.user.role)) return true
+    } else if (canViewCityInfrastructure({ req })) {
+      // Non-fountain signals: any city-infrastructure admin may manage.
+      return true
+    }
 
     // Reporter is stored as a user ID (number). Compare as strings for safety.
     const reporterId =
@@ -38,6 +56,29 @@ const canUpdate: Access = async ({ req, id }) => {
     req.payload.logger.error(`Error verifying signal reporter: ${error}`)
     return false
   }
+}
+
+// Fountain admins only see fountain signals. All other reads — including public,
+// unauthenticated app reads — remain unrestricted.
+const canRead: Access = ({ req: { user } }) => {
+  if (user?.role === 'fountainAdmin') {
+    const fountainOnly: Where = {
+      or: [
+        { category: { equals: 'drinking-fountain' } },
+        { 'cityObject.type': { equals: 'drinking-fountain' } },
+      ],
+    }
+    return fountainOnly
+  }
+  if (user?.role === 'containerAdmin') {
+    return {
+      or: [
+        { category: { equals: 'waste-container' } },
+        { 'cityObject.type': { equals: 'waste-container' } },
+      ],
+    }
+  }
+  return true
 }
 
 export const Signals: CollectionConfig = {
@@ -61,8 +102,9 @@ export const Signals: CollectionConfig = {
     afterChange: [afterChangeUpdateContainer, afterChangeNotifyReporter],
   },
   access: {
-    admin: canViewCityInfrastructure,
-    read: () => true,
+    // Fountain admins also see Signals in the admin panel (to resolve fountain signals)
+    admin: canViewFountains,
+    read: canRead,
     create: ({ req: { user } }) => {
       return !!user
     },
@@ -96,6 +138,7 @@ export const Signals: CollectionConfig = {
       required: true,
       options: [
         { label: 'Проблем с контейнер за отпадъци', value: 'waste-container' },
+        { label: 'Проблем с чешма', value: 'drinking-fountain' },
         { label: 'Щета на улицата', value: 'street-damage' },
         { label: 'Осветление', value: 'lighting' },
         { label: 'Зелени площи', value: 'green-spaces' },
@@ -123,6 +166,7 @@ export const Signals: CollectionConfig = {
           type: 'select',
           options: [
             { label: 'Контейнер за отпадъци', value: 'waste-container' },
+            { label: 'Чешма', value: 'drinking-fountain' },
             { label: 'Улица', value: 'street' },
             { label: 'Парк', value: 'park' },
             { label: 'Сграда', value: 'building' },
@@ -147,8 +191,18 @@ export const Signals: CollectionConfig = {
             description: 'Наименование или описание на свързания обект',
           },
         },
+        {
+          name: 'openCityObject',
+          type: 'ui',
+          admin: {
+            components: {
+              Field: '@/fields/signalCityObjectLink/OpenCityObjectButton#OpenCityObjectButton',
+            },
+          },
+        },
       ],
     },
+
     {
       name: 'containerState',
       label: 'Състояние на контейнера',
@@ -171,6 +225,27 @@ export const Signals: CollectionConfig = {
         { label: 'Боклук в торби', value: 'bagged' },
         { label: 'Паднал', value: 'fallen' },
         { label: 'Едрогабаритен боклук', value: 'bulkyWaste' },
+      ],
+    },
+    {
+      name: 'fountainState',
+      label: 'Състояние на чешмата',
+      type: 'select',
+      hasMany: true,
+      admin: {
+        description: 'Проблем с чешмата (само за сигнали за чешми)',
+        condition: (data, _siblingData) => {
+          return (
+            data?.category === 'drinking-fountain' || data?.cityObject?.type === 'drinking-fountain'
+          )
+        },
+      },
+      options: [
+        { label: 'Не работи', value: 'notWorking' },
+        { label: 'Повредена', value: 'damaged' },
+        { label: 'Замърсена', value: 'dirty' },
+        { label: 'Има теч', value: 'leaking' },
+        { label: 'Друго', value: 'other' },
       ],
     },
     {

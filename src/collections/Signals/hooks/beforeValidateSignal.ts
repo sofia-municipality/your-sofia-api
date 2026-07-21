@@ -196,14 +196,16 @@ export const beforeValidateSignal: CollectionBeforeValidateHook = async ({
     }
   }
 
-  // Check for duplicate waste container signals
+  // Check for duplicate signals on referenced city objects (containers and fountains)
+  const duplicateCheckedCategories = ['waste-container', 'drinking-fountain']
   if (
-    data.category === 'waste-container' &&
+    data.category &&
+    duplicateCheckedCategories.includes(data.category) &&
     data.reporterUniqueId &&
     data.cityObject?.referenceId
   ) {
     try {
-      // Find existing active signals from same reporter for same container
+      // Find existing active signals from same reporter for same object
       const existingSignals = await req.payload.find({
         collection: 'signals',
         overrideAccess: true,
@@ -221,7 +223,7 @@ export const beforeValidateSignal: CollectionBeforeValidateHook = async ({
             },
             {
               category: {
-                equals: 'waste-container',
+                equals: data.category,
               },
             },
             {
@@ -238,7 +240,7 @@ export const beforeValidateSignal: CollectionBeforeValidateHook = async ({
         const existingSignal = existingSignals.docs[0]
         if (existingSignal) {
           req.payload.logger.warn(
-            `Duplicate signal attempt: Reporter ${data.reporterUniqueId} already has active signal #${existingSignal.id} for container ${data.cityObject.referenceId}`
+            `Duplicate signal attempt: Reporter ${data.reporterUniqueId} already has active signal #${existingSignal.id} for object ${data.cityObject.referenceId}`
           )
 
           throw new APIError(

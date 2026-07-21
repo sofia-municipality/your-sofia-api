@@ -109,6 +109,10 @@ export const Users: CollectionConfig = {
           value: 'containerAdmin',
         },
         {
+          label: 'Fountain Admin',
+          value: 'fountainAdmin',
+        },
+        {
           label: 'Inspector',
           value: 'inspector',
         },
