@@ -22,7 +22,7 @@ export const WasteContainerObservations: CollectionConfig = {
     group: 'Градска инфраструктура',
     defaultColumns: ['container', 'cleanedAt', 'vehicleId', 'cleanedBy', 'collectionCount'],
     description: 'Наблюдения при събиране на отпадъци и почистване',
-    hidden: ({ user }) => user?.role === 'wasteCollector',
+    hidden: ({ user }) => user?.role === 'wasteCollector' || user?.role === 'fountainAdmin',
   },
   fields: [
     {

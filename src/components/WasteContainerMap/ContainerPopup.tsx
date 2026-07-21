@@ -384,7 +384,7 @@ export function ContainerPopup({
         if (!cancelled) {
           setSelectedDistrict({
             id: doc.id,
-            label: `${doc.districtId} · ${doc.name}`,
+            label: `${doc.name}`,
             description: doc.code,
           })
         }
@@ -424,7 +424,7 @@ export function ContainerPopup({
         setDistrictOptions(
           (data.docs ?? []).map((doc) => ({
             id: doc.id,
-            label: `${doc.districtId} · ${doc.name}`,
+            label: `${doc.name}`,
             description: doc.code,
           }))
         )

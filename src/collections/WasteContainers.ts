@@ -27,7 +27,7 @@ export const WasteContainers: CollectionConfig = {
     group: 'Градска инфраструктура',
     description: 'Управление на контейнерите за отпадъци в града',
     listSearchableFields: ['publicNumber', 'legacyId'],
-    hidden: ({ user }) => user?.role === 'wasteCollector',
+    hidden: ({ user }) => user?.role === 'wasteCollector' || user?.role === 'fountainAdmin',
   },
   endpoints: [
     cleanContainer,

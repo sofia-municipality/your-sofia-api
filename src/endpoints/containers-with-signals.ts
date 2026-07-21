@@ -231,6 +231,45 @@ export const containersWithSignalCount: Endpoint = {
         ? sql`LEFT JOIN waste_containers_collection_days_of_week wcdow ON wcdow.parent_id = wc.id`
         : sql``
 
+      // Grand total of all mapped containers (ignores the viewport bounds) so the
+      // UI can show "N shown of TOTAL" rather than "N of N" when zoomed in.
+      const totalResult = await db.drizzle.execute(
+        sql`SELECT COUNT(*)::int AS total FROM waste_containers WHERE location IS NOT NULL`
+      )
+      const total = Number((totalResult.rows[0] as { total: number } | undefined)?.total ?? 0)
+
+      // Count of containers matching the active filters across the whole city
+      // (same filters as the map query, minus the viewport bounds). Powers the
+      // "N shown of FILTERED (of TOTAL)" header.
+      const filteredTotalResult = await db.drizzle.execute(sql`
+        SELECT COUNT(DISTINCT wc.id)::int AS filtered_total
+        FROM waste_containers wc
+        LEFT JOIN city_districts cd ON cd.id = wc.district_id
+        LEFT JOIN waste_collection_zones wcz ON wcz.id = cd.waste_collection_zone_id
+        ${scheduleJoin}
+        WHERE wc.location IS NOT NULL
+          ${statusFilter}
+          ${wasteTypeFilter}
+          ${districtFilter}
+          ${volumeFilter}
+          ${zoneFilter}
+          ${serviceCompanyFilter}
+          ${activeSignalsFilter}
+          ${createdFromFilter}
+          ${createdToFilter}
+          ${lastCleanedFromFilter}
+          ${lastCleanedToFilter}
+          ${lastCleanedNullFilter}
+          ${scheduledTodayFilter}
+          ${scheduleCategoryFilter}
+          ${signalStatusFilter}
+          ${signalContainerStateFilter}
+          ${signalAgeBucketFilter}
+      `)
+      const filteredTotal = Number(
+        (filteredTotalResult.rows[0] as { filtered_total: number } | undefined)?.filtered_total ?? 0
+      )
+
       if (zoom >= INDIVIDUAL_ZOOM) {
         // Return individual markers for the visible viewport (capped at 2000)
         const limit = 2000
@@ -332,7 +371,7 @@ export const containersWithSignalCount: Endpoint = {
           activeSignalCount: row.active_signal_count,
         }))
 
-        return Response.json({ type: 'markers', docs, zoom })
+        return Response.json({ type: 'markers', docs, zoom, total, filteredTotal })
       } else {
         // Return clusters using PostGIS ST_SnapToGrid
         const gridSize = getGridSize(zoom)
@@ -388,7 +427,7 @@ export const containersWithSignalCount: Endpoint = {
           activeSignalCount: Number(row.active_signal_count ?? 0),
         }))
 
-        return Response.json({ type: 'clusters', docs, zoom })
+        return Response.json({ type: 'clusters', docs, zoom, total, filteredTotal })
       }
     } catch (error) {
       console.error('Error fetching containers with signals:', error)

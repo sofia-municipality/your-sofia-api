@@ -9,6 +9,7 @@ jest.mock('payload', () => ({
 }))
 
 import { isAdmin } from '@/access/isAdmin'
+import { canManageFountains, isCityInfrastructureAdmin } from '@/access/cityInfrastructureAdmin'
 import { Users } from '../index'
 
 const makeReq = (role?: string) => ({ req: { user: role ? { role } : null } }) as any
@@ -51,6 +52,10 @@ describe('Users collection access', () => {
       expect(Users.access!.admin!(makeReq('wasteCollector'))).toBe(true)
     })
 
+    it('returns true for fountainAdmin', () => {
+      expect(Users.access!.admin!(makeReq('fountainAdmin'))).toBe(true)
+    })
+
     it('returns false for plain user role', () => {
       expect(Users.access!.admin!(makeReq('user'))).toBe(false)
     })
@@ -66,6 +71,22 @@ describe('Users collection access', () => {
       expect(isAdmin(makeReq('user'))).toBe(false)
       expect(isAdmin(makeReq('inspector'))).toBe(false)
       expect(isAdmin(makeReq())).toBe(false)
+    })
+  })
+
+  describe('fountain access helpers', () => {
+    it('canManageFountains allows admin, inspector, fountainAdmin but not containerAdmin', () => {
+      expect(canManageFountains('fountainAdmin')).toBe(true)
+      expect(canManageFountains('admin')).toBe(true)
+      expect(canManageFountains('inspector')).toBe(true)
+      expect(canManageFountains('containerAdmin')).toBe(false)
+      expect(canManageFountains('user')).toBe(false)
+      expect(canManageFountains('wasteCollector')).toBe(false)
+      expect(canManageFountains(undefined)).toBe(false)
+    })
+
+    it('treats fountainAdmin as a city-infrastructure admin', () => {
+      expect(isCityInfrastructureAdmin('fountainAdmin')).toBe(true)
     })
   })
 })

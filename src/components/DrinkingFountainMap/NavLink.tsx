@@ -4,21 +4,21 @@ import React from 'react'
 import { useAuth } from '@payloadcms/ui'
 import { usePathname } from 'next/navigation'
 import Link from 'next/link'
-import { BarChart2 } from 'lucide-react'
-import { canViewCityInfrastructure } from '@/access/cityInfrastructureAdmin'
+import { canViewFountains } from '@/access/cityInfrastructureAdmin'
 import { PayloadRequest } from 'payload'
+import { DrinkingFountainIcon } from './DrinkingFountainIcon'
 
-const MetricsNavLink: React.FC = () => {
+const DrinkingFountainMapNavLink: React.FC = () => {
   const { user } = useAuth()
   const pathname = usePathname()
-  const isActive = pathname?.startsWith('/admin/metrics')
+  const isActive = pathname?.startsWith('/admin/fountain-map')
 
-  if (!canViewCityInfrastructure({ req: { user } } as { req: PayloadRequest })) return null
+  if (!canViewFountains({ req: { user } } as { req: PayloadRequest })) return null
 
   return (
     <div style={{ padding: '0 8px' }}>
       <Link
-        href="/admin/metrics"
+        href="/admin/fountain-map"
         style={{
           display: 'flex',
           alignItems: 'center',
@@ -32,11 +32,11 @@ const MetricsNavLink: React.FC = () => {
           color: 'var(--theme-text)',
         }}
       >
-        <BarChart2 size={16} />
-        Metrics Dashboard
+        <DrinkingFountainIcon size={16} />
+        Карта на чешмите
       </Link>
     </div>
   )
 }
 
-export default MetricsNavLink
+export default DrinkingFountainMapNavLink

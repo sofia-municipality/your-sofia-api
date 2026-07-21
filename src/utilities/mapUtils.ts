@@ -15,3 +15,14 @@ export function calculateDistance(lat1: number, lon1: number, lat2: number, lon2
 
   return R * c
 }
+
+/**
+ * Compact label for a cluster bubble: the exact number below 1000, otherwise a
+ * one-decimal "k" value with a trailing ".0" trimmed — e.g. 3925 → "3.9k",
+ * 11000 → "11k", 26568 → "26.6k". Avoids the old `Math.floor(n/1000)+"k+"`
+ * form, which rendered 3925 as a misleading "3k+".
+ */
+export function formatClusterCount(count: number): string {
+  if (count < 1000) return String(count)
+  return `${(count / 1000).toFixed(1).replace(/\.0$/, '')}k`
+}

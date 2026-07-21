@@ -22,6 +22,7 @@ jest.mock('payload', () => ({
 }))
 
 import { Signals } from '../Signals/index'
+import { beforeValidateSignal } from '../Signals/hooks/beforeValidateSignal'
 import { sendPushNotificationsToTokens } from '../../utilities/pushNotifications'
 
 const mockSendPush = sendPushNotificationsToTokens as jest.MockedFunction<
@@ -45,9 +46,23 @@ const canUpdate = Signals.access!.update as (...args: any[]) => Promise<boolean>
 // ---------------------------------------------------------------------------
 
 describe('Signals canUpdate access — authenticated user ownership', () => {
-  it('grants access to city infrastructure admins regardless of ownership', async () => {
+  it('grants city infrastructure admins access to non-fountain signals regardless of ownership', async () => {
+    const payload = makePayload({
+      findByID: jest.fn().mockResolvedValue({
+        id: '42',
+        category: 'waste-container',
+        cityObject: { type: 'waste-container', referenceId: 'RTR-0042' },
+        reporter: 99,
+      }),
+    })
+    const req = { user: { id: 7, role: 'inspector' }, payload } as any
+    const result = await canUpdate({ req, id: '42' })
+    expect(result).toBe(true)
+  })
+
+  it('grants admin access to any signal without a lookup', async () => {
     const payload = makePayload({ findByID: jest.fn() })
-    const req = { user: { role: 'inspector' }, payload } as any
+    const req = { user: { id: 1, role: 'admin' }, payload } as any
     const result = await canUpdate({ req, id: '42' })
     expect(result).toBe(true)
     expect(payload.findByID).not.toHaveBeenCalled()
@@ -98,6 +113,104 @@ describe('Signals canUpdate access — authenticated user ownership', () => {
     const result = await canUpdate({ req, id: '99' })
     expect(result).toBe(false)
     expect(payload.logger.error).toHaveBeenCalled()
+  })
+
+  it('grants inspector access to fountain signals', async () => {
+    const payload = makePayload({
+      findByID: jest.fn().mockResolvedValue({
+        id: '42',
+        category: 'drinking-fountain',
+        reporter: 99,
+      }),
+    })
+    const req = { user: { id: 7, role: 'inspector' }, payload } as any
+    const result = await canUpdate({ req, id: '42' })
+    expect(result).toBe(true)
+  })
+
+  it('denies containerAdmin access to fountain signals they did not report', async () => {
+    const payload = makePayload({
+      findByID: jest.fn().mockResolvedValue({
+        id: '42',
+        category: 'drinking-fountain',
+        cityObject: { type: 'drinking-fountain', referenceId: 'DF-RTR-0001' },
+        reporter: 99,
+      }),
+    })
+    const req = { user: { id: 7, role: 'containerAdmin' }, payload } as any
+    const result = await canUpdate({ req, id: '42' })
+    expect(result).toBe(false)
+  })
+
+  it('grants fountainAdmin access to fountain-category signals', async () => {
+    const payload = makePayload({
+      findByID: jest.fn().mockResolvedValue({ id: '42', category: 'drinking-fountain' }),
+    })
+    const req = { user: { id: 7, role: 'fountainAdmin' }, payload } as any
+    const result = await canUpdate({ req, id: '42' })
+    expect(result).toBe(true)
+  })
+
+  it('grants fountainAdmin access to signals referencing a fountain city object', async () => {
+    const payload = makePayload({
+      findByID: jest.fn().mockResolvedValue({
+        id: '42',
+        category: 'other',
+        cityObject: { type: 'drinking-fountain', referenceId: 'DF-RTR-0001' },
+      }),
+    })
+    const req = { user: { id: 7, role: 'fountainAdmin' }, payload } as any
+    const result = await canUpdate({ req, id: '42' })
+    expect(result).toBe(true)
+  })
+
+  it('denies fountainAdmin access to non-fountain signals they did not report', async () => {
+    const payload = makePayload({
+      findByID: jest.fn().mockResolvedValue({
+        id: '42',
+        category: 'waste-container',
+        cityObject: { type: 'waste-container', referenceId: 'RTR-0042' },
+        reporter: 99,
+      }),
+    })
+    const req = { user: { id: 7, role: 'fountainAdmin' }, payload } as any
+    const result = await canUpdate({ req, id: '42' })
+    expect(result).toBe(false)
+  })
+})
+
+// ---------------------------------------------------------------------------
+// read access — fountain admins are limited to fountain signals
+// ---------------------------------------------------------------------------
+
+const canRead = Signals.access!.read as (...args: any[]) => unknown
+
+describe('Signals read access', () => {
+  it('limits fountainAdmin to fountain signals', () => {
+    expect(canRead({ req: { user: { role: 'fountainAdmin' } } })).toEqual({
+      or: [
+        { category: { equals: 'drinking-fountain' } },
+        { 'cityObject.type': { equals: 'drinking-fountain' } },
+      ],
+    })
+  })
+
+  it('limits containerAdmin to waste-container signals', () => {
+    expect(canRead({ req: { user: { role: 'containerAdmin' } } })).toEqual({
+      or: [
+        { category: { equals: 'waste-container' } },
+        { 'cityObject.type': { equals: 'waste-container' } },
+      ],
+    })
+  })
+
+  it('does not restrict other authenticated roles', () => {
+    expect(canRead({ req: { user: { role: 'inspector' } } })).toBe(true)
+    expect(canRead({ req: { user: { role: 'admin' } } })).toBe(true)
+  })
+
+  it('does not restrict public (unauthenticated) reads', () => {
+    expect(canRead({ req: { user: null } })).toBe(true)
   })
 })
 
@@ -269,5 +382,85 @@ describe('Signals afterChange hook — signal-closed notification', () => {
       operation: 'update',
     })
     expect(result).toBe(doc)
+  })
+})
+
+// ---------------------------------------------------------------------------
+// beforeValidate hook — duplicate active-signal check (containers & fountains)
+// ---------------------------------------------------------------------------
+
+describe('Signals beforeValidate hook — duplicate signal check', () => {
+  // The hook issues two kinds of payload.find calls on the signals collection:
+  // the daily rate-limit count (filters on createdAt) and the duplicate lookup
+  // (filters on category). Route them apart by inspecting the where clause.
+  const makeDuplicateAwarePayload = (duplicateDocs: unknown[]) =>
+    makePayload({
+      find: jest.fn().mockImplementation(({ where }: any) => {
+        const clauses: any[] = where?.and ?? []
+        if (clauses.some((c) => c.createdAt)) {
+          return Promise.resolve({ totalDocs: 0, docs: [] })
+        }
+        return Promise.resolve({ docs: duplicateDocs, totalDocs: duplicateDocs.length })
+      }),
+    })
+
+  const makeSignalData = (overrides?: Record<string, unknown>) => ({
+    title: 'T',
+    category: 'drinking-fountain',
+    reporterUniqueId: 'R1',
+    cityObject: { type: 'drinking-fountain', referenceId: 'DF-RTR-0001' },
+    ...overrides,
+  })
+
+  const runHook = (data: Record<string, unknown>, payload: any) =>
+    beforeValidateSignal({
+      data,
+      req: { user: { role: 'user' }, payload },
+      operation: 'create',
+    } as any)
+
+  it('rejects a fountain signal when the reporter already has an active one for the fountain', async () => {
+    const payload = makeDuplicateAwarePayload([{ id: '11' }])
+    await expect(runHook(makeSignalData(), payload)).rejects.toThrow(
+      'Signal for same object already exists'
+    )
+    expect(payload.find).toHaveBeenCalledWith(
+      expect.objectContaining({
+        collection: 'signals',
+        where: expect.objectContaining({
+          and: expect.arrayContaining([
+            { category: { equals: 'drinking-fountain' } },
+            { 'cityObject.referenceId': { equals: 'DF-RTR-0001' } },
+            { status: { not_in: ['resolved', 'rejected'] } },
+          ]),
+        }),
+      })
+    )
+  })
+
+  it('allows a fountain signal when the reporter has no active signal for the fountain', async () => {
+    const payload = makeDuplicateAwarePayload([])
+    const data = makeSignalData()
+    await expect(runHook(data, payload)).resolves.toBe(data)
+  })
+
+  it('rejects a duplicate waste-container signal (existing behaviour)', async () => {
+    const payload = makeDuplicateAwarePayload([{ id: '22' }])
+    const data = makeSignalData({
+      category: 'waste-container',
+      cityObject: { type: 'waste-container', referenceId: 'RTR-0042' },
+    })
+    await expect(runHook(data, payload)).rejects.toThrow('Signal for same object already exists')
+  })
+
+  it('skips the duplicate lookup for categories without referenced objects', async () => {
+    const payload = makeDuplicateAwarePayload([{ id: '33' }])
+    const data = makeSignalData({ category: 'other' })
+    await expect(runHook(data, payload)).resolves.toBe(data)
+    // Only the rate-limit count may query signals; no duplicate lookup by category
+    const duplicateCalls = (payload.find as jest.Mock).mock.calls.filter((call) =>
+      (call[0]?.where?.and ?? []).some((c: any) => c.category)
+    )
+    expect(duplicateCalls).toHaveLength(0)
   })
 })
