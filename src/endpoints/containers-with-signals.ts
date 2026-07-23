@@ -66,12 +66,12 @@ export const containersWithSignalCount: Endpoint = {
 
       const districtIds = (
         Array.isArray(districtIdParam)
-          ? districtIdParam
+          ? districtIdParam.flatMap((v) => String(v).split(','))
           : districtIdParam != null
-            ? [districtIdParam]
+            ? String(districtIdParam).split(',')
             : []
       )
-        .map(Number)
+        .map((id) => Number(id.trim()))
         .filter(Number.isFinite)
 
       const zoneNumberRaw = parseInt((req.query?.zoneNumber as string) || '', 10)
