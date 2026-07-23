@@ -106,6 +106,7 @@ export async function matchSubscriptions(
       collection: 'subscriptions',
       where: {
         'categories.id': { in: newsCategories },
+        enabled: { equals: true },
       },
       depth: 1,
       limit: PAGE_SIZE,

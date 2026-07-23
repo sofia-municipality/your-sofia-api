@@ -17,13 +17,17 @@ interface SignalAgePoint {
   bucket: string
   bucket_order: number
   count: number
+  districts: {
+    name: string | null
+    count: number
+  }[]
 }
 
 interface ApiResponse {
   data: SignalAgePoint[]
 }
 
-export function SignalsByAgeChart() {
+export function SignalsByAgeChart({ type }: { type?: 'waste-container' }) {
   const [data, setData] = useState<SignalAgePoint[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -34,7 +38,7 @@ export function SignalsByAgeChart() {
       setError(null)
 
       try {
-        const response = await fetch('/api/signals-age-metric')
+        const response = await fetch(`/api/signals-age-metric?objectType=${type}`)
         if (!response.ok) throw new Error(`HTTP ${response.status}`)
 
         const json = (await response.json()) as ApiResponse
@@ -57,20 +61,21 @@ export function SignalsByAgeChart() {
         .map((point) => ({
           bucket: point.bucket,
           count: point.count,
+          districts: point.districts,
         })),
     [data]
   )
 
   return (
-    <div style={{ marginBottom: 48 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
       <h3 style={{ fontSize: 20, fontWeight: 700, marginBottom: 12, color: palette.textPrimary }}>
-        Брой сигнали по възраст на създаване
+        Брой сигнали според времето от създаването им
       </h3>
       <p style={{ fontSize: 13, color: palette.textSecondary, marginTop: -4, marginBottom: 16 }}>
         Разпределение на сигналите според времето от тяхното подаване.
       </p>
 
-      <div style={{ position: 'relative', minHeight: 320 }}>
+      <div style={{ position: 'relative' }}>
         {loading && (
           <div
             style={{
@@ -91,7 +96,7 @@ export function SignalsByAgeChart() {
 
         {!loading && !error && chartData.length === 0 && (
           <div style={{ color: palette.textSecondary, fontSize: 14 }}>
-            Няма данни за този диаграм.
+            Няма данни за тази диаграма
           </div>
         )}
 
@@ -124,6 +129,45 @@ export function SignalsByAgeChart() {
                     labelStyle={{ color: palette.textPrimary }}
                     itemStyle={{ color: palette.textPrimary }}
                     formatter={(value) => [value, 'Сигнали']}
+                    content={({ active, payload }) => {
+                      if (!active || !payload?.length) return null
+
+                      const data = payload[0]?.payload
+
+                      return (
+                        <div
+                          style={{
+                            background: palette.surface,
+                            border: `1px solid ${palette.border}`,
+                            borderRadius: 10,
+                            padding: 12,
+                            color: palette.textPrimary,
+                            minWidth: 220,
+                          }}
+                        >
+                          <div style={{ fontWeight: 700, marginBottom: 8 }}>{data.bucket}</div>
+
+                          <div style={{ marginBottom: 10 }}>
+                            Общо: <strong>{data.count}</strong>
+                          </div>
+
+                          {data.districts?.map((district: { name: string; count: number }) => (
+                            <div
+                              key={district.name}
+                              style={{
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                gap: 16,
+                                fontSize: 12,
+                              }}
+                            >
+                              <span>{district.name}</span>
+                              <strong>{district.count}</strong>
+                            </div>
+                          ))}
+                        </div>
+                      )
+                    }}
                   />
                   <Bar
                     dataKey="count"

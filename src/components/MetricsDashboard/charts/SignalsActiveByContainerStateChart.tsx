@@ -22,7 +22,7 @@ interface ApiResponse {
   data: SignalContainerStatePoint[]
 }
 
-export function SignalsActiveByContainerStateChart() {
+export function SignalsActiveByContainerStateChart({ type }: { type?: 'waste-container' }) {
   const [data, setData] = useState<SignalContainerStatePoint[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -33,7 +33,9 @@ export function SignalsActiveByContainerStateChart() {
       setError(null)
 
       try {
-        const response = await fetch('/api/signals-active-container-state-metric')
+        const response = await fetch(
+          `/api/signals-active-container-state-metric?objectType=${type}`
+        )
         if (!response.ok) throw new Error(`HTTP ${response.status}`)
 
         const json = (await response.json()) as ApiResponse
@@ -69,7 +71,7 @@ export function SignalsActiveByContainerStateChart() {
         Брой активни (неразрешени) сигнали, групирани по докладвано състояние на контейнера.
       </p>
 
-      <div style={{ position: 'relative', minHeight: 320 }}>
+      <div style={{ position: 'relative' }}>
         {loading && (
           <div
             style={{
@@ -90,7 +92,7 @@ export function SignalsActiveByContainerStateChart() {
 
         {!loading && !error && chartData.length === 0 && (
           <div style={{ color: palette.textSecondary, fontSize: 14 }}>
-            Няма данни за този диаграм.
+            Няма данни за тази диаграма
           </div>
         )}
 

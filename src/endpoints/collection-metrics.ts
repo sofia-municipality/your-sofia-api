@@ -26,6 +26,43 @@ export const collectionMetrics: Endpoint = {
       const fromIso = from.toISOString()
       const toIso = to.toISOString()
 
+      const districtParam = req.query?.districtIds
+      const volumeParam = req.query?.volumeOptions
+
+      const parsedDistrictIds =
+        districtParam
+          ?.toString()
+          .split(',')
+          .map((value) => Number.parseInt(value.trim(), 10))
+          .filter((value) => Number.isInteger(value) && value > 0) ?? null
+
+      const parsedVolumeOptions =
+        volumeParam
+          ?.toString()
+          .split(',')
+          .map((value) => Number.parseFloat(value.trim()))
+          .filter((value) => Number.isFinite(value) && value > 0) ?? null
+
+      const districtFilter =
+        parsedDistrictIds === null
+          ? sql``
+          : parsedDistrictIds.length === 0
+            ? sql`AND FALSE`
+            : sql`AND cd.district_id IN (${sql.join(
+                parsedDistrictIds.map((districtId) => sql`${districtId}`),
+                sql`, `
+              )})`
+
+      const volumeFilter =
+        parsedVolumeOptions === null
+          ? sql``
+          : parsedVolumeOptions.length === 0
+            ? sql`AND FALSE`
+            : sql`AND wc.capacity_volume IN (${sql.join(
+                parsedVolumeOptions.map((volume) => sql`${volume}`),
+                sql`, `
+              )})`
+
       // ── District stats via SQL ──────────────────────────────────────────────
       // For each district: count all containers + count containers that had at
       // least one observation (cleaned) within the requested time window.
@@ -44,8 +81,8 @@ export const collectionMetrics: Endpoint = {
           AND wco.cleaned_at  >= ${fromIso}::timestamptz
           AND wco.cleaned_at  <= ${toIso}::timestamptz
         WHERE wc.district_id IS NOT NULL
-          AND cd.code = 'RTR'
-          AND wc.capacity_volume = 1.1
+          ${districtFilter}
+          ${volumeFilter}
           AND wc.status IN ('active', 'full')
           AND wcdow.value::text = EXTRACT(ISODOW FROM NOW() AT TIME ZONE 'Europe/Sofia')::int::text
         GROUP BY cd.district_id, cd.name
@@ -86,9 +123,9 @@ export const collectionMetrics: Endpoint = {
           ON  wco.container_id = wc.id
           AND wco.cleaned_at  >= ${fromIso}::timestamptz
           AND wco.cleaned_at  <= ${toIso}::timestamptz
-        WHERE cd.code = 'RTR'
-          AND wc.capacity_volume = 1.1
-          AND wc.status IN ('active', 'full')
+        WHERE wc.status IN ('active', 'full')
+          ${districtFilter}
+          ${volumeFilter}
           AND wcdow.value::text = EXTRACT(ISODOW FROM NOW() AT TIME ZONE 'Europe/Sofia')::int::text
         GROUP BY wcz.id, wcz.number, wcz.name, wcz.service_company_id
         ORDER BY wcz.number
@@ -136,8 +173,8 @@ export const collectionMetrics: Endpoint = {
           WHERE EXTRACT(ISODOW FROM d.check_date)::int = wcdow.value::text::int
             AND (d.check_date::timestamp + TIME '04:00:00') AT TIME ZONE 'Europe/Sofia' <= NOW()
             AND wc.status IN ('active', 'full')
-            AND cd.code = 'RTR'
-            AND wc.capacity_volume = 1.1
+            ${districtFilter}
+            ${volumeFilter}
           ORDER BY wc.id, d.check_date DESC
         )
         SELECT
@@ -192,9 +229,9 @@ export const collectionMetrics: Endpoint = {
           FROM waste_containers wc
           LEFT JOIN city_districts cd ON cd.id = wc.district_id
           JOIN waste_containers_collection_days_of_week wcdow ON wcdow.parent_id = wc.id
-          WHERE cd.code = 'RTR'
-            AND wc.capacity_volume = 1.1
-            AND wc.status IN ('active', 'full')
+          WHERE wc.status IN ('active', 'full')
+            ${districtFilter}
+            ${volumeFilter}
           GROUP BY wcdow.value::text::int
         ),
         collected_per_day AS (
@@ -206,8 +243,8 @@ export const collectionMetrics: Endpoint = {
           LEFT JOIN city_districts cd ON cd.id = wc.district_id
           WHERE wco.cleaned_at >= ${fromIso}::timestamptz
             AND wco.cleaned_at <= ${toIso}::timestamptz
-            AND cd.code = 'RTR'
-            AND wc.capacity_volume = 1.1
+            ${districtFilter}
+            ${volumeFilter}
             AND wc.status IN ('active', 'full')
           GROUP BY (wco.cleaned_at AT TIME ZONE 'Europe/Sofia')::date
         )
@@ -256,8 +293,8 @@ export const collectionMetrics: Endpoint = {
           LEFT JOIN city_districts cd ON cd.id = wc.district_id
           WHERE EXTRACT(ISODOW FROM (CURRENT_TIMESTAMP AT TIME ZONE 'Europe/Sofia'))::int = wcdow.value::text::int
             AND wc.status IN ('active', 'full')
-            AND cd.code = 'RTR'
-            AND wc.capacity_volume = 1.1
+            ${districtFilter}
+            ${volumeFilter}
         ),
         latest_expected AS (
           SELECT DISTINCT ON (wc.id)
@@ -271,8 +308,8 @@ export const collectionMetrics: Endpoint = {
           WHERE EXTRACT(ISODOW FROM d.check_date)::int = wcdow.value::text::int
             AND (d.check_date::timestamp + TIME '04:00:00') AT TIME ZONE 'Europe/Sofia' <= NOW()
             AND wc.status IN ('active', 'full')
-            AND cd.code = 'RTR'
-            AND wc.capacity_volume = 1.1
+            ${districtFilter}
+            ${volumeFilter}
           ORDER BY wc.id, d.check_date DESC
         )
         SELECT
