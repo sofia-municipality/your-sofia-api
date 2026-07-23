@@ -131,7 +131,7 @@ export function CollectionByGroupChart({
   const xAxisTickMargin = groupBy === 'day' ? 8 : 6
 
   return (
-    <div style={{ marginBottom: groupBy === 'day' ? 48 : 20 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
       {showTabs && (
         <div
           style={{
@@ -140,7 +140,6 @@ export function CollectionByGroupChart({
             borderRadius: 8,
             padding: 2,
             maxWidth: 320,
-            marginBottom: 12,
           }}
         >
           {(['day', 'district', 'zone'] as const).map((t) => (
