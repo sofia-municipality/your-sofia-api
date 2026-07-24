@@ -32,7 +32,9 @@ COPY . .
 # Next.js collects completely anonymous telemetry data about general usage.
 # Learn more here: https://nextjs.org/telemetry
 ENV NEXT_TELEMETRY_DISABLED=1
-ENV NEXT_PUBLIC_SERVER_URL=https://your.sofia.bg
+
+ARG NEXT_PUBLIC_SERVER_URL=https://your.sofia.bg
+ENV NEXT_PUBLIC_SERVER_URL=$NEXT_PUBLIC_SERVER_URL
 
 # Skip payload operations during build
 ENV PAYLOAD_DROP_DATABASE=false
@@ -41,6 +43,7 @@ RUN pnpm next build --experimental-build-mode compile
 
 # Production image, copy all the files and run next
 FROM base AS runner
+LABEL service='your-sofia-api'
 WORKDIR /app
 
 ENV NODE_ENV=production

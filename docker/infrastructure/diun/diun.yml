@@ -1,0 +1,17 @@
+db:
+  path: /data/diun.db
+
+watch:
+  schedule: 'CRON_TZ=Europe/Sofia */5 * * * *'
+  jitter: 30s
+  workers: 10
+  runOnStartup: true
+  firstCheckNotif: false
+
+providers:
+  file:
+    filename: /etc/diun/images.yml
+
+notif:
+  script:
+    cmd: /etc/diun/deploy.sh
