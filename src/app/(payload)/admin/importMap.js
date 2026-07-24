@@ -20,6 +20,7 @@ import { SlugComponent as SlugComponent_92cc057d0a2abb4f6cf0307edf59f986 } from 
 import { HorizontalRuleFeatureClient as HorizontalRuleFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { BlocksFeatureClient as BlocksFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { LocationMapComponent as LocationMapComponent_1e69b9f33a2416299ea4016cca9ee5d2 } from '@/fields/locationMap/LocationMapComponent'
+import { OpenCityObjectButton as OpenCityObjectButton_1cd6db38696fe0ee22979a13637ba7c8 } from '@/fields/signalCityObjectLink/OpenCityObjectButton'
 import { LinkToDoc as LinkToDoc_aead06e4cbf6b2620c5c51c9ab283634 } from '@payloadcms/plugin-search/client'
 import { ReindexButton as ReindexButton_aead06e4cbf6b2620c5c51c9ab283634 } from '@payloadcms/plugin-search/client'
 import { FormatField as FormatField_cdf7e044479f899a31f804427d568b36 } from '@payloadcms/plugin-import-export/rsc'
@@ -42,9 +43,11 @@ import { default as default_1a7510af427896d367a49dbf838d2de6 } from '@/component
 import { default as default_8a7ab0eb7ab5c511aba12e68480bfe5e } from '@/components/BeforeLogin'
 import { default as default_b682aee223c37730cf1b4d5d6b34a0b9 } from '@/components/MetricsDashboard/NavLink'
 import { default as default_9eaa810e0643ed92ce2457420fb7c1ee } from '@/components/WasteContainerMap/NavLink'
+import { default as default_03ada275ece29ef735a257caf7590f69 } from '@/components/DrinkingFountainMap/NavLink'
 import { ImportExportProvider as ImportExportProvider_cdf7e044479f899a31f804427d568b36 } from '@payloadcms/plugin-import-export/rsc'
 import { default as default_1d20c419cd57ec23b173f09631378fda } from '@/components/MetricsDashboard/index'
 import { default as default_4bc8dad9e37736601184cd66283b963e } from '@/components/WasteContainerMap/index'
+import { default as default_a9afa3641877ecc12d06f1b842c4fcc5 } from '@/components/DrinkingFountainMap/index'
 import { CollectionCards as CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1 } from '@payloadcms/next/rsc'
 
 /** @type import('payload').ImportMap */
@@ -71,6 +74,7 @@ export const importMap = {
   "@payloadcms/richtext-lexical/client#HorizontalRuleFeatureClient": HorizontalRuleFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/richtext-lexical/client#BlocksFeatureClient": BlocksFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@/fields/locationMap/LocationMapComponent#LocationMapComponent": LocationMapComponent_1e69b9f33a2416299ea4016cca9ee5d2,
+  "@/fields/signalCityObjectLink/OpenCityObjectButton#OpenCityObjectButton": OpenCityObjectButton_1cd6db38696fe0ee22979a13637ba7c8,
   "@payloadcms/plugin-search/client#LinkToDoc": LinkToDoc_aead06e4cbf6b2620c5c51c9ab283634,
   "@payloadcms/plugin-search/client#ReindexButton": ReindexButton_aead06e4cbf6b2620c5c51c9ab283634,
   "@payloadcms/plugin-import-export/rsc#FormatField": FormatField_cdf7e044479f899a31f804427d568b36,
@@ -93,8 +97,10 @@ export const importMap = {
   "@/components/BeforeLogin#default": default_8a7ab0eb7ab5c511aba12e68480bfe5e,
   "@/components/MetricsDashboard/NavLink#default": default_b682aee223c37730cf1b4d5d6b34a0b9,
   "@/components/WasteContainerMap/NavLink#default": default_9eaa810e0643ed92ce2457420fb7c1ee,
+  "@/components/DrinkingFountainMap/NavLink#default": default_03ada275ece29ef735a257caf7590f69,
   "@payloadcms/plugin-import-export/rsc#ImportExportProvider": ImportExportProvider_cdf7e044479f899a31f804427d568b36,
   "@/components/MetricsDashboard/index#default": default_1d20c419cd57ec23b173f09631378fda,
   "@/components/WasteContainerMap/index#default": default_4bc8dad9e37736601184cd66283b963e,
+  "@/components/DrinkingFountainMap/index#default": default_a9afa3641877ecc12d06f1b842c4fcc5,
   "@payloadcms/next/rsc#CollectionCards": CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1
 }

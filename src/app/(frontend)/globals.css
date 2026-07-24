@@ -102,3 +102,8 @@ html[data-theme='dark'],
 html[data-theme='light'] {
   opacity: initial;
 }
+
+.map-marker {
+  background: transparent;
+  border: none;
+}

@@ -65,6 +65,8 @@ const WasteContainerMapView: React.FC = () => {
   const hasAccess = canViewCityInfrastructure({ req: { user } } as { req: PayloadRequest })
   const canAddContainer = isCityInfrastructureAdmin(user?.role)
   const [items, setItems] = useState<MapItem[]>([])
+  const [total, setTotal] = useState(0)
+  const [filteredTotal, setFilteredTotal] = useState(0)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [addressQuery, setAddressQuery] = useState('')
@@ -131,6 +133,8 @@ const WasteContainerMapView: React.FC = () => {
       if (!res.ok) throw new Error(`HTTP ${res.status}`)
       const data = await res.json()
       setItems(data.docs ?? [])
+      if (typeof data.total === 'number') setTotal(data.total)
+      if (typeof data.filteredTotal === 'number') setFilteredTotal(data.filteredTotal)
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Неуспешно зареждане')
     } finally {
@@ -364,11 +368,13 @@ const WasteContainerMapView: React.FC = () => {
               Административна карта на контейнерите за отпадъци
             </h1>
             <p style={{ margin: '2px 0 0', fontSize: 13, color: '#6B7280', minHeight: '1.4em' }}>
-              {items.length > 0
+              {total > 0
                 ? isClustered
-                  ? `${items.length} групи — приближете за детайли`
-                  : `${filtered.length} от ${markers.length} контейнера`
-                : '\u00a0'}
+                  ? `${filteredTotal} от ${total} общо — приближете за детайли`
+                  : filteredTotal === total
+                    ? `${filtered.length} от ${total} общо`
+                    : `${filtered.length} от ${filteredTotal} филтрирани (${total} общо)`
+                : '\u00A0'}
             </p>
           </div>
         </div>

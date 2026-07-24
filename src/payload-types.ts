@@ -78,6 +78,11 @@ export interface Config {
     'waste-containers': WasteContainer;
     'waste-container-observations': WasteContainerObservation;
     'waste-collection-zones': WasteCollectionZone;
+    'drinking-fountains': DrinkingFountain;
+    'drinking-fountain-source': DrinkingFountainSource;
+    'fountain-status': FountainStatus;
+    'fountain-owner': FountainOwner;
+    'fountain-activation-type': FountainActivationType;
     signals: Signal;
     assignments: Assignment;
     'geocode-addresses': GeocodeAddress;
@@ -108,6 +113,11 @@ export interface Config {
     'waste-containers': WasteContainersSelect<false> | WasteContainersSelect<true>;
     'waste-container-observations': WasteContainerObservationsSelect<false> | WasteContainerObservationsSelect<true>;
     'waste-collection-zones': WasteCollectionZonesSelect<false> | WasteCollectionZonesSelect<true>;
+    'drinking-fountains': DrinkingFountainsSelect<false> | DrinkingFountainsSelect<true>;
+    'drinking-fountain-source': DrinkingFountainSourceSelect<false> | DrinkingFountainSourceSelect<true>;
+    'fountain-status': FountainStatusSelect<false> | FountainStatusSelect<true>;
+    'fountain-owner': FountainOwnerSelect<false> | FountainOwnerSelect<true>;
+    'fountain-activation-type': FountainActivationTypeSelect<false> | FountainActivationTypeSelect<true>;
     signals: SignalsSelect<false> | SignalsSelect<true>;
     assignments: AssignmentsSelect<false> | AssignmentsSelect<true>;
     'geocode-addresses': GeocodeAddressesSelect<false> | GeocodeAddressesSelect<true>;
@@ -516,7 +526,7 @@ export interface User {
   /**
    * User role determines access permissions
    */
-  role: 'user' | 'admin' | 'containerAdmin' | 'inspector' | 'wasteCollector';
+  role: 'user' | 'admin' | 'containerAdmin' | 'fountainAdmin' | 'inspector' | 'wasteCollector';
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -1040,6 +1050,128 @@ export interface WasteContainerObservation {
   createdAt: string;
 }
 /**
+ * Управление на чешмите в града
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "drinking-fountains".
+ */
+export interface DrinkingFountain {
+  id: number;
+  /**
+   * Автоматично генериран идентификатор (напр. DF-RTR-0001)
+   */
+  publicNumber?: string | null;
+  /**
+   * Административен район на София, в който се намира чешмата
+   */
+  district?: (number | null) | CityDistrict;
+  /**
+   * Източник на водата (напр. Софийска вода, Минерална, Изворна)
+   */
+  source?: (number | null) | DrinkingFountainSource;
+  /**
+   * Собственик или отговорник за поддръжката на чешмата
+   */
+  owner?: (number | null) | FountainOwner;
+  /**
+   * Четим адрес или описание на местоположението на чешмата
+   */
+  address: string;
+  /**
+   * Географски координати [дължина, ширина] – позволява геопространствени заявки
+   *
+   * @minItems 2
+   * @maxItems 2
+   */
+  location: [number, number];
+  /**
+   * Текущо състояние/статус на чешмата
+   */
+  status?: (number | null) | FountainStatus;
+  /**
+   * Механизъм за пускане на водата (напр. Бутон, Кран, Канелка)
+   */
+  activationType?: (number | null) | FountainActivationType;
+  /**
+   * Дали чешмата работи в момента
+   */
+  isActive?: boolean | null;
+  /**
+   * Забележки за статут на паметник на културата или друга защита (ако е приложимо)
+   */
+  protectionStatus?: string | null;
+  /**
+   * Връзка към допълнителна информация за чешмата (по избор)
+   */
+  externalLink?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Източник на водата за чешмите (напр. Софийска вода, Минерална, Изворна)
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "drinking-fountain-source".
+ */
+export interface DrinkingFountainSource {
+  id: number;
+  /**
+   * Уникално наименование на източника на вода
+   */
+  name: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Собственик или отговорник за поддръжката на чешмата (напр. район, ОППГГ)
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "fountain-owner".
+ */
+export interface FountainOwner {
+  id: number;
+  /**
+   * Уникално наименование на собственика/поддръжката
+   */
+  name: string;
+  /**
+   * Уникален имейл за контакт със собственика/поддръжката
+   */
+  contactEmail?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Възможни състояния/статуси на чешмите (напр. Добро състояние, За ремонт)
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "fountain-status".
+ */
+export interface FountainStatus {
+  id: number;
+  /**
+   * Уникално наименование на състоянието
+   */
+  name: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Механизъм за пускане на водата (напр. Бутон, Кран, Канелка, Няма)
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "fountain-activation-type".
+ */
+export interface FountainActivationType {
+  id: number;
+  /**
+   * Уникално наименование на начина на активиране
+   */
+  name: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * Сигнали от граждани за проблеми
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1060,6 +1192,7 @@ export interface Signal {
    */
   category:
     | 'waste-container'
+    | 'drinking-fountain'
     | 'street-damage'
     | 'lighting'
     | 'green-spaces'
@@ -1070,7 +1203,7 @@ export interface Signal {
    * Препратка към свързан градски обект (напр. контейнер за отпадъци)
    */
   cityObject?: {
-    type?: ('waste-container' | 'street' | 'park' | 'building' | 'other') | null;
+    type?: ('waste-container' | 'drinking-fountain' | 'street' | 'park' | 'building' | 'other') | null;
     /**
      * Идентификатор или референтен номер на свързания обект. Задължително, ако не е посочено местоположение.
      */
@@ -1086,6 +1219,10 @@ export interface Signal {
   containerState?:
     | ('full' | 'dirty' | 'damaged' | 'leaves' | 'maintenance' | 'bagged' | 'fallen' | 'bulkyWaste')[]
     | null;
+  /**
+   * Проблем с чешмата (само за сигнали за чешми)
+   */
+  fountainState?: ('notWorking' | 'damaged' | 'dirty' | 'leaking' | 'other')[] | null;
   /**
    * Географски координати [дължина, ширина] на сигнализирания проблем. Задължително, ако няма посочен свързан обект.
    *
@@ -1609,6 +1746,26 @@ export interface PayloadLockedDocument {
         value: number | WasteCollectionZone;
       } | null)
     | ({
+        relationTo: 'drinking-fountains';
+        value: number | DrinkingFountain;
+      } | null)
+    | ({
+        relationTo: 'drinking-fountain-source';
+        value: number | DrinkingFountainSource;
+      } | null)
+    | ({
+        relationTo: 'fountain-status';
+        value: number | FountainStatus;
+      } | null)
+    | ({
+        relationTo: 'fountain-owner';
+        value: number | FountainOwner;
+      } | null)
+    | ({
+        relationTo: 'fountain-activation-type';
+        value: number | FountainActivationType;
+      } | null)
+    | ({
         relationTo: 'signals';
         value: number | Signal;
       } | null)
@@ -2098,6 +2255,62 @@ export interface WasteCollectionZonesSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "drinking-fountains_select".
+ */
+export interface DrinkingFountainsSelect<T extends boolean = true> {
+  publicNumber?: T;
+  district?: T;
+  source?: T;
+  owner?: T;
+  address?: T;
+  location?: T;
+  status?: T;
+  activationType?: T;
+  isActive?: T;
+  protectionStatus?: T;
+  externalLink?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "drinking-fountain-source_select".
+ */
+export interface DrinkingFountainSourceSelect<T extends boolean = true> {
+  name?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "fountain-status_select".
+ */
+export interface FountainStatusSelect<T extends boolean = true> {
+  name?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "fountain-owner_select".
+ */
+export interface FountainOwnerSelect<T extends boolean = true> {
+  name?: T;
+  contactEmail?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "fountain-activation-type_select".
+ */
+export interface FountainActivationTypeSelect<T extends boolean = true> {
+  name?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "signals_select".
  */
 export interface SignalsSelect<T extends boolean = true> {
@@ -2112,6 +2325,7 @@ export interface SignalsSelect<T extends boolean = true> {
         name?: T;
       };
   containerState?: T;
+  fountainState?: T;
   location?: T;
   address?: T;
   images?: T;
@@ -2730,6 +2944,11 @@ export interface TaskCreateCollectionExport {
       | 'waste-containers'
       | 'waste-container-observations'
       | 'waste-collection-zones'
+      | 'drinking-fountains'
+      | 'drinking-fountain-source'
+      | 'fountain-status'
+      | 'fountain-owner'
+      | 'fountain-activation-type'
       | 'signals'
       | 'assignments'
       | 'geocode-addresses'

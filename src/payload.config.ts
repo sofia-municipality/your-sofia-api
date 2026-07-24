@@ -21,6 +21,11 @@ import { CityDistricts } from './collections/CityDistricts'
 import { WasteContainers } from './collections/WasteContainers'
 import { WasteContainerObservations } from './collections/WasteContainerObservations'
 import { WasteCollectionZones } from './collections/WasteCollectionZones'
+import { DrinkingFountains } from './collections/DrinkingFountains'
+import { DrinkingFountainSource } from './collections/DrinkingFountainSource'
+import { FountainStatus } from './collections/FountainStatus'
+import { FountainOwner } from './collections/FountainOwner'
+import { FountainActivationType } from './collections/FountainActivationType'
 import { Signals } from './collections/Signals/index'
 import { Assignments } from './collections/Assignments'
 import { GeocodeAddresses } from './collections/GeocodeAddresses'
@@ -97,6 +102,7 @@ export default buildConfig({
       beforeNavLinks: [
         '@/components/MetricsDashboard/NavLink',
         '@/components/WasteContainerMap/NavLink',
+        '@/components/DrinkingFountainMap/NavLink',
       ],
       views: {
         metricsView: {
@@ -106,6 +112,10 @@ export default buildConfig({
         wasteMapView: {
           Component: '@/components/WasteContainerMap/index',
           path: '/waste-map',
+        },
+        fountainMapView: {
+          Component: '@/components/DrinkingFountainMap/index',
+          path: '/fountain-map',
         },
       },
     },
@@ -166,6 +176,11 @@ export default buildConfig({
     WasteContainers,
     WasteContainerObservations,
     WasteCollectionZones,
+    DrinkingFountains,
+    DrinkingFountainSource,
+    FountainStatus,
+    FountainOwner,
+    FountainActivationType,
     Signals,
     Assignments,
     GeocodeAddresses,

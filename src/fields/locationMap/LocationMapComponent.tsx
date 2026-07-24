@@ -3,7 +3,7 @@
 import { useAuth, useForm, useFormFields } from '@payloadcms/ui'
 import dynamic from 'next/dynamic'
 import React, { useCallback, useEffect, useRef } from 'react'
-import { isCityInfrastructureAdmin } from '@/access/cityInfrastructureAdmin'
+import { canManageFountains } from '@/access/cityInfrastructureAdmin'
 import './index.scss'
 
 // Dynamically import the Leaflet map to avoid SSR issues (Leaflet requires `window`)
@@ -40,7 +40,9 @@ export function LocationMapComponent() {
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const prefillApplied = useRef(false)
 
-  const canEdit = user != null && isCityInfrastructureAdmin(user.role)
+  // canManageFountains is a superset of the infrastructure roles, and the only
+  // collection a fountainAdmin can open that renders this field is fountains.
+  const canEdit = user != null && canManageFountains(user.role)
 
   // location is stored as [longitude, latitude] (PostGIS point format)
   const locationValue = useFormFields(([fields]) => fields['location']?.value) as
@@ -51,13 +53,17 @@ export function LocationMapComponent() {
   const lng = Array.isArray(locationValue) ? locationValue[0] : null
   const lat = Array.isArray(locationValue) ? locationValue[1] : null
 
-  // Apply sessionStorage prefill from the waste container map "create here" flow
+  // Apply sessionStorage prefill from a map "create here" flow (waste containers
+  // or drinking fountains both drop a pin and route to their create page).
   useEffect(() => {
     if (prefillApplied.current || !canEdit) return
     try {
-      const raw = sessionStorage.getItem('prefill_waste_container_location')
+      const raw =
+        sessionStorage.getItem('prefill_waste_container_location') ??
+        sessionStorage.getItem('prefill_drinking_fountain_location')
       if (!raw) return
       sessionStorage.removeItem('prefill_waste_container_location')
+      sessionStorage.removeItem('prefill_drinking_fountain_location')
       const { lat: prefillLat, lng: prefillLng } = JSON.parse(raw) as { lat: number; lng: number }
       if (typeof prefillLat !== 'number' || typeof prefillLng !== 'number') return
       prefillApplied.current = true

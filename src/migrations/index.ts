@@ -45,6 +45,11 @@ import * as migration_20260508_064250 from './20260508_064250';
 import * as migration_20260520_164303_inspectorMail from './20260520_164303_inspectorMail';
 import * as migration_20260621_074149 from './20260621_074149';
 import * as migration_20260626_152159_feature_config from './20260626_152159_feature_config';
+import * as migration_20260715_000000_drinking_fountains from './20260715_000000_drinking_fountains';
+import * as migration_20260716_000000_fountain_public_number_signals from './20260716_000000_fountain_public_number_signals';
+import * as migration_20260717_000000_signal_fountain_state from './20260717_000000_signal_fountain_state';
+import * as migration_20260718_000000_signal_fountain_category from './20260718_000000_signal_fountain_category';
+import * as migration_20260719_000000_user_role_fountain_admin from './20260719_000000_user_role_fountain_admin';
 
 export const migrations = [
   {
@@ -281,5 +286,30 @@ export const migrations = [
     up: migration_20260626_152159_feature_config.up,
     down: migration_20260626_152159_feature_config.down,
     name: '20260626_152159_feature_config'
+  },
+  {
+    up: migration_20260715_000000_drinking_fountains.up,
+    down: migration_20260715_000000_drinking_fountains.down,
+    name: '20260715_000000_drinking_fountains',
+  },
+  {
+    up: migration_20260716_000000_fountain_public_number_signals.up,
+    down: migration_20260716_000000_fountain_public_number_signals.down,
+    name: '20260716_000000_fountain_public_number_signals',
+  },
+  {
+    up: migration_20260717_000000_signal_fountain_state.up,
+    down: migration_20260717_000000_signal_fountain_state.down,
+    name: '20260717_000000_signal_fountain_state',
+  },
+  {
+    up: migration_20260718_000000_signal_fountain_category.up,
+    down: migration_20260718_000000_signal_fountain_category.down,
+    name: '20260718_000000_signal_fountain_category',
+  },
+  {
+    up: migration_20260719_000000_user_role_fountain_admin.up,
+    down: migration_20260719_000000_user_role_fountain_admin.down,
+    name: '20260719_000000_user_role_fountain_admin',
   },
 ];

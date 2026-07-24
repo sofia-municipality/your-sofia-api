@@ -17,7 +17,7 @@ export const WasteCollectionZones: CollectionConfig = {
     defaultColumns: ['number', 'name', 'serviceCompanyId'],
     group: 'Градска инфраструктура',
     description: 'Карта на зоните за събиране към административните райони и обслужващите фирми',
-    hidden: ({ user }) => user?.role === 'wasteCollector',
+    hidden: ({ user }) => user?.role === 'wasteCollector' || user?.role === 'fountainAdmin',
   },
   access: {
     admin: canViewCityInfrastructure,
