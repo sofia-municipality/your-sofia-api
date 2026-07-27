@@ -46,6 +46,8 @@ import { processWasteCollectionEvents } from './tasks/WasteCollection/processWas
 import { sendUpdatesNotifications } from './tasks/Notifications/sendUpdatesNotifications'
 import { sendInspectorMetricsReport } from './tasks/Reports/sendInspectorMetricsReport'
 import { adminOnly } from '@/access/adminOnly'
+import { BulkyWasteZones } from './collections/BulkyWasteZones'
+import { bulkyWasteZonesEndpoint } from './endpoints/bulky-waste-zones'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -164,6 +166,7 @@ export default buildConfig({
     PushTokens,
     CityDistricts,
     WasteContainers,
+    BulkyWasteZones,
     WasteContainerObservations,
     WasteCollectionZones,
     Signals,
@@ -180,6 +183,7 @@ export default buildConfig({
     updatesById,
     updatesSources,
     updatesOpenApi,
+    bulkyWasteZonesEndpoint,
     signalsAgeMetric,
     signalsStatusMetric,
     signalsActiveContainerStateMetric,

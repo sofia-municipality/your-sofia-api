@@ -18,6 +18,7 @@
     "payload": "cross-env NODE_OPTIONS=--no-deprecation payload",
     "reinstall": "cross-env NODE_OPTIONS=--no-deprecation rm -rf node_modules && rm pnpm-lock.yaml && pnpm --ignore-workspace install",
     "seed:waste-containers": "cross-env NODE_OPTIONS=--no-deprecation payload run ./src/scripts/seedWasteContainers.ts",
+    "seed:bulky-waste-zones": "tsx --env-file=.env.local src/scripts/seed-bulky-waste-zones.ts",
     "migrate:run": "cross-env NODE_OPTIONS=--no-deprecation payload run ./src/scripts/run-migration.ts",
     "sync:schedules": "cross-env NODE_OPTIONS=--no-deprecation tsx --env-file=.env src/scripts/runScheduleSync.ts",
     "start": "cross-env NODE_OPTIONS=--no-deprecation next start",
