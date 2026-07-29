@@ -1089,13 +1089,7 @@ export interface Signal {
    * Вид на сигнализирания проблем
    */
   category:
-    | 'waste-container'
-    | 'street-damage'
-    | 'lighting'
-    | 'green-spaces'
-    | 'parking'
-    | 'public-transport'
-    | 'other';
+    'waste-container' | 'street-damage' | 'lighting' | 'green-spaces' | 'parking' | 'public-transport' | 'other';
   /**
    * Препратка към свързан градски обект (напр. контейнер за отпадъци)
    */
@@ -1114,8 +1108,7 @@ export interface Signal {
    * Състояние на контейнера за отпадъци (само за сигнали за контейнери)
    */
   containerState?:
-    | ('full' | 'dirty' | 'damaged' | 'leaves' | 'maintenance' | 'bagged' | 'fallen' | 'bulkyWaste')[]
-    | null;
+    ('full' | 'dirty' | 'damaged' | 'leaves' | 'maintenance' | 'bagged' | 'fallen' | 'bulkyWaste')[] | null;
   /**
    * Географски координати [дължина, ширина] на сигнализирания проблем. Задължително, ако няма посочен свързан обект.
    *

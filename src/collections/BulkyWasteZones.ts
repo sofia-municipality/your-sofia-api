@@ -3,8 +3,8 @@ import type { CollectionConfig } from 'payload'
 export const BulkyWasteZones: CollectionConfig = {
   slug: 'bulky-waste-zones',
   labels: {
-    singular: 'Зона за едргоабаритни отпадъци (ЕГО)',
-    plural: 'Зони за едргоабаритни отпадъци (ЕГО)',
+    singular: 'Зона за едрогабаритни отпадъци (ЕГО)',
+    plural: 'Зони за едрогабаритни отпадъци (ЕГО)',
   },
   admin: {
     useAsTitle: 'name',

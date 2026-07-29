@@ -45,7 +45,8 @@ import * as migration_20260508_064250 from './20260508_064250';
 import * as migration_20260520_164303_inspectorMail from './20260520_164303_inspectorMail';
 import * as migration_20260621_074149 from './20260621_074149';
 import * as migration_20260626_152159_feature_config from './20260626_152159_feature_config';
-import * as migration_20260724_000000_bulky_waste_zones from './20260724_000000_bulky_waste_zones';
+import * as migration_20260729_093425_bulky_waste_zones from './20260729_093425_bulky_waste_zones';
+import * as migration_20260729_101500_import_bulky_waste_zones from './20260729_101500_import_bulky_waste_zones';
 
 export const migrations = [
   {
@@ -284,8 +285,13 @@ export const migrations = [
     name: '20260626_152159_feature_config'
   },
   {
-    up: migration_20260724_000000_bulky_waste_zones.up,
-    down: migration_20260724_000000_bulky_waste_zones.down,
-    name: '20260724_000000_bulky_waste_zones',
+    up: migration_20260729_093425_bulky_waste_zones.up,
+    down: migration_20260729_093425_bulky_waste_zones.down,
+    name: '20260729_093425_bulky_waste_zones'
+  },
+  {
+    up: migration_20260729_101500_import_bulky_waste_zones.up,
+    down: migration_20260729_101500_import_bulky_waste_zones.down,
+    name: '20260729_101500_import_bulky_waste_zones'
   },
 ];

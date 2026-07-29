@@ -44,9 +44,7 @@ export function LocationMapComponent() {
 
   // location is stored as [longitude, latitude] (PostGIS point format)
   const locationValue = useFormFields(([fields]) => fields['location']?.value) as
-    | [number, number]
-    | null
-    | undefined
+    [number, number] | null | undefined
 
   const lng = Array.isArray(locationValue) ? locationValue[0] : null
   const lat = Array.isArray(locationValue) ? locationValue[1] : null

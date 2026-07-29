@@ -1,6 +1,7 @@
 import { getPayload } from 'payload'
 import config from '@payload-config'
 import path from 'path'
+import { pathToFileURL } from 'url'
 
 /**
  * Run a specific migration by filename
@@ -46,8 +47,8 @@ async function runMigration() {
     console.log(`Loading migration: ${migrationFileName}`)
     console.log(`Path: ${migrationPath}`)
 
-    // Dynamically import the migration
-    const migration = await import(migrationPath)
+    // Dynamically import the migration (file:// URL is required on Windows)
+    const migration = await import(pathToFileURL(migrationPath).href)
 
     if (!migration[direction]) {
       console.error(`Error: Migration does not have a "${direction}" function`)
