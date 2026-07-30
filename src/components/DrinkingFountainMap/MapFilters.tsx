@@ -261,13 +261,13 @@ export function MapFilters({ filters, onChange, fountains }: MapFiltersProps) {
             />
             <MultiSelect
               label="Състояние"
-              options={toOptions(options.statuses)}
+              options={options.statuses}
               selected={filters.statusIds}
               onChange={(next) => onChange({ ...filters, statusIds: next })}
             />
             <MultiSelect
-              label="Активиране"
-              options={toOptions(options.activationTypes)}
+              label="Спирателен механизъм"
+              options={options.activationTypes}
               selected={filters.activationTypeIds}
               onChange={(next) => onChange({ ...filters, activationTypeIds: next })}
             />

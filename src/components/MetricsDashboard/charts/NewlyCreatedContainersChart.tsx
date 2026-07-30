@@ -205,7 +205,8 @@ export function NewlyCreatedContainersChart() {
                     cursor="pointer"
                     onClick={(barData) => {
                       const clickedDay = barData?.payload as
-                        { date?: string; dayEndExclusive?: string } | undefined
+                        | { date?: string; dayEndExclusive?: string }
+                        | undefined
                       if (!clickedDay?.date || !clickedDay?.dayEndExclusive) return
                       openMapForDay(clickedDay.date, clickedDay.dayEndExclusive)
                     }}

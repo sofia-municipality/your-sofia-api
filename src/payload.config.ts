@@ -23,9 +23,7 @@ import { WasteContainerObservations } from './collections/WasteContainerObservat
 import { WasteCollectionZones } from './collections/WasteCollectionZones'
 import { DrinkingFountains } from './collections/DrinkingFountains'
 import { DrinkingFountainSource } from './collections/DrinkingFountainSource'
-import { FountainStatus } from './collections/FountainStatus'
 import { FountainOwner } from './collections/FountainOwner'
-import { FountainActivationType } from './collections/FountainActivationType'
 import { Signals } from './collections/Signals/index'
 import { Assignments } from './collections/Assignments'
 import { GeocodeAddresses } from './collections/GeocodeAddresses'
@@ -181,9 +179,7 @@ export default buildConfig({
     WasteCollectionZones,
     DrinkingFountains,
     DrinkingFountainSource,
-    FountainStatus,
     FountainOwner,
-    FountainActivationType,
     Signals,
     Assignments,
     GeocodeAddresses,

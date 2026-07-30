@@ -1,9 +1,14 @@
+import {
+  FOUNTAIN_ACTIVATION_OPTIONS,
+  FOUNTAIN_STATUS_OPTIONS,
+} from '@/collections/DrinkingFountains'
+
 export interface Fountain {
   id: number
   publicNumber: string | null
   address: string
   location: [number, number] // [lng, lat]
-  isActive: boolean | null
+  isActive: boolean | null // true = works, false = doesn't work, null = no information
   protectionStatus: string | null
   externalLink: string | null
   district: number | null
@@ -11,12 +16,10 @@ export interface Fountain {
   districtName: string | null
   source: number | null
   sourceName: string | null
-  status: number | null
-  statusName: string | null
+  status: string | null
   owner: number | null
   ownerName: string | null
-  activationType: number | null
-  activationName: string | null
+  activationType: string | null
   signalCount: number
   activeSignalCount: number
   createdAt: string
@@ -131,19 +134,23 @@ export interface LookupOption {
   name: string
 }
 
-/** Full lookup lists (fetched from the REST API) used when editing a fountain. */
+/** A value/label pair for the string-valued `select` filters. */
+export interface SelectOption {
+  value: string
+  label: string
+}
+
+/** Relationship lookup lists (fetched from the REST API) used when editing a fountain. */
 export interface Lookups {
   sources: LookupOption[]
-  statuses: LookupOption[]
-  activationTypes: LookupOption[]
   owners: LookupOption[]
 }
 
 interface FilterOptions {
   districts: { number: number; name: string }[]
   sources: LookupOption[]
-  statuses: LookupOption[]
-  activationTypes: LookupOption[]
+  statuses: SelectOption[]
+  activationTypes: SelectOption[]
   owners: LookupOption[]
 }
 
@@ -151,8 +158,8 @@ interface FilterOptions {
 export function buildFilterOptions(fountains: Fountain[]): FilterOptions {
   const districts = new Map<number, string>()
   const sources = new Map<number, string>()
-  const statuses = new Map<number, string>()
-  const activationTypes = new Map<number, string>()
+  const statuses = new Set<string>()
+  const activationTypes = new Set<string>()
   const owners = new Map<number, string>()
 
   for (const f of fountains) {
@@ -160,24 +167,22 @@ export function buildFilterOptions(fountains: Fountain[]): FilterOptions {
       districts.set(f.districtNumber, f.districtName ?? `Район ${f.districtNumber}`)
     }
     if (f.source != null && f.sourceName) sources.set(f.source, f.sourceName)
-    if (f.status != null && f.statusName) statuses.set(f.status, f.statusName)
-    if (f.activationType != null && f.activationName) {
-      activationTypes.set(f.activationType, f.activationName)
-    }
+    if (f.status) statuses.add(f.status)
+    if (f.activationType) activationTypes.add(f.activationType)
     if (f.owner != null && f.ownerName) owners.set(f.owner, f.ownerName)
   }
 
   const byName = (a: LookupOption, b: LookupOption) => a.name.localeCompare(b.name, 'bg')
+  const toSelectOptions = (present: Set<string>, canonical: readonly string[]): SelectOption[] =>
+    canonical.filter((v) => present.has(v)).map((v) => ({ value: v, label: v }))
 
   return {
     districts: [...districts.entries()]
       .map(([number, name]) => ({ number, name }))
       .sort((a, b) => a.number - b.number),
     sources: [...sources.entries()].map(([id, name]) => ({ id, name })).sort(byName),
-    statuses: [...statuses.entries()].map(([id, name]) => ({ id, name })).sort(byName),
-    activationTypes: [...activationTypes.entries()]
-      .map(([id, name]) => ({ id, name }))
-      .sort(byName),
+    statuses: toSelectOptions(statuses, FOUNTAIN_STATUS_OPTIONS),
+    activationTypes: toSelectOptions(activationTypes, FOUNTAIN_ACTIVATION_OPTIONS),
     owners: [...owners.entries()].map(([id, name]) => ({ id, name })).sort(byName),
   }
 }
@@ -208,10 +213,10 @@ export function applyFilters(fountains: Fountain[], filters: FilterState): Fount
       return false
     }
     if (filters.sourceIds.length > 0 && !filters.sourceIds.includes(String(f.source))) return false
-    if (filters.statusIds.length > 0 && !filters.statusIds.includes(String(f.status))) return false
+    if (filters.statusIds.length > 0 && !filters.statusIds.includes(f.status ?? '')) return false
     if (
       filters.activationTypeIds.length > 0 &&
-      !filters.activationTypeIds.includes(String(f.activationType))
+      !filters.activationTypeIds.includes(f.activationType ?? '')
     ) {
       return false
     }

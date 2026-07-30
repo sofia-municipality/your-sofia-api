@@ -5,6 +5,10 @@ import Link from 'next/link'
 import { useAuth } from '@payloadcms/ui'
 import { colors } from '@/cssVariables'
 import { canManageFountains } from '@/access/cityInfrastructureAdmin'
+import {
+  FOUNTAIN_ACTIVATION_OPTIONS,
+  FOUNTAIN_STATUS_OPTIONS,
+} from '@/collections/DrinkingFountains'
 import { Fountain, Lookups } from './types'
 
 const INPUT_STYLE = {
@@ -53,10 +57,10 @@ interface EditFormState {
   address: string
   lat: string
   lng: string
-  isActive: string // 'true' | 'false' | '' (unknown)
-  statusId: string
+  isActive: string // 'true' | 'false' | '' (no information)
+  status: string // '' (unset) | one of FOUNTAIN_STATUS_OPTIONS
   sourceId: string
-  activationTypeId: string
+  activationType: string // '' (unset) | one of FOUNTAIN_ACTIVATION_OPTIONS
   ownerId: string
   districtId: string
   protectionStatus: string
@@ -69,9 +73,9 @@ function createEditFormState(f: Fountain): EditFormState {
     lat: String(f.location[1]),
     lng: String(f.location[0]),
     isActive: f.isActive === true ? 'true' : f.isActive === false ? 'false' : '',
-    statusId: f.status != null ? String(f.status) : '',
+    status: f.status ?? '',
     sourceId: f.source != null ? String(f.source) : '',
-    activationTypeId: f.activationType != null ? String(f.activationType) : '',
+    activationType: f.activationType ?? '',
     ownerId: f.owner != null ? String(f.owner) : '',
     districtId: f.district != null ? String(f.district) : '',
     protectionStatus: f.protectionStatus ?? '',
@@ -379,9 +383,9 @@ export function FountainPopup({
       if (!form.address.trim()) throw new Error('Адресът е задължителен')
       if (!Number.isFinite(lat) || !Number.isFinite(lng)) throw new Error('Невалидни координати')
 
-      const statusId = form.statusId ? Number(form.statusId) : null
+      const status = form.status || null
       const sourceId = form.sourceId ? Number(form.sourceId) : null
-      const activationTypeId = form.activationTypeId ? Number(form.activationTypeId) : null
+      const activationType = form.activationType || null
       const ownerId = form.ownerId ? Number(form.ownerId) : null
       const districtId = form.districtId ? Number(form.districtId) : null
       const isActive = form.isActive === 'true' ? true : form.isActive === 'false' ? false : null
@@ -390,9 +394,9 @@ export function FountainPopup({
         address: form.address.trim(),
         location: [lng, lat],
         isActive,
-        status: statusId,
+        status,
         source: sourceId,
-        activationType: activationTypeId,
+        activationType,
         owner: ownerId,
         district: districtId,
         protectionStatus: form.protectionStatus.trim() || null,
@@ -418,12 +422,10 @@ export function FountainPopup({
         address: payload.address,
         location: [lng, lat],
         isActive,
-        status: statusId,
-        statusName: nameOf(lookups.statuses, form.statusId),
+        status,
         source: sourceId,
         sourceName: nameOf(lookups.sources, form.sourceId),
-        activationType: activationTypeId,
-        activationName: nameOf(lookups.activationTypes, form.activationTypeId),
+        activationType,
         owner: ownerId,
         ownerName: nameOf(lookups.owners, form.ownerId),
         district: districtId,
@@ -521,7 +523,7 @@ export function FountainPopup({
             >
               {active.text}
             </span>
-            {fountain.statusName && (
+            {fountain.status && (
               <span
                 style={{
                   fontSize: 11,
@@ -531,7 +533,7 @@ export function FountainPopup({
                   color: colors.textSecondary,
                 }}
               >
-                {fountain.statusName}
+                {fountain.status}
               </span>
             )}
           </div>
@@ -697,27 +699,27 @@ export function FountainPopup({
                   style={getInputStyle('address')}
                 />
               </DetailRow>
-              <DetailRow label="Действаща">
+              <DetailRow label="Работеща">
                 <select
                   value={form.isActive}
                   onChange={(e) => handleFieldChange('isActive', e.target.value)}
                   style={getInputStyle('isActive')}
                 >
-                  <option value="">Няма данни</option>
-                  <option value="true">Действаща</option>
-                  <option value="false">Недействаща</option>
+                  <option value="">Няма информация</option>
+                  <option value="true">Да</option>
+                  <option value="false">Не</option>
                 </select>
               </DetailRow>
               <DetailRow label="Състояние">
                 <select
-                  value={form.statusId}
-                  onChange={(e) => handleFieldChange('statusId', e.target.value)}
-                  style={getInputStyle('statusId')}
+                  value={form.status}
+                  onChange={(e) => handleFieldChange('status', e.target.value)}
+                  style={getInputStyle('status')}
                 >
                   <option value="">—</option>
-                  {lookups.statuses.map((s) => (
-                    <option key={s.id} value={String(s.id)}>
-                      {s.name}
+                  {FOUNTAIN_STATUS_OPTIONS.map((v) => (
+                    <option key={v} value={v}>
+                      {v}
                     </option>
                   ))}
                 </select>
@@ -736,16 +738,16 @@ export function FountainPopup({
                   ))}
                 </select>
               </DetailRow>
-              <DetailRow label="Активиране">
+              <DetailRow label="Спирателен механизъм">
                 <select
-                  value={form.activationTypeId}
-                  onChange={(e) => handleFieldChange('activationTypeId', e.target.value)}
-                  style={getInputStyle('activationTypeId')}
+                  value={form.activationType}
+                  onChange={(e) => handleFieldChange('activationType', e.target.value)}
+                  style={getInputStyle('activationType')}
                 >
                   <option value="">—</option>
-                  {lookups.activationTypes.map((a) => (
-                    <option key={a.id} value={String(a.id)}>
-                      {a.name}
+                  {FOUNTAIN_ACTIVATION_OPTIONS.map((a) => (
+                    <option key={a} value={a}>
+                      {a}
                     </option>
                   ))}
                 </select>
@@ -828,8 +830,8 @@ export function FountainPopup({
                 {fountain.districtNumber != null ? `${fountain.districtName ?? ''}` : '—'}
               </DetailRow>
               <DetailRow label="Произход">{fountain.sourceName ?? '—'}</DetailRow>
-              <DetailRow label="Състояние">{fountain.statusName ?? '—'}</DetailRow>
-              <DetailRow label="Активиране">{fountain.activationName ?? '—'}</DetailRow>
+              <DetailRow label="Състояние">{fountain.status ?? '—'}</DetailRow>
+              <DetailRow label="Спирателен механизъм">{fountain.activationType ?? '—'}</DetailRow>
               <DetailRow label="Собственик">{fountain.ownerName ?? '—'}</DetailRow>
               {fountain.protectionStatus && (
                 <DetailRow label="Статут на защита">{fountain.protectionStatus}</DetailRow>

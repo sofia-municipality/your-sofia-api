@@ -7,7 +7,14 @@ export interface ContainerWithSignals {
   capacitySize: 'tiny' | 'small' | 'standard' | 'big' | 'industrial'
   capacityVolume: number
   wasteType:
-    'general' | 'recyclables' | 'organic' | 'glass' | 'paper' | 'plastic' | 'metal' | 'trashCan'
+    | 'general'
+    | 'recyclables'
+    | 'organic'
+    | 'glass'
+    | 'paper'
+    | 'plastic'
+    | 'metal'
+    | 'trashCan'
   status: 'active' | 'full' | 'maintenance' | 'inactive' | 'pending'
   address?: string | null
   notes?: string | null

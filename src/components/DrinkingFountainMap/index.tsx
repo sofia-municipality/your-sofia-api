@@ -46,7 +46,7 @@ const FountainMap = dynamic(
   }
 )
 
-const EMPTY_LOOKUPS: Lookups = { sources: [], statuses: [], activationTypes: [], owners: [] }
+const EMPTY_LOOKUPS: Lookups = { sources: [], owners: [] }
 
 interface NewPinLocation {
   lat: number
@@ -134,7 +134,8 @@ const DrinkingFountainMapView: React.FC = () => {
     }
   }, [hasAccess])
 
-  // Fetch the full lookup lists once so admins can reassign any value while editing.
+  // Fetch the relationship lookup lists once so admins can reassign source/owner
+  // while editing. Status and activation are inline selects with static options.
   useEffect(() => {
     if (!hasAccess || !canAddFountain) return
     let cancelled = false
@@ -146,13 +147,11 @@ const DrinkingFountainMapView: React.FC = () => {
     }
     void (async () => {
       try {
-        const [sources, statuses, activationTypes, owners] = await Promise.all([
+        const [sources, owners] = await Promise.all([
           load('drinking-fountain-source'),
-          load('fountain-status'),
-          load('fountain-activation-type'),
           load('fountain-owner'),
         ])
-        if (!cancelled) setLookups({ sources, statuses, activationTypes, owners })
+        if (!cancelled) setLookups({ sources, owners })
       } catch {
         // Non-fatal — editing selects just fall back to empty option lists.
       }

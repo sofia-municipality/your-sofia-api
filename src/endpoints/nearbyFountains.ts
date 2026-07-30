@@ -52,15 +52,13 @@ export const nearbyFountains: Endpoint = {
           df.updated_at,
           df.district_id,
           df.source_id,
-          df.status_id,
+          df.status,
           df.owner_id,
-          df.activation_type_id,
+          df.activation_type,
           cd.district_id as district_number,
           cd.name as district_name,
           s.name as source_name,
-          st.name as status_name,
           o.name as owner_name,
-          act.name as activation_name,
           (
             SELECT COUNT(*) FROM signals sig
             WHERE sig.city_object_reference_id = df.public_number
@@ -79,9 +77,7 @@ export const nearbyFountains: Endpoint = {
         FROM drinking_fountains df
         LEFT JOIN city_districts cd ON cd.id = df.district_id
         LEFT JOIN drinking_fountain_source s ON s.id = df.source_id
-        LEFT JOIN fountain_status st ON st.id = df.status_id
         LEFT JOIN fountain_owner o ON o.id = df.owner_id
-        LEFT JOIN fountain_activation_type act ON act.id = df.activation_type_id
         WHERE ST_DWithin(
           ST_MakePoint(${longitude}, ${latitude})::geography,
           df.location,
@@ -106,15 +102,13 @@ export const nearbyFountains: Endpoint = {
         updated_at: Date
         district_id: number | null
         source_id: number | null
-        status_id: number | null
+        status: string | null
         owner_id: number | null
-        activation_type_id: number | null
+        activation_type: string | null
         district_number: number | null
         district_name: string | null
         source_name: string | null
-        status_name: string | null
         owner_name: string | null
-        activation_name: string | null
         signal_count: number
         active_signal_count: number
         distance: number
@@ -133,12 +127,14 @@ export const nearbyFountains: Endpoint = {
         districtName: row.district_name,
         source: row.source_id,
         sourceName: row.source_name,
-        status: row.status_id,
-        statusName: row.status_name,
+        // `status`/`activationType` are now inline select values (Bulgarian text).
+        // `*Name` fields mirror them so existing API consumers keep working.
+        status: row.status,
+        statusName: row.status,
         owner: row.owner_id,
         ownerName: row.owner_name,
-        activationType: row.activation_type_id,
-        activationName: row.activation_name,
+        activationType: row.activation_type,
+        activationName: row.activation_type,
         signalCount: row.signal_count,
         activeSignalCount: row.active_signal_count,
         createdAt: row.created_at,

@@ -5,6 +5,20 @@ import { fountainsMapData } from '@/endpoints/fountainsMapData'
 import { afterChangeSetFountainPublicNumber } from '@/collections/hooks/afterChangeSetFountainPublicNumber'
 import { canManageFountains, canViewFountains } from '@/access/cityInfrastructureAdmin'
 
+export const FOUNTAIN_STATUS_OPTIONS = [
+  'Добро',
+  'За възстановяване',
+  'За ремонт',
+  'За основен ремонт',
+  'Отлично',
+  'Задоволително',
+  'Незадоволително',
+  'Не работи',
+  'Няма информация',
+] as const
+
+export const FOUNTAIN_ACTIVATION_OPTIONS = ['Бутон', 'Кран', 'Да', 'Не'] as const
+
 const canEditFountains: Access = ({ req: { user } }) => canManageFountains(user?.role)
 
 export const DrinkingFountains: CollectionConfig = {
@@ -55,7 +69,7 @@ export const DrinkingFountains: CollectionConfig = {
       required: false,
       index: true,
       admin: {
-        description: 'Административен район на София, в който се намира чешмата',
+        description: 'Административен район, в който се намира чешмата',
         position: 'sidebar',
       },
     },
@@ -66,7 +80,7 @@ export const DrinkingFountains: CollectionConfig = {
       relationTo: 'drinking-fountain-source',
       required: false,
       admin: {
-        description: 'Източник на водата (напр. Софийска вода, Минерална, Изворна)',
+        description: 'Източник на водата',
         position: 'sidebar',
       },
     },
@@ -110,8 +124,8 @@ export const DrinkingFountains: CollectionConfig = {
             {
               name: 'status',
               label: 'Състояние',
-              type: 'relationship',
-              relationTo: 'fountain-status',
+              type: 'select',
+              options: [...FOUNTAIN_STATUS_OPTIONS],
               required: false,
               index: true,
               admin: {
@@ -120,17 +134,18 @@ export const DrinkingFountains: CollectionConfig = {
             },
             {
               name: 'activationType',
-              label: 'Начин на активиране',
-              type: 'relationship',
-              relationTo: 'fountain-activation-type',
+              label: 'Спирателен механизъм',
+              type: 'select',
+              options: [...FOUNTAIN_ACTIVATION_OPTIONS],
               required: false,
               admin: {
-                description: 'Механизъм за пускане на водата (напр. Бутон, Кран, Канелка)',
+                description:
+                  'Спирателен механизъм за пускане на водата (Наличие и/или вид - Бутон, Кран)',
               },
             },
             {
               name: 'isActive',
-              label: 'Действаща',
+              label: 'Работеща',
               type: 'checkbox',
               admin: {
                 description: 'Дали чешмата работи в момента',
