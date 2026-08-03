@@ -2225,6 +2225,20 @@ const fountains: FountainSeedRow[] = [
 
 type QueryResultRow = Record<string, unknown>
 
+/**
+ * Minimal structural type satisfied by a Drizzle executor: the pooled
+ * `payload.db.drizzle` instance, a transaction handle, and the `db` argument
+ * Payload passes to migrations all match this shape.
+ */
+export interface DrizzleExecutor {
+  execute(query: ReturnType<typeof sql>): Promise<{ rows: QueryResultRow[] }>
+}
+
+/** Public numbers of every seeded fountain, used to reverse the seed migration. */
+export const seededFountainPublicNumbers: string[] = fountains.map(
+  (fountain) => fountain.publicNumber
+)
+
 function getFirstId(rows: QueryResultRow[]): number | null {
   const value = rows[0]?.id
 
@@ -2234,26 +2248,22 @@ function getFirstId(rows: QueryResultRow[]): number | null {
   return null
 }
 
-export async function seedDrinkingFountains(): Promise<void> {
-  const payload = await getPayload({ config })
-  const db = payload.db.drizzle
-
-  await db.transaction(async (tx) => {
-    // Remove rows created by the previous global DF-0001 identifier format.
-    await tx.execute(sql`
+export async function seedDrinkingFountainRows(tx: DrizzleExecutor): Promise<number> {
+  // Remove rows created by the previous global DF-0001 identifier format.
+  await tx.execute(sql`
 			DELETE FROM drinking_fountains
 			WHERE public_number ~ '^DF-[0-9]{4}$'
 		`)
 
-    const sourceIds = new Map<string, number>()
-    const ownerIds = new Map<string, number>()
-    const districtIds = new Map<string, number>()
+  const sourceIds = new Map<string, number>()
+  const ownerIds = new Map<string, number>()
+  const districtIds = new Map<string, number>()
 
-    const upsertSource = async (name: string): Promise<number> => {
-      const cached = sourceIds.get(name)
-      if (cached) return cached
+  const upsertSource = async (name: string): Promise<number> => {
+    const cached = sourceIds.get(name)
+    if (cached) return cached
 
-      const result = await tx.execute(sql`
+    const result = await tx.execute(sql`
 				INSERT INTO drinking_fountain_source (name, updated_at, created_at)
 				VALUES (${name}, NOW(), NOW())
 				ON CONFLICT (name)
@@ -2261,18 +2271,18 @@ export async function seedDrinkingFountains(): Promise<void> {
 				RETURNING id
 			`)
 
-      const id = getFirstId(result.rows as QueryResultRow[])
-      if (!id) throw new Error(`Could not create or resolve source: "${name}"`)
+    const id = getFirstId(result.rows as QueryResultRow[])
+    if (!id) throw new Error(`Could not create or resolve source: "${name}"`)
 
-      sourceIds.set(name, id)
-      return id
-    }
+    sourceIds.set(name, id)
+    return id
+  }
 
-    const upsertOwner = async (name: string): Promise<number> => {
-      const cached = ownerIds.get(name)
-      if (cached) return cached
+  const upsertOwner = async (name: string): Promise<number> => {
+    const cached = ownerIds.get(name)
+    if (cached) return cached
 
-      const result = await tx.execute(sql`
+    const result = await tx.execute(sql`
 				INSERT INTO fountain_owner (name, updated_at, created_at)
 				VALUES (${name}, NOW(), NOW())
 				ON CONFLICT (name)
@@ -2280,37 +2290,37 @@ export async function seedDrinkingFountains(): Promise<void> {
 				RETURNING id
 			`)
 
-      const id = getFirstId(result.rows as QueryResultRow[])
-      if (!id) throw new Error(`Could not create or resolve owner: "${name}"`)
+    const id = getFirstId(result.rows as QueryResultRow[])
+    if (!id) throw new Error(`Could not create or resolve owner: "${name}"`)
 
-      ownerIds.set(name, id)
-      return id
-    }
+    ownerIds.set(name, id)
+    return id
+  }
 
-    const getDistrictId = async (districtName: string): Promise<number | null> => {
-      const cached = districtIds.get(districtName)
-      if (cached) return cached
+  const getDistrictId = async (districtName: string): Promise<number | null> => {
+    const cached = districtIds.get(districtName)
+    if (cached) return cached
 
-      const result = await tx.execute(sql`
+    const result = await tx.execute(sql`
 				SELECT id
 				FROM city_districts
 				WHERE LOWER(TRIM(name)) = LOWER(TRIM(${districtName}))
 				LIMIT 1
 			`)
 
-      const id = getFirstId(result.rows as QueryResultRow[])
-      if (!id) return null
+    const id = getFirstId(result.rows as QueryResultRow[])
+    if (!id) return null
 
-      districtIds.set(districtName, id)
-      return id
-    }
+    districtIds.set(districtName, id)
+    return id
+  }
 
-    for (const fountain of fountains) {
-      const districtId = await getDistrictId(fountain.district)
-      const sourceId = fountain.source ? await upsertSource(fountain.source) : null
-      const ownerId = fountain.owner ? await upsertOwner(fountain.owner) : null
+  for (const fountain of fountains) {
+    const districtId = await getDistrictId(fountain.district)
+    const sourceId = fountain.source ? await upsertSource(fountain.source) : null
+    const ownerId = fountain.owner ? await upsertOwner(fountain.owner) : null
 
-      await tx.execute(sql`
+    await tx.execute(sql`
 				INSERT INTO drinking_fountains (
 					public_number,
 					district_id,
@@ -2355,10 +2365,18 @@ export async function seedDrinkingFountains(): Promise<void> {
 					external_link = EXCLUDED.external_link,
 					updated_at = NOW()
 			`)
-    }
-  })
+  }
 
-  payload.logger.info(`Seeded ${fountains.length} drinking fountains.`)
+  return fountains.length
+}
+
+export async function seedDrinkingFountains(): Promise<void> {
+  const payload = await getPayload({ config })
+  const db = payload.db.drizzle
+
+  const count = await db.transaction((tx) => seedDrinkingFountainRows(tx))
+
+  payload.logger.info(`Seeded ${count} drinking fountains.`)
 }
 
 export async function seedDrinkingFountainsFromEnv(): Promise<void> {
