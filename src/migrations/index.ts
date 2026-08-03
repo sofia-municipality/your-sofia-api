@@ -287,13 +287,23 @@ export const migrations = [
     name: '20260626_152159_feature_config',
   },
   {
-    up: migration_20260729_111827_drinking_fountains.up,
-    down: migration_20260729_111827_drinking_fountains.down,
-    name: '20260729_111827_drinking_fountains'
+    up: migration_20260729_093425_bulky_waste_zones.up,
+    down: migration_20260729_093425_bulky_waste_zones.down,
+    name: '20260729_093425_bulky_waste_zones'
+  },
+  {
+    up: migration_20260729_101500_import_bulky_waste_zones.up,
+    down: migration_20260729_101500_import_bulky_waste_zones.down,
+    name: '20260729_101500_import_bulky_waste_zones'
   },
   {
     up: migration_20260726_170938_missions.up,
     down: migration_20260726_170938_missions.down,
     name: '20260726_170938_missions'
+  },
+  {
+    up: migration_20260729_111827_drinking_fountains.up,
+    down: migration_20260729_111827_drinking_fountains.down,
+    name: '20260729_111827_drinking_fountains'
   },
 ];
