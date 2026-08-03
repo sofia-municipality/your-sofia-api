@@ -84,6 +84,10 @@ export interface Config {
     'fountain-owner': FountainOwner;
     signals: Signal;
     assignments: Assignment;
+    missions: Mission;
+    'mission-profiles': MissionProfile;
+    'dar-points-transactions': DarPointsTransaction;
+    'mission-verifications': MissionVerification;
     'geocode-addresses': GeocodeAddress;
     subscriptions: Subscription;
     'feature-config': FeatureConfig;
@@ -118,6 +122,10 @@ export interface Config {
     'fountain-owner': FountainOwnerSelect<false> | FountainOwnerSelect<true>;
     signals: SignalsSelect<false> | SignalsSelect<true>;
     assignments: AssignmentsSelect<false> | AssignmentsSelect<true>;
+    missions: MissionsSelect<false> | MissionsSelect<true>;
+    'mission-profiles': MissionProfilesSelect<false> | MissionProfilesSelect<true>;
+    'dar-points-transactions': DarPointsTransactionsSelect<false> | DarPointsTransactionsSelect<true>;
+    'mission-verifications': MissionVerificationsSelect<false> | MissionVerificationsSelect<true>;
     'geocode-addresses': GeocodeAddressesSelect<false> | GeocodeAddressesSelect<true>;
     subscriptions: SubscriptionsSelect<false> | SubscriptionsSelect<true>;
     'feature-config': FeatureConfigSelect<false> | FeatureConfigSelect<true>;
@@ -1306,6 +1314,161 @@ export interface Assignment {
   createdAt: string;
 }
 /**
+ * Граждански мисии, създадени от инспектор на база квалифициран сигнал за самостоятелно решаване
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "missions".
+ */
+export interface Mission {
+  id: number;
+  /**
+   * Сигналът, който инспекторът е квалифицирал като решим от гражданин
+   */
+  signal: number | Signal;
+  /**
+   * Заглавие на мисията, показвано на списъка с мисии
+   */
+  title: string;
+  /**
+   * Кратко описание на мисията за гражданина
+   */
+  description?: string | null;
+  /**
+   * Определя кои граждани могат да поемат мисията от дъската с мисии
+   */
+  level: 'good-first-mission' | 'verified-contributor' | 'verified-guardian';
+  /**
+   * Чернова → Отворена (публикувана) → В изпълнение (поета) → За преглед → Завършена/За подобрение
+   */
+  status:
+    | 'draft'
+    | 'open'
+    | 'in_progress'
+    | 'ready_for_review'
+    | 'returned_for_improvement'
+    | 'completed'
+    | 'cancelled';
+  /**
+   * Брой дарителски точки, които гражданинът получава при успешно завършване
+   */
+  pointsReward: number;
+  /**
+   * Действително присъдени точки (попълва се автоматично при завършване)
+   */
+  pointsAwarded?: number | null;
+  /**
+   * Общи насоки към гражданина — задължително да се спомене, че се изискват снимки преди и след изпълнение на мисията и на всяка задача
+   */
+  generalInstructions: string;
+  /**
+   * Стъпки за изпълнение на мисията. След публикуване (статус извън Чернова/Отворена) списъкът не може да се преструктурира.
+   */
+  tasks: {
+    title: string;
+    instructions: string;
+    /**
+     * Например: "Височина на храста след подрязване ≤ 40см"
+     */
+    acceptanceCriteria: string;
+    requiresBeforePhoto?: boolean | null;
+    requiresAfterPhoto?: boolean | null;
+    /**
+     * Попълва се от гражданина през мобилното приложение
+     */
+    beforePhoto?: (number | null) | Media;
+    /**
+     * Попълва се от гражданина през мобилното приложение
+     */
+    afterPhoto?: (number | null) | Media;
+    completedByCitizenAt?: string | null;
+    id?: string | null;
+  }[];
+  /**
+   * Общи снимки на обекта преди началото на мисията
+   */
+  missionBeforePhotos?: (number | Media)[] | null;
+  /**
+   * Общи снимки на обекта след завършване на мисията
+   */
+  missionAfterPhotos?: (number | Media)[] | null;
+  /**
+   * Инспекторът, създал и конфигурирал мисията
+   */
+  inspector?: (number | null) | User;
+  /**
+   * Гражданинът, поел мисията (попълва се автоматично при "поемане")
+   */
+  citizen?: (number | null) | User;
+  claimedAt?: string | null;
+  submittedForReviewAt?: string | null;
+  reviewedAt?: string | null;
+  completedAt?: string | null;
+  /**
+   * Обратна връзка от инспектора при одобрение или връщане за подобрение
+   */
+  inspectorReviewNotes?: string | null;
+  /**
+   * Само информативно за инспектора — не заменя неговото окончателно решение
+   */
+  communityConsensus?: ('none' | 'trusted_verified' | 'peer_verified' | 'disputed') | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Мисионни атрибути на гражданите (дарителски точки и ниво на приносител)
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "mission-profiles".
+ */
+export interface MissionProfile {
+  id: number;
+  user: number | User;
+  darPoints: number;
+  /**
+   * Ръчно предоставено ниво, което определя дали потребителят може да поема мисии на ниво contributor или guardian.
+   */
+  contributorLevel: 'beginner' | 'contributor' | 'guardian';
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Одитен дневник на всички присъдени/коригирани дарителски точки
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "dar-points-transactions".
+ */
+export interface DarPointsTransaction {
+  id: number;
+  /**
+   * Системен ключ за гарантиране, че присъждането на точки за една мисия става само веднъж
+   */
+  idempotencyKey: string;
+  user: number | User;
+  amount: number;
+  reason: 'mission_completed' | 'mission_returned' | 'manual_adjustment';
+  /**
+   * Свързаната мисия (ако точките са от завършена мисия)
+   */
+  mission?: (number | null) | Mission;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Обществени (peer) проверки на мисии от граждани/доверени проверяващи — само информативни за инспектора
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "mission-verifications".
+ */
+export interface MissionVerification {
+  id: number;
+  mission: number | Mission;
+  verifier: number | User;
+  decision: 'approve' | 'reject';
+  comment?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * Кеш за геокодиране на адреси. Липсващи координати = Nominatim API не е върнал резултати.
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1775,6 +1938,22 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'assignments';
         value: number | Assignment;
+      } | null)
+    | ({
+        relationTo: 'missions';
+        value: number | Mission;
+      } | null)
+    | ({
+        relationTo: 'mission-profiles';
+        value: number | MissionProfile;
+      } | null)
+    | ({
+        relationTo: 'dar-points-transactions';
+        value: number | DarPointsTransaction;
+      } | null)
+    | ({
+        relationTo: 'mission-verifications';
+        value: number | MissionVerification;
       } | null)
     | ({
         relationTo: 'geocode-addresses';
@@ -2347,6 +2526,81 @@ export interface AssignmentsSelect<T extends boolean = true> {
   status?: T;
   dueDate?: T;
   completedAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "missions_select".
+ */
+export interface MissionsSelect<T extends boolean = true> {
+  signal?: T;
+  title?: T;
+  description?: T;
+  level?: T;
+  status?: T;
+  pointsReward?: T;
+  pointsAwarded?: T;
+  generalInstructions?: T;
+  tasks?:
+    | T
+    | {
+        title?: T;
+        instructions?: T;
+        acceptanceCriteria?: T;
+        requiresBeforePhoto?: T;
+        requiresAfterPhoto?: T;
+        beforePhoto?: T;
+        afterPhoto?: T;
+        completedByCitizenAt?: T;
+        id?: T;
+      };
+  missionBeforePhotos?: T;
+  missionAfterPhotos?: T;
+  inspector?: T;
+  citizen?: T;
+  claimedAt?: T;
+  submittedForReviewAt?: T;
+  reviewedAt?: T;
+  completedAt?: T;
+  inspectorReviewNotes?: T;
+  communityConsensus?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "mission-profiles_select".
+ */
+export interface MissionProfilesSelect<T extends boolean = true> {
+  user?: T;
+  darPoints?: T;
+  contributorLevel?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "dar-points-transactions_select".
+ */
+export interface DarPointsTransactionsSelect<T extends boolean = true> {
+  idempotencyKey?: T;
+  user?: T;
+  amount?: T;
+  reason?: T;
+  mission?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "mission-verifications_select".
+ */
+export interface MissionVerificationsSelect<T extends boolean = true> {
+  mission?: T;
+  verifier?: T;
+  decision?: T;
+  comment?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -2948,6 +3202,10 @@ export interface TaskCreateCollectionExport {
       | 'fountain-owner'
       | 'signals'
       | 'assignments'
+      | 'missions'
+      | 'mission-profiles'
+      | 'dar-points-transactions'
+      | 'mission-verifications'
       | 'geocode-addresses'
       | 'subscriptions'
       | 'feature-config'

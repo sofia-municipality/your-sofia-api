@@ -26,6 +26,10 @@ import { DrinkingFountainSource } from './collections/DrinkingFountainSource'
 import { FountainOwner } from './collections/FountainOwner'
 import { Signals } from './collections/Signals/index'
 import { Assignments } from './collections/Assignments'
+import { Missions } from './collections/Missions/index'
+import { MissionProfiles } from './collections/MissionProfiles'
+import { DarPointsTransactions } from './collections/DarPointsTransactions'
+import { MissionVerifications } from './collections/MissionVerifications'
 import { GeocodeAddresses } from './collections/GeocodeAddresses'
 import { Subscriptions } from './collections/Subscriptions'
 import { FeatureConfig } from './collections/FeatureConfig'
@@ -182,6 +186,10 @@ export default buildConfig({
     FountainOwner,
     Signals,
     Assignments,
+    Missions,
+    MissionProfiles,
+    DarPointsTransactions,
+    MissionVerifications,
     GeocodeAddresses,
     Subscriptions,
     FeatureConfig,

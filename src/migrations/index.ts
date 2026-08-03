@@ -45,6 +45,9 @@ import * as migration_20260508_064250 from './20260508_064250';
 import * as migration_20260520_164303_inspectorMail from './20260520_164303_inspectorMail';
 import * as migration_20260621_074149 from './20260621_074149';
 import * as migration_20260626_152159_feature_config from './20260626_152159_feature_config';
+import * as migration_20260729_093425_bulky_waste_zones from './20260729_093425_bulky_waste_zones';
+import * as migration_20260729_101500_import_bulky_waste_zones from './20260729_101500_import_bulky_waste_zones';
+import * as migration_20260726_170938_missions from './20260726_170938_missions';
 import * as migration_20260729_111827_drinking_fountains from './20260729_111827_drinking_fountains';
 
 export const migrations = [
@@ -287,5 +290,10 @@ export const migrations = [
     up: migration_20260729_111827_drinking_fountains.up,
     down: migration_20260729_111827_drinking_fountains.down,
     name: '20260729_111827_drinking_fountains'
+  },
+  {
+    up: migration_20260726_170938_missions.up,
+    down: migration_20260726_170938_missions.down,
+    name: '20260726_170938_missions'
   },
 ];
