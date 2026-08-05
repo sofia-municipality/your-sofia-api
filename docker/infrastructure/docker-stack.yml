@@ -12,7 +12,7 @@ services:
       - 'host.docker.internal:host-gateway'
     ports:
       - target: 3000
-        published: 3003
+        published: 80
         protocol: tcp
         mode: ingress
     volumes:

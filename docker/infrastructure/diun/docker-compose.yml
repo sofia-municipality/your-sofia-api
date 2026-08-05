@@ -1,0 +1,23 @@
+services:
+  diun:
+    build: . # (see Dockerfile)
+    image: your-sofia/diun:local
+    container_name: your-sofia-diun
+    command: serve
+    restart: always
+    network_mode: host
+    environment:
+      LOG_LEVEL: debug
+      DIUN_REGOPTS_GHCR_NAME: ghcr.io
+      DIUN_REGOPTS_GHCR_SELECTOR: image
+      DIUN_REGOPTS_GHCR_USERNAME: ${GHCR_USERNAME}
+      DIUN_REGOPTS_GHCR_PASSWORD: ${GHCR_PASSWORD}
+      DISCORD_WEBHOOK_URL: ${DISCORD_WEBHOOK_URL}
+    volumes:
+      - ./diun.yml:/etc/diun/diun.yml:ro
+      - ./images.yml:/etc/diun/images.yml:ro
+      - ./deploy.sh:/etc/diun/deploy.sh:ro
+      - ./data:/data
+      - ../docker-stack.yml:/infra/docker-stack.yml:ro
+      - ../.env:/infra/.env:ro
+      - /var/run/docker.sock:/var/run/docker.sock
