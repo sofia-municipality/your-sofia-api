@@ -1225,6 +1225,15 @@ export interface Signal {
      */
     referenceId?: string | null;
     /**
+     * Административният район на свързания обект
+     */
+    districtInfo?: {
+      id?: number | null;
+      districtId?: number | null;
+      name?: string | null;
+      code?: string | null;
+    };
+    /**
      * Наименование или описание на свързания обект
      */
     name?: string | null;
@@ -2499,6 +2508,14 @@ export interface SignalsSelect<T extends boolean = true> {
     | {
         type?: T;
         referenceId?: T;
+        districtInfo?:
+          | T
+          | {
+              id?: T;
+              districtId?: T;
+              name?: T;
+              code?: T;
+            };
         name?: T;
       };
   containerState?: T;

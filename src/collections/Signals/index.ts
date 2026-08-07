@@ -13,6 +13,7 @@ import {
 import { beforeChangeSetReporter } from './hooks/beforeChangeSetReporter'
 import { afterChangeUpdateContainer } from './hooks/afterChangeUpdateContainer'
 import { afterChangeNotifyReporter } from './hooks/afterChangeNotifyReporter'
+import { afterReadCityObjectDistrict } from './hooks/afterReadCityObjectDistrict'
 import {
   signalsAgeMetric,
   signalsStatusMetric,
@@ -182,6 +183,24 @@ export const Signals: CollectionConfig = {
               'Идентификатор или референтен номер на свързания обект. Задължително, ако не е посочено местоположение.',
           },
           validate: validateSignalReferenceId,
+        },
+        {
+          name: 'districtInfo',
+          label: 'Административен район (от обекта)',
+          type: 'group',
+          virtual: true,
+          admin: {
+            description: 'Административният район на свързания обект',
+          },
+          hooks: {
+            afterRead: [afterReadCityObjectDistrict],
+          },
+          fields: [
+            { name: 'id', label: 'ID', type: 'number' },
+            { name: 'districtId', label: 'Номер на район', type: 'number' },
+            { name: 'name', label: 'Наименование', type: 'text' },
+            { name: 'code', label: 'Код', type: 'text' },
+          ],
         },
         {
           name: 'name',
