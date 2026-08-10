@@ -19,12 +19,17 @@ import {
   FilterState,
   MapItem,
   MarkerPoint,
+  TextileContainerPoint,
   applyFilters,
+  containerWasteTypes,
   filtersToQuery,
   parseFiltersFromParams,
+  showsTextileLayer,
+  showsTextileOnly,
 } from './types'
 import { MapFilters } from './MapFilters'
 import { ContainerPopup } from './ContainerPopup'
+import { TextilePopup } from './TextilePopup'
 import { BulkActionBar } from './BulkActionBar'
 import { CreatePinHint } from './CreatePinHint'
 
@@ -79,6 +84,8 @@ const WasteContainerMapView: React.FC = () => {
   const [selectMode, setSelectMode] = useState(false)
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set())
   const [newPin, setNewPin] = useState<NewPinLocation | null>(null)
+  const [textileItems, setTextileItems] = useState<TextileContainerPoint[]>([])
+  const [selectedTextile, setSelectedTextile] = useState<TextileContainerPoint | null>(null)
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const filtersRef = useRef<FilterState>(filters)
   const lastViewportRef = useRef<{ zoom: number; bounds: Bounds } | null>(null)
@@ -105,6 +112,7 @@ const WasteContainerMapView: React.FC = () => {
     try {
       const f = filtersRef.current
       const serverStatuses = f.statuses.filter((status) => status !== 'uncollected')
+      const serverWasteTypes = containerWasteTypes(f)
       const params = new URLSearchParams({
         zoom: String(zoom),
         minLat: String(bounds.minLat),
@@ -112,7 +120,7 @@ const WasteContainerMapView: React.FC = () => {
         minLng: String(bounds.minLng),
         maxLng: String(bounds.maxLng),
         ...(serverStatuses.length > 0 && { statuses: serverStatuses.join(',') }),
-        ...(f.wasteTypes.length > 0 && { wasteTypes: f.wasteTypes.join(',') }),
+        ...(serverWasteTypes.length > 0 && { wasteTypes: serverWasteTypes.join(',') }),
         ...(f.districtId && { districtId: f.districtId }),
         ...(f.volumeOptions.length > 0 && {
           volumeOptions: f.volumeOptions.join(','),
@@ -164,6 +172,41 @@ const WasteContainerMapView: React.FC = () => {
     []
   )
 
+  const textileVisible = showsTextileLayer(filters)
+  const textileOnly = showsTextileOnly(filters)
+
+  useEffect(() => {
+    if (!textileVisible || textileItems.length > 0) return
+    let cancelled = false
+    void (async () => {
+      try {
+        const res = await fetch('/api/textile-containers/textile-containers')
+        if (!res.ok) throw new Error(`HTTP ${res.status}`)
+        const data = (await res.json()) as { docs?: TextileContainerPoint[] }
+        if (!cancelled) setTextileItems(data.docs ?? [])
+      } catch {
+        // Non-fatal: the container layer stays usable without the overlay.
+      }
+    })()
+    return () => {
+      cancelled = true
+    }
+  }, [textileVisible, textileItems.length])
+
+  const visibleTextileItems = useMemo(() => {
+    if (!textileVisible) return []
+    if (filters.districtId === null) return textileItems
+    return textileItems.filter((t) => t.district === Number(filters.districtId))
+  }, [textileVisible, filters.districtId, textileItems])
+
+  const openTextile = useMemo(
+    () =>
+      selectedTextile && visibleTextileItems.some((t) => t.id === selectedTextile.id)
+        ? selectedTextile
+        : null,
+    [selectedTextile, visibleTextileItems]
+  )
+
   // Load filters once on page load from the URL query string, if present.
   // This is only done once to avoid overwriting user changes to the filters
   // while they are interacting with the map.
@@ -199,10 +242,37 @@ const WasteContainerMapView: React.FC = () => {
   const isClustered = items.length > 0 && items[0]?.type === 'cluster'
   const markers = useMemo(() => items.filter((i): i is MarkerPoint => i.type === 'marker'), [items])
   const filtered = useMemo(() => applyFilters(markers, filters), [markers, filters])
+  // With textile picked on its own no containers belong on the map, and that has
+  // to win over clustering too — clusters bypass `applyFilters`.
   const displayItems = useMemo<MapItem[]>(
-    () => (isClustered ? items : filtered),
-    [isClustered, items, filtered]
+    () => (textileOnly ? [] : isClustered ? items : filtered),
+    [textileOnly, isClustered, items, filtered]
   )
+
+  // Header summary. The textile layer is counted separately because it comes
+  // from its own collection and is not part of `total`.
+  const summary = useMemo(() => {
+    const textilePart = textileVisible ? `${visibleTextileItems.length} за текстил` : null
+
+    // Non-breaking space keeps the header line from collapsing while data loads.
+    if (textileOnly || total === 0) return textilePart ?? ' '
+
+    const containerPart = isClustered
+      ? `${filteredTotal} от ${total} общо — приближете за детайли`
+      : filteredTotal === total
+        ? `${filtered.length} от ${total} общо`
+        : `${filtered.length} от ${filteredTotal} филтрирани (${total} общо)`
+
+    return textilePart ? `${containerPart} · ${textilePart}` : containerPart
+  }, [
+    textileVisible,
+    textileOnly,
+    visibleTextileItems.length,
+    isClustered,
+    filtered.length,
+    filteredTotal,
+    total,
+  ])
 
   const handleMarkerClick = useCallback(
     (container: ContainerWithSignals) => {
@@ -215,16 +285,24 @@ const WasteContainerMapView: React.FC = () => {
         })
       } else {
         setSelectedContainer(container)
+        setSelectedTextile(null)
         setNewPin(null)
       }
     },
     [selectMode]
   )
 
+  const handleTextileMarkerClick = useCallback((item: TextileContainerPoint) => {
+    setSelectedTextile(item)
+    setSelectedContainer(null)
+    setNewPin(null)
+  }, [])
+
   const handleMapClick = useCallback(
     (lat: number, lng: number, screenX: number, screenY: number) => {
       if (!selectMode && canAddContainer) {
         setSelectedContainer(null)
+        setSelectedTextile(null)
         setNewPin({ lat, lng, screenX, screenY })
       }
     },
@@ -240,6 +318,16 @@ const WasteContainerMapView: React.FC = () => {
       )
     )
     setSelectedContainer(updated)
+  }, [])
+
+  const handleTextileUpdated = useCallback((updated: TextileContainerPoint) => {
+    setTextileItems((prev) => prev.map((item) => (item.id === updated.id ? updated : item)))
+    setSelectedTextile(updated)
+  }, [])
+
+  const handleTextileDeleted = useCallback((id: number) => {
+    setTextileItems((prev) => prev.filter((item) => item.id !== id))
+    setSelectedTextile(null)
   }, [])
 
   const handleContainerDeleted = useCallback((id: number) => {
@@ -368,13 +456,7 @@ const WasteContainerMapView: React.FC = () => {
               Административна карта на контейнерите за отпадъци
             </h1>
             <p style={{ margin: '2px 0 0', fontSize: 13, color: '#6B7280', minHeight: '1.4em' }}>
-              {total > 0
-                ? isClustered
-                  ? `${filteredTotal} от ${total} общо — приближете за детайли`
-                  : filteredTotal === total
-                    ? `${filtered.length} от ${total} общо`
-                    : `${filtered.length} от ${filteredTotal} филтрирани (${total} общо)`
-                : '\u00A0'}
+              {summary}
             </p>
           </div>
         </div>
@@ -485,6 +567,9 @@ const WasteContainerMapView: React.FC = () => {
         {!error && (
           <ContainerMap
             items={displayItems}
+            textileItems={visibleTextileItems}
+            selectedTextileId={openTextile?.id ?? null}
+            onTextileMarkerClick={handleTextileMarkerClick}
             selectedIds={selectedIds}
             selectedContainerId={selectedContainer?.id ?? null}
             onMarkerClick={handleMarkerClick}
@@ -503,6 +588,15 @@ const WasteContainerMapView: React.FC = () => {
             onClose={() => setSelectedContainer(null)}
             onContainerUpdated={handleContainerUpdated}
             onContainerDeleted={handleContainerDeleted}
+          />
+        )}
+
+        {openTextile && !selectMode && (
+          <TextilePopup
+            container={openTextile}
+            onClose={() => setSelectedTextile(null)}
+            onContainerUpdated={handleTextileUpdated}
+            onContainerDeleted={handleTextileDeleted}
           />
         )}
 

@@ -20,6 +20,7 @@
     "seed:waste-containers": "cross-env NODE_OPTIONS=--no-deprecation payload run ./src/scripts/seedWasteContainers.ts",
     "seed:bulky-waste-zones": "tsx --env-file=.env.local src/scripts/seed-bulky-waste-zones.ts",
     "seed:drinking-fountains": "cross-env NODE_OPTIONS=--no-deprecation tsx --env-file=.env.local src/scripts/seedDrinkingFountains.ts",
+    "seed:textile-containers": "cross-env NODE_OPTIONS=--no-deprecation tsx --env-file=.env.local src/scripts/seedTextileContainers.ts",
     "migrate:run": "cross-env NODE_OPTIONS=--no-deprecation payload run ./src/scripts/run-migration.ts",
     "sync:schedules": "cross-env NODE_OPTIONS=--no-deprecation tsx --env-file=.env src/scripts/runScheduleSync.ts",
     "start": "cross-env NODE_OPTIONS=--no-deprecation next start",
@@ -132,7 +133,7 @@
       "handlebars": ">=4.7.9",
       "@types/react": "19.2.17",
       "@types/react-dom": "19.2.3",
-      "tsx": "4.2.1"
+      "tsx": "4.22.4"
     }
   }
 }

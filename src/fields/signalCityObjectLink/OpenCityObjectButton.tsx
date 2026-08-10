@@ -3,9 +3,12 @@
 import { useState } from 'react'
 import { Button, useFormFields } from '@payloadcms/ui'
 
-const LINKABLE_COLLECTIONS: Record<string, { slug: string }> = {
-  'waste-container': { slug: 'waste-containers' },
-  'drinking-fountain': { slug: 'drinking-fountains' },
+// `lookupField` is the field `cityObject.referenceId` holds for that collection.
+// Textile containers carry no public number, so they are referenced by their id.
+const LINKABLE_COLLECTIONS: Record<string, { slug: string; lookupField: string }> = {
+  'waste-container': { slug: 'waste-containers', lookupField: 'publicNumber' },
+  'drinking-fountain': { slug: 'drinking-fountains', lookupField: 'publicNumber' },
+  'textile-container': { slug: 'textile-containers', lookupField: 'id' },
 }
 
 export function OpenCityObjectButton() {
@@ -26,7 +29,7 @@ export function OpenCityObjectButton() {
     setError(null)
     try {
       const params = new URLSearchParams({
-        'where[publicNumber][equals]': referenceId,
+        [`where[${target.lookupField}][equals]`]: referenceId,
         limit: '1',
         depth: '0',
       })

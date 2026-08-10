@@ -197,7 +197,7 @@ export const beforeValidateSignal: CollectionBeforeValidateHook = async ({
   }
 
   // Check for duplicate signals on referenced city objects (containers and fountains)
-  const duplicateCheckedCategories = ['waste-container', 'drinking-fountain']
+  const duplicateCheckedCategories = ['waste-container', 'drinking-fountain', 'textile-container']
   if (
     data.category &&
     duplicateCheckedCategories.includes(data.category) &&

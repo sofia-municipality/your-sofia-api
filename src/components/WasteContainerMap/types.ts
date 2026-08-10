@@ -33,6 +33,45 @@ export interface ContainerWithSignals {
   createdAt: string
 }
 
+export interface TextileContainerPoint {
+  id: number
+  number: number | null
+  address: string
+  location: [number, number] // [lng, lat]
+  status: 'full' | 'damaged' | 'open' | null
+  notes?: string | null
+  district: number | null
+  districtNumber: number | null
+  districtName: string | null
+  company: number | null
+  companyName: string | null
+  signalCount: number
+  activeSignalCount: number
+  createdAt: string
+  updatedAt: string
+}
+
+export const TEXTILE_MARKER_COLOR = '#7C3AED'
+
+export const TEXTILE_WASTE_TYPE = 'textile'
+
+/** Waste types the containers query understands — the pseudo type removed. */
+export const containerWasteTypes = (filters: FilterState): string[] =>
+  filters.wasteTypes.filter((t) => t !== TEXTILE_WASTE_TYPE)
+
+export const showsTextileLayer = (filters: FilterState): boolean =>
+  filters.wasteTypes.includes(TEXTILE_WASTE_TYPE)
+
+/** Textile picked on its own ⇒ the map shows textile containers and nothing else. */
+export const showsTextileOnly = (filters: FilterState): boolean =>
+  showsTextileLayer(filters) && containerWasteTypes(filters).length === 0
+
+export const TEXTILE_STATUS_LABELS: Record<string, string> = {
+  full: 'Пълен',
+  damaged: 'Развален',
+  open: 'Отворен',
+}
+
 export interface FilterState {
   statuses: string[]
   wasteTypes: string[]
@@ -307,12 +346,15 @@ export function applyFilters(containers: MarkerPoint[], filters: FilterState): M
     .map((value) => Number(value))
     .filter(Number.isFinite)
   const realStatuses = filters.statuses.filter((s) => s !== 'uncollected')
+  const realWasteTypes = containerWasteTypes(filters)
+
+  if (showsTextileOnly(filters)) return []
 
   return containers.filter((c) => {
     const createdAtTime = new Date(c.createdAt).getTime()
 
     if (realStatuses.length > 0 && !realStatuses.includes(c.status)) return false
-    if (filters.wasteTypes.length > 0 && !filters.wasteTypes.includes(c.wasteType)) return false
+    if (realWasteTypes.length > 0 && !realWasteTypes.includes(c.wasteType)) return false
     if (filters.districtId !== null && c.districtId !== Number(filters.districtId)) return false
     if (filters.hasActiveSignals && c.activeSignalCount === 0) return false
     if (createdFromTime !== null && createdAtTime < createdFromTime) return false

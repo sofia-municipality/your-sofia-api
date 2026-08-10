@@ -21,6 +21,8 @@ import { CityDistricts } from './collections/CityDistricts'
 import { WasteContainers } from './collections/WasteContainers'
 import { WasteContainerObservations } from './collections/WasteContainerObservations'
 import { WasteCollectionZones } from './collections/WasteCollectionZones'
+import { TextileContainers } from './collections/TextileContainers'
+import { TextileCompanies } from './collections/TextileCompanies'
 import { DrinkingFountains } from './collections/DrinkingFountains'
 import { DrinkingFountainSource } from './collections/DrinkingFountainSource'
 import { FountainOwner } from './collections/FountainOwner'
@@ -178,6 +180,8 @@ export default buildConfig({
     PushTokens,
     CityDistricts,
     WasteContainers,
+    TextileContainers,
+    TextileCompanies,
     BulkyWasteZones,
     WasteContainerObservations,
     WasteCollectionZones,

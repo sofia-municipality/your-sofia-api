@@ -6,7 +6,15 @@ import React, { useCallback, useEffect, useRef } from 'react'
 import { MapContainer, TileLayer, useMap, useMapEvents } from 'react-leaflet'
 import { colors } from '@/cssVariables'
 import { formatClusterCount } from '@/utilities/mapUtils'
-import { Bounds, ClusterPoint, ContainerWithSignals, MapItem, getMarkerColor } from './types'
+import {
+  Bounds,
+  ClusterPoint,
+  ContainerWithSignals,
+  MapItem,
+  TEXTILE_MARKER_COLOR,
+  TextileContainerPoint,
+  getMarkerColor,
+} from './types'
 
 // Fix Leaflet's broken default marker icons when bundled with webpack/Next.js
 delete (L.Icon.Default.prototype as unknown as Record<string, unknown>)['_getIconUrl']
@@ -114,6 +122,95 @@ function createClusterIcon(cluster: ClusterPoint): L.DivIcon {
     iconSize: [size, size],
     iconAnchor: [size / 2, size / 2],
   })
+}
+
+/**
+ * Textile containers get a round violet pin with a t-shirt glyph so they read as
+ * a separate layer rather than as another waste-container status.
+ */
+function createTextileIcon(selected: boolean): L.DivIcon {
+  const size = selected ? 34 : 26
+  return L.divIcon({
+    className: 'map-marker map-marker--textile',
+    iconSize: [size, size],
+    iconAnchor: [size / 2, size / 2],
+    html: `
+      <div style="
+        width:${size}px;
+        height:${size}px;
+        border-radius:50%;
+        background:${TEXTILE_MARKER_COLOR};
+        border:${selected ? 3 : 2}px solid ${selected ? colors.primaryDark : 'rgba(255,255,255,0.9)'};
+        box-shadow:0 2px 6px rgba(0,0,0,.35);
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        color:#fff;
+      ">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="${selected ? 18 : 14}"
+          height="${selected ? 18 : 14}"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M20.38 3.46 16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.47a1 1 0 0 0 .99.84H6v10a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.47a2 2 0 0 0-1.34-2.23z"/>
+        </svg>
+      </div>
+    `,
+  })
+}
+
+function TextileLayer({
+  items,
+  selectedId,
+  onMarkerClick,
+}: {
+  items: TextileContainerPoint[]
+  selectedId: number | null
+  onMarkerClick: (item: TextileContainerPoint) => void
+}) {
+  const map = useMap()
+  const groupRef = useRef<L.LayerGroup | null>(null)
+  const onMarkerClickRef = useRef(onMarkerClick)
+
+  useEffect(() => {
+    onMarkerClickRef.current = onMarkerClick
+  }, [onMarkerClick])
+
+  useEffect(() => {
+    const group = L.layerGroup().addTo(map)
+    groupRef.current = group
+    return () => {
+      group.remove()
+      groupRef.current = null
+    }
+  }, [map])
+
+  useEffect(() => {
+    const group = groupRef.current
+    if (!group) return
+    group.clearLayers()
+    items.forEach((item) => {
+      const [lng, lat] = item.location
+      const marker = L.marker([lat, lng], {
+        icon: createTextileIcon(item.id === selectedId),
+        zIndexOffset: 500,
+      })
+      marker.on('click', (e) => {
+        // Otherwise the map's own click handler opens the "create container" hint.
+        L.DomEvent.stopPropagation(e)
+        onMarkerClickRef.current(item)
+      })
+      group.addLayer(marker)
+    })
+  }, [items, selectedId])
+
+  return null
 }
 
 interface MapClickHandlerProps {
@@ -260,6 +357,9 @@ function MarkersLayer({
 
 interface ContainerMapProps {
   items: MapItem[]
+  textileItems?: TextileContainerPoint[]
+  selectedTextileId?: number | null
+  onTextileMarkerClick?: (item: TextileContainerPoint) => void
   selectedIds: Set<number>
   selectedContainerId: number | null
   onMarkerClick: (container: ContainerWithSignals) => void
@@ -272,6 +372,9 @@ interface ContainerMapProps {
 
 export function ContainerMap({
   items,
+  textileItems,
+  selectedTextileId = null,
+  onTextileMarkerClick,
   selectedIds,
   selectedContainerId,
   onMarkerClick,
@@ -309,6 +412,13 @@ export function ContainerMap({
         onMarkerClick={onMarkerClick}
         uncollectedMode={uncollectedMode}
       />
+      {textileItems && textileItems.length > 0 && onTextileMarkerClick && (
+        <TextileLayer
+          items={textileItems}
+          selectedId={selectedTextileId}
+          onMarkerClick={onTextileMarkerClick}
+        />
+      )}
     </MapContainer>
   )
 }

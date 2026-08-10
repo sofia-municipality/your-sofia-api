@@ -21,6 +21,7 @@ const WASTE_TYPES = [
   { value: 'plastic', label: 'Пластмаса' },
   { value: 'metal', label: 'Метал' },
   { value: 'trashCan', label: 'Кош' },
+  { value: 'textile', label: 'За текстил' },
 ]
 
 const VOLUME_OPTIONS = [

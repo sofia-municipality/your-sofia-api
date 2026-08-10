@@ -5,6 +5,7 @@ import {
   canViewFountains,
 } from '@/access/cityInfrastructureAdmin'
 import { isAdmin } from '@/access/isAdmin'
+import { TEXTILE_STATUS_OPTIONS } from '@/collections/TextileContainers'
 import {
   beforeValidateSignal,
   validateSignalLocation,
@@ -139,6 +140,7 @@ export const Signals: CollectionConfig = {
       required: true,
       options: [
         { label: 'Проблем с контейнер за отпадъци', value: 'waste-container' },
+        { label: 'Проблем с контейнер за текстил', value: 'textile-container' },
         { label: 'Проблем с чешма', value: 'drinking-fountain' },
         { label: 'Щета на улицата', value: 'street-damage' },
         { label: 'Осветление', value: 'lighting' },
@@ -167,6 +169,7 @@ export const Signals: CollectionConfig = {
           type: 'select',
           options: [
             { label: 'Контейнер за отпадъци', value: 'waste-container' },
+            { label: 'Контейнер за текстил', value: 'textile-container' },
             { label: 'Чешма', value: 'drinking-fountain' },
             { label: 'Улица', value: 'street' },
             { label: 'Парк', value: 'park' },
@@ -245,6 +248,21 @@ export const Signals: CollectionConfig = {
         { label: 'Паднал', value: 'fallen' },
         { label: 'Едрогабаритен боклук', value: 'bulkyWaste' },
       ],
+    },
+    {
+      name: 'textileState',
+      label: 'Състояние на контейнера за текстил',
+      type: 'select',
+      hasMany: true,
+      admin: {
+        description: 'Състояние на контейнера за текстил (само за сигнали за текстил)',
+        condition: (data, _siblingData) => {
+          return (
+            data?.category === 'textile-container' || data?.cityObject?.type === 'textile-container'
+          )
+        },
+      },
+      options: [...TEXTILE_STATUS_OPTIONS],
     },
     {
       name: 'fountainState',

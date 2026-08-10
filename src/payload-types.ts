@@ -76,6 +76,8 @@ export interface Config {
     'push-tokens': PushToken;
     'city-districts': CityDistrict;
     'waste-containers': WasteContainer;
+    'textile-containers': TextileContainer;
+    'textile-companies': TextileCompany;
     'bulky-waste-zones': BulkyWasteZone;
     'waste-container-observations': WasteContainerObservation;
     'waste-collection-zones': WasteCollectionZone;
@@ -114,6 +116,8 @@ export interface Config {
     'push-tokens': PushTokensSelect<false> | PushTokensSelect<true>;
     'city-districts': CityDistrictsSelect<false> | CityDistrictsSelect<true>;
     'waste-containers': WasteContainersSelect<false> | WasteContainersSelect<true>;
+    'textile-containers': TextileContainersSelect<false> | TextileContainersSelect<true>;
+    'textile-companies': TextileCompaniesSelect<false> | TextileCompaniesSelect<true>;
     'bulky-waste-zones': BulkyWasteZonesSelect<false> | BulkyWasteZonesSelect<true>;
     'waste-container-observations': WasteContainerObservationsSelect<false> | WasteContainerObservationsSelect<true>;
     'waste-collection-zones': WasteCollectionZonesSelect<false> | WasteCollectionZonesSelect<true>;
@@ -1022,6 +1026,71 @@ export interface WasteContainer {
   createdAt: string;
 }
 /**
+ * Контейнери за събиране на текстил
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "textile-containers".
+ */
+export interface TextileContainer {
+  id: number;
+  /**
+   * Номер на контейнера по списъка на обслужващата фирма. Не е уникален между фирмите и е независим от идентификатора (ID) на записа.
+   */
+  number?: number | null;
+  /**
+   * Административен район, в който се намира контейнерът
+   */
+  district?: (number | null) | CityDistrict;
+  /**
+   * Фирмата, която обслужва контейнера
+   */
+  company?: (number | null) | TextileCompany;
+  /**
+   * Четим адрес или описание на местоположението на контейнера
+   */
+  address: string;
+  /**
+   * Географски координати [дължина, ширина] – позволява геопространствени заявки
+   *
+   * @minItems 2
+   * @maxItems 2
+   */
+  location: [number, number];
+  /**
+   * Текущо състояние на контейнера
+   */
+  status?: ('full' | 'damaged' | 'open') | null;
+  /**
+   * Вътрешни бележки за контейнера
+   */
+  notes?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Фирми, обслужващи контейнерите за текстил
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "textile-companies".
+ */
+export interface TextileCompany {
+  id: number;
+  /**
+   * Наименование на фирмата (напр. texcycle, evrotex, m-tex)
+   */
+  name: string;
+  /**
+   * Телефон за контакт (по избор)
+   */
+  phone?: string | null;
+  /**
+   * Имейл за контакт (по избор)
+   */
+  email?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "bulky-waste-zones".
  */
@@ -1208,6 +1277,7 @@ export interface Signal {
    */
   category:
     | 'waste-container'
+    | 'textile-container'
     | 'drinking-fountain'
     | 'street-damage'
     | 'lighting'
@@ -1219,7 +1289,9 @@ export interface Signal {
    * Препратка към свързан градски обект (напр. контейнер за отпадъци)
    */
   cityObject?: {
-    type?: ('waste-container' | 'drinking-fountain' | 'street' | 'park' | 'building' | 'other') | null;
+    type?:
+      | ('waste-container' | 'textile-container' | 'drinking-fountain' | 'street' | 'park' | 'building' | 'other')
+      | null;
     /**
      * Идентификатор или референтен номер на свързания обект. Задължително, ако не е посочено местоположение.
      */
@@ -1242,7 +1314,12 @@ export interface Signal {
    * Състояние на контейнера за отпадъци (само за сигнали за контейнери)
    */
   containerState?:
-    ('full' | 'dirty' | 'damaged' | 'leaves' | 'maintenance' | 'bagged' | 'fallen' | 'bulkyWaste')[] | null;
+    | ('full' | 'dirty' | 'damaged' | 'leaves' | 'maintenance' | 'bagged' | 'fallen' | 'bulkyWaste')[]
+    | null;
+  /**
+   * Състояние на контейнера за текстил (само за сигнали за текстил)
+   */
+  textileState?: ('full' | 'damaged' | 'open')[] | null;
   /**
    * Проблем с чешмата (само за сигнали за чешми)
    */
@@ -1917,6 +1994,14 @@ export interface PayloadLockedDocument {
         value: number | WasteContainer;
       } | null)
     | ({
+        relationTo: 'textile-containers';
+        value: number | TextileContainer;
+      } | null)
+    | ({
+        relationTo: 'textile-companies';
+        value: number | TextileCompany;
+      } | null)
+    | ({
         relationTo: 'bulky-waste-zones';
         value: number | BulkyWasteZone;
       } | null)
@@ -2419,6 +2504,32 @@ export interface WasteContainersSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "textile-containers_select".
+ */
+export interface TextileContainersSelect<T extends boolean = true> {
+  number?: T;
+  district?: T;
+  company?: T;
+  address?: T;
+  location?: T;
+  status?: T;
+  notes?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "textile-companies_select".
+ */
+export interface TextileCompaniesSelect<T extends boolean = true> {
+  name?: T;
+  phone?: T;
+  email?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "bulky-waste-zones_select".
  */
 export interface BulkyWasteZonesSelect<T extends boolean = true> {
@@ -2519,6 +2630,7 @@ export interface SignalsSelect<T extends boolean = true> {
         name?: T;
       };
   containerState?: T;
+  textileState?: T;
   fountainState?: T;
   location?: T;
   address?: T;
@@ -3211,6 +3323,8 @@ export interface TaskCreateCollectionExport {
       | 'push-tokens'
       | 'city-districts'
       | 'waste-containers'
+      | 'textile-containers'
+      | 'textile-companies'
       | 'bulky-waste-zones'
       | 'waste-container-observations'
       | 'waste-collection-zones'
