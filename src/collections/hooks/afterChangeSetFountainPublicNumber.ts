@@ -2,7 +2,7 @@ import type { CollectionAfterChangeHook } from 'payload'
 
 /**
  * Assigns a stable public identifier to a fountain on creation, in the form
- * `DF-<district code>-<zero-padded id>` (e.g. `DF-RTR-0001`). The id is only
+ * `<district code>-DF-<zero-padded id>` (e.g. `RTR-DF-0001`). The id is only
  * known after the row is inserted, so this runs as an afterChange hook on
  * create and writes the value back with a second update. The `publicNumber`
  * guard makes that second write (operation === 'update') a no-op, so there's
@@ -32,7 +32,7 @@ export const afterChangeSetFountainPublicNumber: CollectionAfterChangeHook = asy
     }
   }
 
-  const publicNumber = `DF-${code}-${String(doc.id).padStart(4, '0')}`
+  const publicNumber = `${code}-DF-${String(doc.id).padStart(4, '0')}`
 
   try {
     await req.payload.update({

@@ -1092,7 +1092,7 @@ export interface WasteContainerObservation {
 export interface DrinkingFountain {
   id: number;
   /**
-   * Автоматично генериран идентификатор (напр. DF-RTR-0001)
+   * Автоматично генериран идентификатор (напр. RTR-DF-0001)
    */
   publicNumber?: string | null;
   /**
