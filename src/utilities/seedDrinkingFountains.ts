@@ -31,7 +31,7 @@ type FountainSeedRow = {
 
 const fountains: FountainSeedRow[] = [
   {
-    publicNumber: 'DF-RSR-0001',
+    publicNumber: 'RSR-DF-0001',
     district: 'Средец',
     address: 'Храм "Св. София" – чешма за питейна вода',
     latitude: 42.696557,
@@ -44,7 +44,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Не',
   },
   {
-    publicNumber: 'DF-RSR-0002',
+    publicNumber: 'RSR-DF-0002',
     district: 'Средец',
     address: 'Храм "Св. Седмочисленици" – чешма за питейна вода',
     latitude: 42.69021404,
@@ -57,7 +57,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Бутон',
   },
   {
-    publicNumber: 'DF-RSR-0003',
+    publicNumber: 'RSR-DF-0003',
     district: 'Средец',
     address: 'Градина "Св. Кл. Охридски" – чешма за питейна вода',
     latitude: 42.694333,
@@ -70,7 +70,7 @@ const fountains: FountainSeedRow[] = [
     activationType: null,
   },
   {
-    publicNumber: 'DF-RSR-0004',
+    publicNumber: 'RSR-DF-0004',
     district: 'Средец',
     address: 'Градина "Св. Кл. Охридски" – чешма за питейна вода',
     latitude: 42.694556,
@@ -83,7 +83,7 @@ const fountains: FountainSeedRow[] = [
     activationType: null,
   },
   {
-    publicNumber: 'DF-RSR-0005',
+    publicNumber: 'RSR-DF-0005',
     district: 'Средец',
     address: 'Борисова градина – чешма "Розариум" за питейна вода',
     latitude: 42.687984,
@@ -96,7 +96,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Не',
   },
   {
-    publicNumber: 'DF-RSR-0006',
+    publicNumber: 'RSR-DF-0006',
     district: 'Средец',
     address: 'Борисова градина – чешма "Шестицата" за питейна вода',
     latitude: 42.688416,
@@ -109,7 +109,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Не',
   },
   {
-    publicNumber: 'DF-RSR-0007',
+    publicNumber: 'RSR-DF-0007',
     district: 'Средец',
     address: 'Борисова градина – чешма детска площадка за питейна вода',
     latitude: 42.687196,
@@ -122,7 +122,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Не',
   },
   {
-    publicNumber: 'DF-RSR-0008',
+    publicNumber: 'RSR-DF-0008',
     district: 'Средец',
     address: 'Борисова градина – чешма "Лилиите" за питейна вода',
     latitude: 42.685101,
@@ -135,7 +135,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Кран',
   },
   {
-    publicNumber: 'DF-RSR-0009',
+    publicNumber: 'RSR-DF-0009',
     district: 'Средец',
     address: 'Борисова градина – чешма "Читалнята" за питейна вода',
     latitude: 42.68347,
@@ -148,7 +148,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Кран',
   },
   {
-    publicNumber: 'DF-RSR-0010',
+    publicNumber: 'RSR-DF-0010',
     district: 'Средец',
     address: 'Борисова градина – чешма "Обсерваторията" за питейна вода',
     latitude: 42.681689,
@@ -161,7 +161,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Бутон',
   },
   {
-    publicNumber: 'DF-RSR-0011',
+    publicNumber: 'RSR-DF-0011',
     district: 'Средец',
     address: 'Борисова градина – чешма "Полиграфията" за питейна вода',
     latitude: 42.686771,
@@ -174,7 +174,7 @@ const fountains: FountainSeedRow[] = [
     activationType: null,
   },
   {
-    publicNumber: 'DF-RSR-0012',
+    publicNumber: 'RSR-DF-0012',
     district: 'Средец',
     address: 'Народен театър – чешма за питейна вода',
     latitude: 42.694749,
@@ -187,7 +187,7 @@ const fountains: FountainSeedRow[] = [
     activationType: null,
   },
   {
-    publicNumber: 'DF-RSR-0013',
+    publicNumber: 'RSR-DF-0013',
     district: 'Средец',
     address: 'Народен театър – чешма за питейна вода',
     latitude: 42.6953013,
@@ -200,7 +200,7 @@ const fountains: FountainSeedRow[] = [
     activationType: null,
   },
   {
-    publicNumber: 'DF-RSR-0014',
+    publicNumber: 'RSR-DF-0014',
     district: 'Средец',
     address: 'БНБ',
     latitude: 42.695735,
@@ -213,7 +213,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Кран',
   },
   {
-    publicNumber: 'DF-RSR-0015',
+    publicNumber: 'RSR-DF-0015',
     district: 'Средец',
     address: 'НХГ Тамплиери',
     latitude: 42.696726,
@@ -226,7 +226,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Бутон',
   },
   {
-    publicNumber: 'DF-RSR-0016',
+    publicNumber: 'RSR-DF-0016',
     district: 'Средец',
     address: 'НХГ Етнографски музей',
     latitude: 42.696236,
@@ -239,7 +239,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Кран',
   },
   {
-    publicNumber: 'DF-RSR-0017',
+    publicNumber: 'RSR-DF-0017',
     district: 'Средец',
     address: 'Руска Черква',
     latitude: 42.695859,
@@ -252,7 +252,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Бутон',
   },
   {
-    publicNumber: 'DF-RSR-0018',
+    publicNumber: 'RSR-DF-0018',
     district: 'Средец',
     address: 'Гр. Кристал',
     latitude: 42.694467,
@@ -265,7 +265,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Не',
   },
   {
-    publicNumber: 'DF-RSR-0019',
+    publicNumber: 'RSR-DF-0019',
     district: 'Средец',
     address: 'Св Патр. Евтимий',
     latitude: 42.688356,
@@ -278,7 +278,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Не',
   },
   {
-    publicNumber: 'DF-RSR-0020',
+    publicNumber: 'RSR-DF-0020',
     district: 'Средец',
     address: 'пл. Райко Даскалов',
     latitude: 42.692363,
@@ -291,7 +291,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Не',
   },
   {
-    publicNumber: 'DF-RSR-0021',
+    publicNumber: 'RSR-DF-0021',
     district: 'Средец',
     address: 'пред хотел "Рила"',
     latitude: 42.694952,
@@ -304,7 +304,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Бутон',
   },
   {
-    publicNumber: 'DF-RSR-0022',
+    publicNumber: 'RSR-DF-0022',
     district: 'Средец',
     address: 'Княжевска градина',
     latitude: 42.690329,
@@ -317,7 +317,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Бутон',
   },
   {
-    publicNumber: 'DF-RSR-0023',
+    publicNumber: 'RSR-DF-0023',
     district: 'Средец',
     address: 'Площад "Португалия"',
     latitude: 42.6900267,
@@ -330,7 +330,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Кран',
   },
   {
-    publicNumber: 'DF-RVA-0001',
+    publicNumber: 'RVA-DF-0001',
     district: 'Възраждане',
     address: 'Парк "Възраждане" – чешма светофар за питейна вода',
     latitude: 42.695931,
@@ -343,7 +343,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Бутон',
   },
   {
-    publicNumber: 'DF-RVA-0002',
+    publicNumber: 'RVA-DF-0002',
     district: 'Възраждане',
     address: 'Парк "Възраждане" – чешма до база за питейна вода',
     latitude: 42.693967,
@@ -356,7 +356,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Бутон',
   },
   {
-    publicNumber: 'DF-RVA-0003',
+    publicNumber: 'RVA-DF-0003',
     district: 'Възраждане',
     address: 'Парк "Възраждане" – чешма до фонтана за питейна вода',
     latitude: 42.694922,
@@ -369,7 +369,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Бутон',
   },
   {
-    publicNumber: 'DF-RVA-0004',
+    publicNumber: 'RVA-DF-0004',
     district: 'Възраждане',
     address: 'Парк "Възраждане" – чешма нова част I за питейна вода',
     latitude: 42.696265,
@@ -382,7 +382,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Не',
   },
   {
-    publicNumber: 'DF-RVA-0005',
+    publicNumber: 'RVA-DF-0005',
     district: 'Възраждане',
     address: 'Парк "Възраждане" – чешма нова част II за питейна вода',
     latitude: 42.695921,
@@ -395,7 +395,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Не',
   },
   {
-    publicNumber: 'DF-RLO-0001',
+    publicNumber: 'RLO-DF-0001',
     district: 'Лозенец',
     address: 'Пазар "Стара стена" – чешма за питейна вода',
     latitude: 42.683903,
@@ -408,7 +408,7 @@ const fountains: FountainSeedRow[] = [
     activationType: null,
   },
   {
-    publicNumber: 'DF-RLO-0002',
+    publicNumber: 'RLO-DF-0002',
     district: 'Лозенец',
     address: 'Баня Лозенец – чешма "Морената" за питейна вода',
     latitude: 42.68276,
@@ -421,7 +421,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Не',
   },
   {
-    publicNumber: 'DF-RVR-0001',
+    publicNumber: 'RVR-DF-0001',
     district: 'Връбница',
     address: 'Пазар "Връбница" – чешма за питейна вода',
     latitude: 42.735781,
@@ -434,7 +434,7 @@ const fountains: FountainSeedRow[] = [
     activationType: null,
   },
   {
-    publicNumber: 'DF-RVR-0002',
+    publicNumber: 'RVR-DF-0002',
     district: 'Връбница',
     address: 'Бакърени гробища – чешма за питейна вода',
     latitude: 42.73244,
@@ -447,7 +447,7 @@ const fountains: FountainSeedRow[] = [
     activationType: null,
   },
   {
-    publicNumber: 'DF-RVR-0003',
+    publicNumber: 'RVR-DF-0003',
     district: 'Връбница',
     address: 'Ж.к. Връбница 2, ул. Бели Дунав, бл.632',
     latitude: 42.73667,
@@ -460,7 +460,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Да',
   },
   {
-    publicNumber: 'DF-RVR-0004',
+    publicNumber: 'RVR-DF-0004',
     district: 'Връбница',
     address: 'С.Мрамор, ул. Васил Левски - център',
     latitude: 42.7854,
@@ -473,7 +473,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Да',
   },
   {
-    publicNumber: 'DF-RVR-0005',
+    publicNumber: 'RVR-DF-0005',
     district: 'Връбница',
     address: 'С.Мрамор – гробищен парк (2 броя чешми)',
     latitude: 42.806,
@@ -486,7 +486,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Да',
   },
   {
-    publicNumber: 'DF-RVR-0006',
+    publicNumber: 'RVR-DF-0006',
     district: 'Връбница',
     address: 'С.Мрамор, до Фреш маркет',
     latitude: 42.78609,
@@ -499,7 +499,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Да',
   },
   {
-    publicNumber: 'DF-RVR-0007',
+    publicNumber: 'RVR-DF-0007',
     district: 'Връбница',
     address: 'С.Мрамор, ул. Мичур срещу № 56Б',
     latitude: 42.7882,
@@ -512,7 +512,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Не',
   },
   {
-    publicNumber: 'DF-RVR-0008',
+    publicNumber: 'RVR-DF-0008',
     district: 'Връбница',
     address: 'С.Мрамор, ул. Мичур №49',
     latitude: 42.7862,
@@ -525,7 +525,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Не',
   },
   {
-    publicNumber: 'DF-RVR-0009',
+    publicNumber: 'RVR-DF-0009',
     district: 'Връбница',
     address: 'С.Волуяк, ул. Зорница № 67',
     latitude: 42.7738,
@@ -538,7 +538,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Не',
   },
   {
-    publicNumber: 'DF-RVR-0010',
+    publicNumber: 'RVR-DF-0010',
     district: 'Връбница',
     address: 'С.Волуяк, ул. Зорница № 49',
     latitude: 42.7739,
@@ -551,7 +551,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Да',
   },
   {
-    publicNumber: 'DF-RVR-0011',
+    publicNumber: 'RVR-DF-0011',
     district: 'Връбница',
     address: 'С.Волуяк- гробищен парк',
     latitude: 42.7795,
@@ -564,7 +564,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Да',
   },
   {
-    publicNumber: 'DF-RVR-0012',
+    publicNumber: 'RVR-DF-0012',
     district: 'Връбница',
     address: 'С.Волуяк, ул.Зорница № 22',
     latitude: 42.7694,
@@ -577,7 +577,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Да',
   },
   {
-    publicNumber: 'DF-RIZ-0001',
+    publicNumber: 'RIZ-DF-0001',
     district: 'Изгрев',
     address: 'пред сградата на районната администрация на ул. "Атанас Далчев" №12',
     latitude: 42.671519,
@@ -590,7 +590,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Кран',
   },
   {
-    publicNumber: 'DF-RIZ-0002',
+    publicNumber: 'RIZ-DF-0002',
     district: 'Изгрев',
     address: 'на детска площадка пред блок 45 в жк. "Дианабад"',
     latitude: 42.664245,
@@ -603,7 +603,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Кран',
   },
   {
-    publicNumber: 'DF-RIZ-0003',
+    publicNumber: 'RIZ-DF-0003',
     district: 'Изгрев',
     address: 'на алея Яворов" до тенис кортовете в парк "Борисова градина"',
     latitude: 42.677791,
@@ -616,7 +616,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Кран',
   },
   {
-    publicNumber: 'DF-RIL-0001',
+    publicNumber: 'RIL-DF-0001',
     district: 'Илинден',
     address: 'Парк "Света Троица"',
     latitude: 42.705409,
@@ -629,7 +629,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Да',
   },
   {
-    publicNumber: 'DF-RIL-0002',
+    publicNumber: 'RIL-DF-0002',
     district: 'Илинден',
     address: 'Вход на Западен парк - до спирка на градски транспорт',
     latitude: 42.714991,
@@ -642,7 +642,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Не',
   },
   {
-    publicNumber: 'DF-RIL-0003',
+    publicNumber: 'RIL-DF-0003',
     district: 'Илинден',
     address: 'Западен парк, на централната алея до първия кръг',
     latitude: 42.713875,
@@ -655,7 +655,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Да',
   },
   {
-    publicNumber: 'DF-RIL-0004',
+    publicNumber: 'RIL-DF-0004',
     district: 'Илинден',
     address: 'Западен парк, на централната алея, до зона за скара',
     latitude: 42.710303,
@@ -668,7 +668,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Да',
   },
   {
-    publicNumber: 'DF-RIL-0005',
+    publicNumber: 'RIL-DF-0005',
     district: 'Илинден',
     address: 'Западен парк, на централната алея, до детска площадка',
     latitude: 42.709908,
@@ -681,7 +681,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Да',
   },
   {
-    publicNumber: 'DF-RIL-0006',
+    publicNumber: 'RIL-DF-0006',
     district: 'Илинден',
     address: 'Западен парк, на алея до криви огледала',
     latitude: 42.711278,
@@ -694,7 +694,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Да',
   },
   {
-    publicNumber: 'DF-RIL-0007',
+    publicNumber: 'RIL-DF-0007',
     district: 'Илинден',
     address: 'Бул. "Сливница", на ъгъла с ул. "Кукуш" ("Вентова чешма")',
     latitude: 42.715201,
@@ -707,7 +707,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Не',
   },
   {
-    publicNumber: 'DF-RNA-0001',
+    publicNumber: 'RNA-DF-0001',
     district: 'Надежда',
     address: 'Парк "Надежда" в ж.к."Лев Толстой"',
     latitude: 42.722344,
@@ -720,7 +720,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Да',
   },
   {
-    publicNumber: 'DF-RNA-0002',
+    publicNumber: 'RNA-DF-0002',
     district: 'Надежда',
     address: 'ж.к."Надежда" -1ч., бул."Ломско шосе" до метростанция "Надежда"',
     latitude: 42.727772,
@@ -733,7 +733,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Не',
   },
   {
-    publicNumber: 'DF-RNA-0003',
+    publicNumber: 'RNA-DF-0003',
     district: 'Надежда',
     address: 'ж.к."Надежда" -1ч., бул."Ломско шосе" № 36 пред магазин "DM"',
     latitude: 42.726369,
@@ -746,7 +746,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Да',
   },
   {
-    publicNumber: 'DF-RNA-0004',
+    publicNumber: 'RNA-DF-0004',
     district: 'Надежда',
     address: 'ж.к."Свобода", Северен парк до кучешка площадка',
     latitude: 42.740109,
@@ -759,7 +759,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Да',
   },
   {
-    publicNumber: 'DF-RNA-0005',
+    publicNumber: 'RNA-DF-0005',
     district: 'Надежда',
     address: 'Северен парк, до детска площадка "Морско дъно"',
     latitude: 42.740202,
@@ -772,7 +772,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Да',
   },
   {
-    publicNumber: 'DF-RNA-0006',
+    publicNumber: 'RNA-DF-0006',
     district: 'Надежда',
     address: 'Северен парк - централен вход от към ул."Ген. Никола Жеков"',
     latitude: 42.738618,
@@ -785,7 +785,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Да',
   },
   {
-    publicNumber: 'DF-RNA-0007',
+    publicNumber: 'RNA-DF-0007',
     district: 'Надежда',
     address: 'Северен парк до "Китайска беседка"',
     latitude: 42.739989,
@@ -798,7 +798,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Да',
   },
   {
-    publicNumber: 'DF-RNA-0008',
+    publicNumber: 'RNA-DF-0008',
     district: 'Надежда',
     address: 'Северен парк до "Амфи театър"',
     latitude: 42.741449,
@@ -811,7 +811,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Да',
   },
   {
-    publicNumber: 'DF-RNA-0009',
+    publicNumber: 'RNA-DF-0009',
     district: 'Надежда',
     address: 'ж.к."Надежда" - 3ч., до метростанция "Бели Дунав"',
     latitude: 42.73483,
@@ -824,7 +824,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Да',
   },
   {
-    publicNumber: 'DF-RNA-0010',
+    publicNumber: 'RNA-DF-0010',
     district: 'Надежда',
     address: 'ж.к."Надежда"-2ч., до бл.261',
     latitude: 42.732506,
@@ -832,12 +832,12 @@ const fountains: FountainSeedRow[] = [
     source: 'Софийска вода',
     protectionStatus: null,
     isActive: false,
-    status: 'Не работи',
+    status: 'За възстановяване',
     owner: 'район',
     activationType: 'Да',
   },
   {
-    publicNumber: 'DF-RNI-0001',
+    publicNumber: 'RNI-DF-0001',
     district: 'Нови Искър',
     address: 'с.Балша - площад "Център"',
     latitude: 42.848833,
@@ -850,7 +850,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Не',
   },
   {
-    publicNumber: 'DF-RNI-0002',
+    publicNumber: 'RNI-DF-0002',
     district: 'Нови Искър',
     address: 'с.Балша - гробищен парк',
     latitude: 42.844833,
@@ -863,7 +863,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Да',
   },
   {
-    publicNumber: 'DF-RNI-0003',
+    publicNumber: 'RNI-DF-0003',
     district: 'Нови Искър',
     address: 'с.Балша ул.Ст.планина - последна спирка',
     latitude: 42.854556,
@@ -876,7 +876,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Да',
   },
   {
-    publicNumber: 'DF-RNI-0004',
+    publicNumber: 'RNI-DF-0004',
     district: 'Нови Искър',
     address: 'с.Доброславци - гробищен парк',
     latitude: 42.823083,
@@ -889,7 +889,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Да',
   },
   {
-    publicNumber: 'DF-RNI-0005',
+    publicNumber: 'RNI-DF-0005',
     district: 'Нови Искър',
     address: 'с.Доброславци - център',
     latitude: 42.822028,
@@ -902,7 +902,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Да',
   },
   {
-    publicNumber: 'DF-RNI-0006',
+    publicNumber: 'RNI-DF-0006',
     district: 'Нови Искър',
     address: 'с.Житен - площад "Център"',
     latitude: 42.818194,
@@ -915,7 +915,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Да',
   },
   {
-    publicNumber: 'DF-RNI-0007',
+    publicNumber: 'RNI-DF-0007',
     district: 'Нови Искър',
     address: 'с.Житен - гробищен парк',
     latitude: 42.815583,
@@ -928,7 +928,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Да',
   },
   {
-    publicNumber: 'DF-RNI-0008',
+    publicNumber: 'RNI-DF-0008',
     district: 'Нови Искър',
     address: 'с.Мировяне - ул."Ал.Константинов"',
     latitude: 42.788861,
@@ -941,7 +941,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Не',
   },
   {
-    publicNumber: 'DF-RNI-0009',
+    publicNumber: 'RNI-DF-0009',
     district: 'Нови Искър',
     address: 'с.Мировяне - гробищен парк',
     latitude: 42.797917,
@@ -954,7 +954,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Да',
   },
   {
-    publicNumber: 'DF-RNI-0010',
+    publicNumber: 'RNI-DF-0010',
     district: 'Нови Искър',
     address: 'с.Кътина - площад център',
     latitude: 42.81425,
@@ -967,7 +967,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Да',
   },
   {
-    publicNumber: 'DF-RNI-0011',
+    publicNumber: 'RNI-DF-0011',
     district: 'Нови Искър',
     address: 'с.Кътина - градинка център',
     latitude: 42.8455,
@@ -980,7 +980,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Да',
   },
   {
-    publicNumber: 'DF-RNI-0012',
+    publicNumber: 'RNI-DF-0012',
     district: 'Нови Искър',
     address: 'с.Кътина - при детска площадка ул.Езеро',
     latitude: 42.843583,
@@ -993,7 +993,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Да',
   },
   {
-    publicNumber: 'DF-RNI-0013',
+    publicNumber: 'RNI-DF-0013',
     district: 'Нови Искър',
     address: 'с.Подгумер - парк "Изгрев"',
     latitude: 42.80275,
@@ -1006,7 +1006,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Да',
   },
   {
-    publicNumber: 'DF-RNI-0014',
+    publicNumber: 'RNI-DF-0014',
     district: 'Нови Искър',
     address: 'с.Подгумер - гробищен парк',
     latitude: 42.803944,
@@ -1019,7 +1019,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Да',
   },
   {
-    publicNumber: 'DF-RNI-0015',
+    publicNumber: 'RNI-DF-0015',
     district: 'Нови Искър',
     address: 'с.Подгумер - площад "Център"',
     latitude: 42.802944,
@@ -1032,7 +1032,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Да',
   },
   {
-    publicNumber: 'DF-RNI-0016',
+    publicNumber: 'RNI-DF-0016',
     district: 'Нови Искър',
     address: 'с.Войнеговци - площад "Център"',
     latitude: 42.804278,
@@ -1045,7 +1045,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Да',
   },
   {
-    publicNumber: 'DF-RNI-0017',
+    publicNumber: 'RNI-DF-0017',
     district: 'Нови Искър',
     address: 'с.Войнеговци - стадион',
     latitude: 42.798583,
@@ -1058,7 +1058,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Да',
   },
   {
-    publicNumber: 'DF-RNI-0018',
+    publicNumber: 'RNI-DF-0018',
     district: 'Нови Искър',
     address: 'с.Войнеговци - гробищен парк',
     latitude: 42.798333,
@@ -1071,7 +1071,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Да',
   },
   {
-    publicNumber: 'DF-RNI-0019',
+    publicNumber: 'RNI-DF-0019',
     district: 'Нови Искър',
     address: 'с.Локорско - гробищен парк',
     latitude: 42.797972,
@@ -1084,7 +1084,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Да',
   },
   {
-    publicNumber: 'DF-RNI-0020',
+    publicNumber: 'RNI-DF-0020',
     district: 'Нови Искър',
     address: 'с.Локорско - площад "Център"',
     latitude: 42.795333,
@@ -1097,7 +1097,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Да',
   },
   {
-    publicNumber: 'DF-RNI-0021',
+    publicNumber: 'RNI-DF-0021',
     district: 'Нови Искър',
     address: 'с.Чепинци - площад "Център"',
     latitude: 42.758667,
@@ -1110,7 +1110,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Да',
   },
   {
-    publicNumber: 'DF-RNI-0022',
+    publicNumber: 'RNI-DF-0022',
     district: 'Нови Искър',
     address: 'с.Чепинци - гробищен парк',
     latitude: 42.76,
@@ -1123,7 +1123,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Да',
   },
   {
-    publicNumber: 'DF-RNI-0023',
+    publicNumber: 'RNI-DF-0023',
     district: 'Нови Искър',
     address: 'с.Негован - гробищен парк',
     latitude: 42.767639,
@@ -1136,7 +1136,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Да',
   },
   {
-    publicNumber: 'DF-RNI-0024',
+    publicNumber: 'RNI-DF-0024',
     district: 'Нови Искър',
     address: 'с.Кубратово - площад "Център"',
     latitude: 42.773056,
@@ -1149,7 +1149,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Да',
   },
   {
-    publicNumber: 'DF-RNI-0025',
+    publicNumber: 'RNI-DF-0025',
     district: 'Нови Искър',
     address: 'с.Кубратово - гробищен парк',
     latitude: 42.767472,
@@ -1162,7 +1162,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Да',
   },
   {
-    publicNumber: 'DF-RNI-0026',
+    publicNumber: 'RNI-DF-0026',
     district: 'Нови Искър',
     address: 'гр.Нови Искър, кв.Курило - зад ОДЗ №135',
     latitude: 42.821111,
@@ -1175,7 +1175,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Не',
   },
   {
-    publicNumber: 'DF-RNI-0027',
+    publicNumber: 'RNI-DF-0027',
     district: 'Нови Искър',
     address: 'гр.Нови Искър, кв.Кумарица - гробищен парк',
     latitude: 42.802111,
@@ -1188,7 +1188,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Да',
   },
   {
-    publicNumber: 'DF-RNI-0028',
+    publicNumber: 'RNI-DF-0028',
     district: 'Нови Искър',
     address: 'гр.Нови Искър, кв.Кумарица - площад "Свети дух"',
     latitude: 42.801389,
@@ -1201,7 +1201,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Да',
   },
   {
-    publicNumber: 'DF-RNI-0029',
+    publicNumber: 'RNI-DF-0029',
     district: 'Нови Искър',
     address: 'гр.Нови Искър, кв.Славовци -площад "Център"',
     latitude: 42.791861,
@@ -1214,7 +1214,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Да',
   },
   {
-    publicNumber: 'DF-RNI-0030',
+    publicNumber: 'RNI-DF-0030',
     district: 'Нови Искър',
     address: 'гр.Нови Искър, кв.Славовци - гробищен парк',
     latitude: 42.795333,
@@ -1227,7 +1227,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Да',
   },
   {
-    publicNumber: 'DF-RNI-0031',
+    publicNumber: 'RNI-DF-0031',
     district: 'Нови Искър',
     address: 'гр.Нови Искър, кв.Гниляне - гробищен парк',
     latitude: 42.805306,
@@ -1240,7 +1240,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Да',
   },
   {
-    publicNumber: 'DF-RNI-0032',
+    publicNumber: 'RNI-DF-0032',
     district: 'Нови Искър',
     address: 'гр.Нови Искър, кв.Курило - гробищен парк',
     latitude: 42.82875,
@@ -1253,7 +1253,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Да',
   },
   {
-    publicNumber: 'DF-RNI-0033',
+    publicNumber: 'RNI-DF-0033',
     district: 'Нови Искър',
     address: 'с.Световрачене - площад "Възраждане"',
     latitude: 42.782944,
@@ -1266,7 +1266,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Да',
   },
   {
-    publicNumber: 'DF-RNI-0034',
+    publicNumber: 'RNI-DF-0034',
     district: 'Нови Искър',
     address: 'гр.Нови Искър, кв.Кумарица - до старата баня',
     latitude: 42.801472,
@@ -1279,7 +1279,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Да',
   },
   {
-    publicNumber: 'DF-ROB-0001',
+    publicNumber: 'ROB-DF-0001',
     district: 'Оборище',
     address: 'Парк "Заимов" - при ул. "Кракра" и бул. "Янко Сакъзов"',
     latitude: 42.696901,
@@ -1292,7 +1292,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Да',
   },
   {
-    publicNumber: 'DF-ROB-0002',
+    publicNumber: 'ROB-DF-0002',
     district: 'Оборище',
     address: 'Парк "Заимов" - централна алея',
     latitude: 42.697534,
@@ -1305,7 +1305,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Да',
   },
   {
-    publicNumber: 'DF-ROB-0003',
+    publicNumber: 'ROB-DF-0003',
     district: 'Оборище',
     address: 'Парк "Заимов" - зад театър "София"',
     latitude: 42.697067,
@@ -1318,7 +1318,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Да',
   },
   {
-    publicNumber: 'DF-ROB-0004',
+    publicNumber: 'ROB-DF-0004',
     district: 'Оборище',
     address: 'Докторска градина',
     latitude: 42.694603,
@@ -1327,12 +1327,12 @@ const fountains: FountainSeedRow[] = [
     protectionStatus:
       'Чешмата няма индивидуален статут на единичен паметник на културата (недвижима културна ценност) по смисъла на Закона за културното наследство, но се намира в "Докторската градина", която е обявена за паметник на градинското и парковото изкуство.',
     isActive: true,
-    status: 'За възстановяване',
+    status: 'Добро',
     owner: 'район',
     activationType: 'Да',
   },
   {
-    publicNumber: 'DF-ROB-0005',
+    publicNumber: 'ROB-DF-0005',
     district: 'Оборище',
     address: 'Детска площадка на ул. "Буная" 29А',
     latitude: 42.696104,
@@ -1345,7 +1345,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Да',
   },
   {
-    publicNumber: 'DF-ROB-0006',
+    publicNumber: 'ROB-DF-0006',
     district: 'Оборище',
     address: 'Градина "Кюлуците"',
     latitude: 42.702148,
@@ -1359,7 +1359,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Да',
   },
   {
-    publicNumber: 'DF-ROB-0007',
+    publicNumber: 'ROB-DF-0007',
     district: 'Оборище',
     address: 'Площад "Бански" - до Джамията "Баня Баши"',
     latitude: 42.699749,
@@ -1373,7 +1373,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Не',
   },
   {
-    publicNumber: 'DF-ROB-0008',
+    publicNumber: 'ROB-DF-0008',
     district: 'Оборище',
     address:
       'Площад "Бански" - на фасадата на Музей за история на София (Централна минерална баня)',
@@ -1388,7 +1388,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Не',
   },
   {
-    publicNumber: 'DF-ROB-0009',
+    publicNumber: 'ROB-DF-0009',
     district: 'Оборище',
     address: 'Ул. "Искър" и ул. "Екзарх Йосиф"',
     latitude: 42.699945,
@@ -1402,7 +1402,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Не',
   },
   {
-    publicNumber: 'DF-RSL-0001',
+    publicNumber: 'RSL-DF-0001',
     district: 'Слатина',
     address: 'парк Гео Милев - кв. "Гео Милев"',
     latitude: 42.68625,
@@ -1415,7 +1415,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Кран',
   },
   {
-    publicNumber: 'DF-RSL-0002',
+    publicNumber: 'RSL-DF-0002',
     district: 'Слатина',
     address: 'ул. "Андрей Николов" № 24 - кв. "Гео Милев"',
     latitude: 42.680972,
@@ -1423,12 +1423,12 @@ const fountains: FountainSeedRow[] = [
     source: 'Софийска вода',
     protectionStatus: null,
     isActive: true,
-    status: 'Отлично',
+    status: 'Добро',
     owner: 'район',
     activationType: 'Кран',
   },
   {
-    publicNumber: 'DF-RSL-0003',
+    publicNumber: 'RSL-DF-0003',
     district: 'Слатина',
     address: 'бул. "Ситняково" № 35 - кв. "Редута"',
     latitude: 42.693417,
@@ -1441,7 +1441,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Кран',
   },
   {
-    publicNumber: 'DF-RSL-0004',
+    publicNumber: 'RSL-DF-0004',
     district: 'Слатина',
     address: 'пазар "Ситняково"',
     latitude: 42.684972,
@@ -1454,7 +1454,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Бутон',
   },
   {
-    publicNumber: 'DF-RSL-0005',
+    publicNumber: 'RSL-DF-0005',
     district: 'Слатина',
     address: 'пазар "Слатина"',
     latitude: 42.68141,
@@ -1467,7 +1467,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Не',
   },
   {
-    publicNumber: 'DF-RML-0001',
+    publicNumber: 'RML-DF-0001',
     district: 'Младост',
     address: 'кв."Горубляне" - пред Читалище "Васил Левски"',
     latitude: 42.628282,
@@ -1480,7 +1480,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Кран',
   },
   {
-    publicNumber: 'DF-RML-0002',
+    publicNumber: 'RML-DF-0002',
     district: 'Младост',
     address: 'Парк "100 години София" - западна част',
     latitude: 42.644164,
@@ -1493,7 +1493,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Бутон',
   },
   {
-    publicNumber: 'DF-RML-0003',
+    publicNumber: 'RML-DF-0003',
     district: 'Младост',
     address: 'Парк "100 години София" - източна част',
     latitude: 42.646469,
@@ -1506,7 +1506,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Бутон',
   },
   {
-    publicNumber: 'DF-RML-0004',
+    publicNumber: 'RML-DF-0004',
     district: 'Младост',
     address: 'I-чешма на градинка при Lidl ж.к. "Младост 3"',
     latitude: 42.636937,
@@ -1519,7 +1519,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Бутон',
   },
   {
-    publicNumber: 'DF-RML-0005',
+    publicNumber: 'RML-DF-0005',
     district: 'Младост',
     address: 'II-чешма на градинка при Lidl ж.к. "Младост 3"',
     latitude: 42.637056,
@@ -1532,7 +1532,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Бутон',
   },
   {
-    publicNumber: 'DF-RML-0006',
+    publicNumber: 'RML-DF-0006',
     district: 'Младост',
     address: 'Парк "Сухото дере" в ж.к. "Младост 4"',
     latitude: 42.631017,
@@ -1545,7 +1545,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Бутон',
   },
   {
-    publicNumber: 'DF-RML-0007',
+    publicNumber: 'RML-DF-0007',
     district: 'Младост',
     address: 'Източна чешма в парк "Сухото дере" в ж.к. "Младост 4"',
     latitude: 42.631611,
@@ -1558,7 +1558,7 @@ const fountains: FountainSeedRow[] = [
     activationType: null,
   },
   {
-    publicNumber: 'DF-RML-0008',
+    publicNumber: 'RML-DF-0008',
     district: 'Младост',
     address: 'Народно читалще "Младост" в ж.к. "Младост 1"',
     latitude: 42.651769,
@@ -1571,7 +1571,7 @@ const fountains: FountainSeedRow[] = [
     activationType: null,
   },
   {
-    publicNumber: 'DF-RST-0001',
+    publicNumber: 'RST-DF-0001',
     district: 'Студентски',
     address: 'Парк "Студентски", до Параклис, срещу УНСС',
     latitude: 42.652278,
@@ -1584,7 +1584,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Да',
   },
   {
-    publicNumber: 'DF-RST-0002',
+    publicNumber: 'RST-DF-0002',
     district: 'Студентски',
     address: 'Парк "Студентски" -1',
     latitude: 42.655256,
@@ -1597,7 +1597,7 @@ const fountains: FountainSeedRow[] = [
     activationType: null,
   },
   {
-    publicNumber: 'DF-RST-0003',
+    publicNumber: 'RST-DF-0003',
     district: 'Студентски',
     address: 'Парк "Студентски" -2',
     latitude: 42.653648,
@@ -1610,7 +1610,7 @@ const fountains: FountainSeedRow[] = [
     activationType: null,
   },
   {
-    publicNumber: 'DF-RST-0004',
+    publicNumber: 'RST-DF-0004',
     district: 'Студентски',
     address: 'жк. "Дървеница", срещу Храм "Св. Георги"',
     latitude: 42.652953,
@@ -1623,7 +1623,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Не',
   },
   {
-    publicNumber: 'DF-RST-0005',
+    publicNumber: 'RST-DF-0005',
     district: 'Студентски',
     address: 'Линеен парк на ул. "Проф. Иван Странски", жк. "Малинова долина"',
     latitude: 42.642607,
@@ -1636,7 +1636,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Да',
   },
   {
-    publicNumber: 'DF-RST-0006',
+    publicNumber: 'RST-DF-0006',
     district: 'Студентски',
     address: 'Линеен парк на ул. "Проф. Иван Странски", жк. "Малинова долина"',
     latitude: 42.64236,
@@ -1649,7 +1649,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Да',
   },
   {
-    publicNumber: 'DF-RST-0007',
+    publicNumber: 'RST-DF-0007',
     district: 'Студентски',
     address: 'МГУ "Св. Иван Рилски", ул. "Профл Боян Каменов"',
     latitude: 42.659945,
@@ -1662,11 +1662,11 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Да',
   },
   {
-    publicNumber: 'DF-RKR-0001',
+    publicNumber: 'RKR-DF-0001',
     district: 'Кремиковци',
     address: 'кв. Сеславци, ул. "Стара планина" - на площада',
-    latitude: 23.517655,
-    longitude: 42.783045,
+    latitude: 42.783045,
+    longitude: 23.517655,
     source: 'Софийска вода',
     protectionStatus: null,
     isActive: true,
@@ -1675,11 +1675,11 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Да',
   },
   {
-    publicNumber: 'DF-RKR-0002',
+    publicNumber: 'RKR-DF-0002',
     district: 'Кремиковци',
     address: 'кв. Сеславци, ул. "Иван Боримечката"- гробищен парк',
-    latitude: 23.516149,
-    longitude: 42.785476,
+    latitude: 42.785476,
+    longitude: 23.516149,
     source: 'Софийска вода',
     protectionStatus: null,
     isActive: true,
@@ -1688,11 +1688,11 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Да',
   },
   {
-    publicNumber: 'DF-RKR-0003',
+    publicNumber: 'RKR-DF-0003',
     district: 'Кремиковци',
     address: 'кв. Кремиковци - гробищен парк',
-    latitude: 23.51142,
-    longitude: 42.782092,
+    latitude: 42.782092,
+    longitude: 23.51142,
     source: 'Софийска вода',
     protectionStatus: null,
     isActive: true,
@@ -1701,11 +1701,11 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Да',
   },
   {
-    publicNumber: 'DF-RKR-0004',
+    publicNumber: 'RKR-DF-0004',
     district: 'Кремиковци',
     address: 'кв. Враждебна, ул. "32-ра" - гробищен парк',
-    latitude: 23.415348,
-    longitude: 42.718476,
+    latitude: 42.718476,
+    longitude: 23.415348,
     source: 'Софийска вода',
     protectionStatus: null,
     isActive: true,
@@ -1714,11 +1714,11 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Да',
   },
   {
-    publicNumber: 'DF-RKR-0005',
+    publicNumber: 'RKR-DF-0005',
     district: 'Кремиковци',
     address: 'кв. Челопечене, ул. "Ридо" - гробищен парк',
-    latitude: 23.481806,
-    longitude: 42.730213,
+    latitude: 42.730213,
+    longitude: 23.481806,
     source: 'Софийска вода',
     protectionStatus: null,
     isActive: true,
@@ -1727,11 +1727,11 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Да',
   },
   {
-    publicNumber: 'DF-RKR-0006',
+    publicNumber: 'RKR-DF-0006',
     district: 'Кремиковци',
     address: 'кв. Ботунец, ул. "Зорница" - спортна зала',
-    latitude: 23.505129,
-    longitude: 42.73539,
+    latitude: 42.73539,
+    longitude: 23.505129,
     source: 'Софийска вода',
     protectionStatus: null,
     isActive: true,
@@ -1740,11 +1740,11 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Да',
   },
   {
-    publicNumber: 'DF-RKR-0007',
+    publicNumber: 'RKR-DF-0007',
     district: 'Кремиковци',
     address: 'с. Желява, ул. "24 май" - при храм "Св. Николай Чудотворец"',
-    latitude: 23.606542,
-    longitude: 42.752594,
+    latitude: 42.752594,
+    longitude: 23.606542,
     source: 'Изворна',
     protectionStatus: null,
     isActive: true,
@@ -1753,11 +1753,11 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Да',
   },
   {
-    publicNumber: 'DF-RKR-0008',
+    publicNumber: 'RKR-DF-0008',
     district: 'Кремиковци',
     address: 'с. Желява, ул. "Тоне Крайчев" - при детската площадка',
-    latitude: 23.606908,
-    longitude: 42.746151,
+    latitude: 42.746151,
+    longitude: 23.606908,
     source: 'Софийска вода',
     protectionStatus: null,
     isActive: false,
@@ -1766,11 +1766,11 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Да',
   },
   {
-    publicNumber: 'DF-RKR-0009',
+    publicNumber: 'RKR-DF-0009',
     district: 'Кремиковци',
     address: 'с. Яна - гробищен парк',
-    latitude: 23.566393,
-    longitude: 42.728074,
+    latitude: 42.728074,
+    longitude: 23.566393,
     source: 'Софийска вода',
     protectionStatus: null,
     isActive: true,
@@ -1779,11 +1779,11 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Да',
   },
   {
-    publicNumber: 'DF-RKR-0010',
+    publicNumber: 'RKR-DF-0010',
     district: 'Кремиковци',
     address: 'с. Долни Богров, ул. "14-та" - гробищен парк',
-    latitude: 23.485648,
-    longitude: 42.699772,
+    latitude: 42.699772,
+    longitude: 23.485648,
     source: 'Софийска вода',
     protectionStatus: null,
     isActive: true,
@@ -1792,11 +1792,11 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Да',
   },
   {
-    publicNumber: 'DF-RKR-0011',
+    publicNumber: 'RKR-DF-0011',
     district: 'Кремиковци',
     address: 'с. Горни Богров, ул. "Васил Левски" - срещу кметството',
-    latitude: 23.529844,
-    longitude: 42.719126,
+    latitude: 42.719126,
+    longitude: 23.529844,
     source: 'Софийска вода',
     protectionStatus: null,
     isActive: true,
@@ -1805,11 +1805,11 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Да',
   },
   {
-    publicNumber: 'DF-RKR-0012',
+    publicNumber: 'RKR-DF-0012',
     district: 'Кремиковци',
     address: 'с. Горни Богров, ул. "Христо Ботев" - гробищен парк',
-    latitude: 23.521148,
-    longitude: 42.714103,
+    latitude: 42.714103,
+    longitude: 23.521148,
     source: 'Софийска вода',
     protectionStatus: null,
     isActive: true,
@@ -1818,11 +1818,11 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Да',
   },
   {
-    publicNumber: 'DF-RKR-0013',
+    publicNumber: 'RKR-DF-0013',
     district: 'Кремиковци',
     address: 'гр. Бухово, бул. "Никола Бонев" - гробищен парк',
-    latitude: 23.571381,
-    longitude: 42.76636,
+    latitude: 42.76636,
+    longitude: 23.571381,
     source: 'Изворна',
     protectionStatus: null,
     isActive: true,
@@ -1831,11 +1831,11 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Да',
   },
   {
-    publicNumber: 'DF-RKR-0014',
+    publicNumber: 'RKR-DF-0014',
     district: 'Кремиковци',
     address: 'гр. Бухово, бул. "Никола Бонев" - "СЕЛСКАТА ЧЕШМА"',
-    latitude: 23.564786,
-    longitude: 42.763727,
+    latitude: 42.763727,
+    longitude: 23.564786,
     source: 'Изворна',
     protectionStatus: null,
     isActive: true,
@@ -1844,9 +1844,9 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Да',
   },
   {
-    publicNumber: 'DF-RBA-0001',
+    publicNumber: 'RBA-DF-0001',
     district: 'Банкя',
-    address: 'Парк "Кестените" -  Централна минерална Баня I',
+    address: 'Парк "Кестените" - Централна минерална Баня I',
     latitude: 42.706967,
     longitude: 23.146837,
     source: 'Минерална',
@@ -1857,9 +1857,9 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Не',
   },
   {
-    publicNumber: 'DF-RBA-0002',
+    publicNumber: 'RBA-DF-0002',
     district: 'Банкя',
-    address: 'Парк "Кестените" -  Централна минерална Баня II',
+    address: 'Парк "Кестените" - Централна минерална Баня II',
     latitude: 42.70704,
     longitude: 23.144482,
     source: 'Минерална',
@@ -1870,9 +1870,9 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Не',
   },
   {
-    publicNumber: 'DF-RBA-0003',
+    publicNumber: 'RBA-DF-0003',
     district: 'Банкя',
-    address: 'Парк "Кестените" -  Централна минерална Баня III',
+    address: 'Парк "Кестените" - Централна минерална Баня III',
     latitude: 42.706834,
     longitude: 23.143814,
     source: 'Минерална',
@@ -1883,7 +1883,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Не',
   },
   {
-    publicNumber: 'DF-RBA-0004',
+    publicNumber: 'RBA-DF-0004',
     district: 'Банкя',
     address: 'Парк "Кестените" - Ротонда',
     latitude: 42.707458,
@@ -1896,7 +1896,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Да',
   },
   {
-    publicNumber: 'DF-RBA-0005',
+    publicNumber: 'RBA-DF-0005',
     district: 'Банкя',
     address: 'ул. Цар Симеон',
     latitude: 42.70585,
@@ -1909,7 +1909,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Да',
   },
   {
-    publicNumber: 'DF-RBA-0006',
+    publicNumber: 'RBA-DF-0006',
     district: 'Банкя',
     address: 'с. Иваняне',
     latitude: 42.706552,
@@ -1922,7 +1922,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Да',
   },
   {
-    publicNumber: 'DF-RBA-0007',
+    publicNumber: 'RBA-DF-0007',
     district: 'Банкя',
     address: 'Часовникова кула, ул. Княз БорисI, 2',
     latitude: 42.707436,
@@ -1935,7 +1935,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Не',
   },
   {
-    publicNumber: 'DF-RTR-0001',
+    publicNumber: 'RTR-DF-0001',
     district: 'Триадица',
     address: 'Чешма парк "Здраве"- бул. "България"',
     latitude: 42.680984,
@@ -1943,12 +1943,12 @@ const fountains: FountainSeedRow[] = [
     source: 'Софийска вода',
     protectionStatus: null,
     isActive: true,
-    status: 'Няма информация',
+    status: 'Задоволително',
     owner: 'район',
     activationType: 'Кран',
   },
   {
-    publicNumber: 'DF-RTR-0002',
+    publicNumber: 'RTR-DF-0002',
     district: 'Триадица',
     address: 'Чешма на ул. "Петър Парчевич" и бул. "Витоша"',
     latitude: 42.690789,
@@ -1956,12 +1956,12 @@ const fountains: FountainSeedRow[] = [
     source: 'Софийска вода',
     protectionStatus: null,
     isActive: false,
-    status: 'Отлично',
+    status: 'За възстановяване',
     owner: 'район',
     activationType: 'Бутон',
   },
   {
-    publicNumber: 'DF-RTR-0003',
+    publicNumber: 'RTR-DF-0003',
     district: 'Триадица',
     address: 'Чешма на бул. "Витоша" №131',
     latitude: 42.67571,
@@ -1974,7 +1974,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Бутон',
   },
   {
-    publicNumber: 'DF-RTR-0004',
+    publicNumber: 'RTR-DF-0004',
     district: 'Триадица',
     address: 'При х-л "Хилтън" на алея между м-я "Европейски съюз" и Моста на влюбените',
     latitude: 42.681008,
@@ -1987,11 +1987,11 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Бутон',
   },
   {
-    publicNumber: 'DF-RTR-0005',
+    publicNumber: 'RTR-DF-0005',
     district: 'Триадица',
     address: 'Чешма на детска площадка при музей "Земята и хората"',
-    latitude: 42.680293,
-    longitude: 23.3206,
+    latitude: 42.679553,
+    longitude: 23.321019,
     source: 'Софийска вода',
     protectionStatus: null,
     isActive: true,
@@ -2000,7 +2000,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Бутон',
   },
   {
-    publicNumber: 'DF-RTR-0006',
+    publicNumber: 'RTR-DF-0006',
     district: 'Триадица',
     address: 'Чешма парк "Буката" - "Момчето с козлето"',
     latitude: 42.688061,
@@ -2013,7 +2013,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Не',
   },
   {
-    publicNumber: 'DF-RTR-0007',
+    publicNumber: 'RTR-DF-0007',
     district: 'Триадица',
     address: 'Чешма при читалище "Светлина"',
     latitude: 42.673387,
@@ -2026,7 +2026,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Бутон',
   },
   {
-    publicNumber: 'DF-RTR-0008',
+    publicNumber: 'RTR-DF-0008',
     district: 'Триадица',
     address: 'Чешма в парк "Боряна"- на ул. Забърде" и ул. "Бурел"',
     latitude: 42.675741,
@@ -2034,12 +2034,12 @@ const fountains: FountainSeedRow[] = [
     source: 'Софийска вода',
     protectionStatus: null,
     isActive: false,
-    status: 'Отлично',
+    status: 'За възстановяване',
     owner: 'район',
     activationType: 'Бутон',
   },
   {
-    publicNumber: 'DF-RTR-0009',
+    publicNumber: 'RTR-DF-0009',
     district: 'Триадица',
     address: 'Детска градинка срещу пазар "Иван Вазов", колелото на трамвай №1,6',
     latitude: 42.676377,
@@ -2052,7 +2052,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Бутон',
   },
   {
-    publicNumber: 'DF-RTR-0010',
+    publicNumber: 'RTR-DF-0010',
     district: 'Триадица',
     address: 'НДК - чешма бул. Витоша, зад пилоните',
     latitude: 42.685253,
@@ -2065,7 +2065,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Не',
   },
   {
-    publicNumber: 'DF-RTR-0011',
+    publicNumber: 'RTR-DF-0011',
     district: 'Триадица',
     address: 'НДК – чешма бул. "България" Юг за питейна вода',
     latitude: 42.682847,
@@ -2078,9 +2078,22 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Не',
   },
   {
-    publicNumber: 'DF-RTR-0012',
+    publicNumber: 'RTR-DF-0012',
     district: 'Триадица',
-    address: 'НДК – чешма "Параклис" за питейна вода',
+    address: 'НДК – чешма "Параклиси" за питейна вода',
+    latitude: 42.688105,
+    longitude: 23.31921,
+    source: 'Софийска вода',
+    protectionStatus: null,
+    isActive: true,
+    status: 'Няма информация',
+    owner: 'ОППГГ',
+    activationType: 'Не',
+  },
+  {
+    publicNumber: 'RTR-DF-0013',
+    district: 'Триадица',
+    address: 'НДК – чешма мемориал за питейна вода',
     latitude: 42.686487,
     longitude: 23.32027,
     source: 'Софийска вода',
@@ -2091,7 +2104,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Не',
   },
   {
-    publicNumber: 'DF-RTR-0013',
+    publicNumber: 'RTR-DF-0014',
     district: 'Триадица',
     address: 'НДК – чешма пешеходна алея "Тройката" за питейна вода',
     latitude: 42.685814,
@@ -2104,7 +2117,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Не',
   },
   {
-    publicNumber: 'DF-RTR-0014',
+    publicNumber: 'RTR-DF-0015',
     district: 'Триадица',
     address:
       'Чешма в подлез на бул. „България“ и бул. „Гоце Делчев“ на изхода към ж.к. „Стрелбище“',
@@ -2118,7 +2131,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Бутон',
   },
   {
-    publicNumber: 'DF-RTR-0015',
+    publicNumber: 'RTR-DF-0016',
     district: 'Триадица',
     address: 'Чешма при храм „Св. Георги Победоносец“, бул. „Патриарх Евтимий“ 90',
     latitude: 42.689478,
@@ -2131,7 +2144,7 @@ const fountains: FountainSeedRow[] = [
     activationType: null,
   },
   {
-    publicNumber: 'DF-RTR-0016',
+    publicNumber: 'RTR-DF-0017',
     district: 'Триадица',
     address: 'Чешма пред 29 ДКЦ, ул. "Георги Измирлиев" №8, кв. "Мотописта"',
     latitude: 42.6645,
@@ -2139,12 +2152,12 @@ const fountains: FountainSeedRow[] = [
     source: 'Софийска вода',
     protectionStatus: null,
     isActive: false,
-    status: 'Отлично',
+    status: 'За възстановяване',
     owner: 'район',
     activationType: null,
   },
   {
-    publicNumber: 'DF-RTR-0017',
+    publicNumber: 'RTR-DF-0018',
     district: 'Триадица',
     address: 'ул. "Костенски водопад" при спирка на МГТ, авт. №76, пред бл. 242, кв. "Мотописта"',
     latitude: 42.663968,
@@ -2152,12 +2165,12 @@ const fountains: FountainSeedRow[] = [
     source: 'Софийска вода',
     protectionStatus: null,
     isActive: false,
-    status: 'Отлично',
+    status: 'За възстановяване',
     owner: 'район',
     activationType: null,
   },
   {
-    publicNumber: 'DF-RTR-0018',
+    publicNumber: 'RTR-DF-0019',
     district: 'Триадица',
     address: 'Южен парк – чешма вход "Козяк"',
     latitude: 42.660678,
@@ -2170,7 +2183,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Бутон',
   },
   {
-    publicNumber: 'DF-RTR-0019',
+    publicNumber: 'RTR-DF-0020',
     district: 'Триадица',
     address: 'Южен парк – чешма вход "Гоце Делчев"',
     latitude: 42.665022,
@@ -2183,7 +2196,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Не',
   },
   {
-    publicNumber: 'DF-RTR-0020',
+    publicNumber: 'RTR-DF-0021',
     district: 'Триадица',
     address: 'Южен парк – чешма вход "Бяла черква"',
     latitude: 42.674615,
@@ -2196,7 +2209,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Бутон',
   },
   {
-    publicNumber: 'DF-RTR-0021',
+    publicNumber: 'RTR-DF-0022',
     district: 'Триадица',
     address: 'Южен парк – чешма "Английска поляна"',
     latitude: 42.673599,
@@ -2209,7 +2222,7 @@ const fountains: FountainSeedRow[] = [
     activationType: 'Бутон',
   },
   {
-    publicNumber: 'DF-RTR-0022',
+    publicNumber: 'RTR-DF-0023',
     district: 'Триадица',
     address: 'Южен парк – чешма вход "Нишава"',
     latitude: 42.668987,
@@ -2249,10 +2262,10 @@ function getFirstId(rows: QueryResultRow[]): number | null {
 }
 
 export async function seedDrinkingFountainRows(tx: DrizzleExecutor): Promise<number> {
-  // Remove rows created by the previous global DF-0001 identifier format.
+  // Remove rows created by the previous identifier formats
   await tx.execute(sql`
 			DELETE FROM drinking_fountains
-			WHERE public_number ~ '^DF-[0-9]{4}$'
+			WHERE public_number ~ '^DF-([0-9]{4}|[A-Z]{3}-[0-9]{4})$'
 		`)
 
   const sourceIds = new Map<string, number>()

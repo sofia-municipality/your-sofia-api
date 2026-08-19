@@ -58,7 +58,7 @@ export const DrinkingFountains: CollectionConfig = {
       admin: {
         readOnly: true,
         position: 'sidebar',
-        description: 'Автоматично генериран идентификатор (напр. DF-RTR-0001)',
+        description: 'Автоматично генериран идентификатор (напр. RTR-DF-0001)',
       },
     },
     {

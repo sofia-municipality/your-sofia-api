@@ -133,7 +133,7 @@ describe('Signals canUpdate access — authenticated user ownership', () => {
       findByID: jest.fn().mockResolvedValue({
         id: '42',
         category: 'drinking-fountain',
-        cityObject: { type: 'drinking-fountain', referenceId: 'DF-RTR-0001' },
+        cityObject: { type: 'drinking-fountain', referenceId: 'RTR-DF-0001' },
         reporter: 99,
       }),
     })
@@ -156,7 +156,7 @@ describe('Signals canUpdate access — authenticated user ownership', () => {
       findByID: jest.fn().mockResolvedValue({
         id: '42',
         category: 'other',
-        cityObject: { type: 'drinking-fountain', referenceId: 'DF-RTR-0001' },
+        cityObject: { type: 'drinking-fountain', referenceId: 'RTR-DF-0001' },
       }),
     })
     const req = { user: { id: 7, role: 'fountainAdmin' }, payload } as any
@@ -408,7 +408,7 @@ describe('Signals beforeValidate hook — duplicate signal check', () => {
     title: 'T',
     category: 'drinking-fountain',
     reporterUniqueId: 'R1',
-    cityObject: { type: 'drinking-fountain', referenceId: 'DF-RTR-0001' },
+    cityObject: { type: 'drinking-fountain', referenceId: 'RTR-DF-0001' },
     ...overrides,
   })
 
@@ -430,7 +430,7 @@ describe('Signals beforeValidate hook — duplicate signal check', () => {
         where: expect.objectContaining({
           and: expect.arrayContaining([
             { category: { equals: 'drinking-fountain' } },
-            { 'cityObject.referenceId': { equals: 'DF-RTR-0001' } },
+            { 'cityObject.referenceId': { equals: 'RTR-DF-0001' } },
             { status: { not_in: ['resolved', 'rejected'] } },
           ]),
         }),
