@@ -1,4 +1,5 @@
 import { withPayload } from '@payloadcms/next/withPayload'
+import { withSentryConfig } from '@sentry/nextjs'
 
 import redirects from './redirects.js'
 
@@ -28,6 +29,15 @@ const nextConfig = {
   },
   reactStrictMode: true,
   redirects,
+  async headers() {
+    return [
+      {
+        // Required by the JS Self-Profiling API that Sentry browser profiling uses.
+        source: '/(.*)',
+        headers: [{ key: 'Document-Policy', value: 'js-profiling' }],
+      },
+    ]
+  },
   output: 'standalone', // Enable for Docker deployment
   sassOptions: {
     // Let Sass resolve @payloadcms/ui's bare partial imports (@import 'vars', etc.)
@@ -45,4 +55,12 @@ const nextConfig = {
     return config
   },
 }
-export default withPayload(nextConfig, { devBundleServerPackages: false })
+export default withSentryConfig(withPayload(nextConfig, { devBundleServerPackages: false }), {
+  org: '<TODO_SET_ORG>',
+  project: 'your-sofia-api',
+  sentryUrl: 'https://de.sentry.io/',
+  authToken: process.env.SENTRY_AUTH_TOKEN,
+  widenClientFileUpload: true,
+  tunnelRoute: '/monitoring',
+  silent: !process.env.CI,
+})
