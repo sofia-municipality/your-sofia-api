@@ -51,8 +51,8 @@ import * as migration_20260729_093425_bulky_waste_zones from './20260729_093425_
 import * as migration_20260729_101500_import_bulky_waste_zones from './20260729_101500_import_bulky_waste_zones';
 import * as migration_20260729_111827_drinking_fountains from './20260729_111827_drinking_fountains';
 import * as migration_20260803_000000_seed_drinking_fountains from './20260803_000000_seed_drinking_fountains';
-import * as migration_20260810_075819_seed_textile_containers from './20260810_075819_seed_textile_containers';
 import * as migration_20260810_075819 from './20260810_075819';
+import * as migration_20260810_075820_seed_textile_containers from './20260810_075820_seed_textile_containers';
 
 export const migrations = [
   {
@@ -321,13 +321,13 @@ export const migrations = [
     name: '20260803_000000_seed_drinking_fountains',
   },
   {
-    up: migration_20260810_075819_seed_textile_containers.up,
-    down: migration_20260810_075819_seed_textile_containers.down,
-    name: '20260810_075819_seed_textile_containers',
-  },
-  {
     up: migration_20260810_075819.up,
     down: migration_20260810_075819.down,
     name: '20260810_075819'
+  },
+  {
+    up: migration_20260810_075820_seed_textile_containers.up,
+    down: migration_20260810_075820_seed_textile_containers.down,
+    name: '20260810_075820_seed_textile_containers',
   },
 ];
