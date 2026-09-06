@@ -198,7 +198,10 @@ export default buildConfig({
     Subscriptions,
     FeatureConfig,
   ],
-  cors: [serverURL].filter(Boolean),
+  cors: {
+    origins: [serverURL].filter(Boolean),
+    headers: ['sentry-trace', 'baggage'],
+  },
   email,
   endpoints: [
     healthCheck,
