@@ -1,0 +1,89 @@
+name: Release Image
+
+on:
+  workflow_dispatch:
+    inputs:
+      source_tag:
+        description: 'Existing image tag to release (e.g. main-523b0d0)'
+        required: true
+        type: string
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  retag:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Resolve tags
+        id: tags
+        env:
+          SOURCE_TAG: ${{ inputs.source_tag }}
+        run: |
+          set -euo pipefail
+
+          source_tag="${SOURCE_TAG}"
+
+          if ! printf '%s' "$source_tag" | grep -Eq '^[A-Za-z0-9_][A-Za-z0-9._-]{0,127}$'; then
+            echo "::error::Invalid Docker tag: '$source_tag'"
+            exit 1
+          fi
+
+          # "main-523b0d0" -> "523b0d0" -> "release-523b0d0"
+          target_tag="release-${source_tag##*-}"
+
+          if [ "$source_tag" = "$target_tag" ]; then
+            echo "::error::Source tag is already '$target_tag'"
+            exit 1
+          fi
+
+          echo "source_tag=$source_tag" >> "$GITHUB_OUTPUT"
+          echo "target_tag=$target_tag" >> "$GITHUB_OUTPUT"
+          echo "Re-tagging '$source_tag' -> '$target_tag'"
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Verify source image exists
+        run: |
+          set -euo pipefail
+          docker buildx imagetools inspect \
+            "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.tags.outputs.source_tag }}"
+
+      - name: Re-tag image
+        run: |
+          set -euo pipefail
+          # Copies the whole manifest list (linux/amd64 + linux/arm64 and the
+          # provenance/SBOM attestations) without pulling or rebuilding layers.
+          docker buildx imagetools create \
+            --tag "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.tags.outputs.target_tag }}" \
+            "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.tags.outputs.source_tag }}"
+
+      - name: Verify pushed image
+        run: |
+          set -euo pipefail
+          docker buildx imagetools inspect \
+            "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.tags.outputs.target_tag }}"
+
+      - name: Job summary
+        run: |
+          {
+            echo "### Image re-tagged"
+            echo ""
+            echo "| | Tag |"
+            echo "| --- | --- |"
+            echo "| Source | \`${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.tags.outputs.source_tag }}\` |"
+            echo "| Target | \`${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.tags.outputs.target_tag }}\` |"
+          } >> "$GITHUB_STEP_SUMMARY"
