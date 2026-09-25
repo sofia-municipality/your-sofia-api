@@ -999,9 +999,9 @@ export interface WasteContainer {
    */
   scheduleSource?: string | null;
   /**
-   * Наименование на фирмата или услугата, отговорна за събирането
+   * Фирма и договор от GPS системата — попълва се автоматично при събиране
    */
-  servicedBy?: string | null;
+  servicedBy?: number | null;
   /**
    * Вид отпадък, приеман от контейнера
    */
@@ -1022,6 +1022,10 @@ export interface WasteContainer {
    * Дата и час, когато контейнерът е бил последно почистен
    */
   lastCleaned?: string | null;
+  /**
+   * Камион от GPS системата, извършил последното събиране
+   */
+  lastCleanedBy?: number | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -2499,6 +2503,7 @@ export interface WasteContainersSelect<T extends boolean = true> {
   state?: T;
   notes?: T;
   lastCleaned?: T;
+  lastCleanedBy?: T;
   updatedAt?: T;
   createdAt?: T;
 }

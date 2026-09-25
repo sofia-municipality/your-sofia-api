@@ -3,12 +3,14 @@ import { sql } from '@payloadcms/db-postgres'
 import {
   type WasteCollectionEvent,
   buildSyncWindow,
+  fetchVehicleMetadata,
   groupIntoSpots,
   parseGpsTime,
 } from './gpsCollectionHelpers'
 
 export { buildSyncWindow } from './gpsCollectionHelpers'
 import { resolveOpenContainerSignals } from './resolveOpenContainerSignals'
+import { rememberContractFirms } from './contractFirmCache'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Task handler
@@ -90,6 +92,18 @@ const handler: TaskHandler<'processWasteCollectionEvents'> = async ({ input, req
 
     const collectionEvents: WasteCollectionEvent[] = await vehicleResponse.json()
 
+    // ── T3: Fetch metadata for the distinct vehicles in this window ──────────
+    const vehicleMetadata = await fetchVehicleMetadata(
+      baseUrl,
+      gpsHeaders,
+      collectionEvents.map((e) => e.VehicleId),
+      payload.logger
+    )
+    rememberContractFirms(vehicleMetadata.values())
+    payload.logger.info(
+      `[processWasteCollectionEvents] firmId=${firmId}: metadata for ${vehicleMetadata.size} vehicles`
+    )
+
     // Keep only data points where the collection arm (Shooter) was active
     // and the truck was moving slowly enough to represent a true collection event.
     const shooterEvents = collectionEvents.filter((p) => {
@@ -160,6 +174,8 @@ const handler: TaskHandler<'processWasteCollectionEvents'> = async ({ input, req
             wasteType: 'general',
             source: `third_party`,
             lastCleaned: parseGpsTime(spot.events[0].GpsTime).toISOString(),
+            servicedBy: firmId,
+            lastCleanedBy: spot.latestEvent.VehicleId,
             notes: `Auto-created from GPS data. FirmId: ${firmId}, VehicleId: ${spot.latestEvent.VehicleId}. Please verify location and details before activating.`,
           },
         })
@@ -174,7 +190,8 @@ const handler: TaskHandler<'processWasteCollectionEvents'> = async ({ input, req
               status: nearestContainer?.status === 'full' ? 'active' : undefined, // make active only if it was full before
               state: keepBulkyWasteState ? ['bulkyWaste'] : [],
               lastCleaned: parseGpsTime(spot.events[0].GpsTime).toISOString(),
-              servicedBy: `Фирма: ${firmId}`,
+              servicedBy: firmId,
+              lastCleanedBy: spot.latestEvent.VehicleId,
               district: !districtExists
                 ? (districtIdByRegion.get(spot.latestEvent.Region) ?? undefined)
                 : undefined, //update district only if it was missing before

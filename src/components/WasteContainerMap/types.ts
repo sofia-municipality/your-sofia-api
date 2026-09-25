@@ -18,7 +18,8 @@ export interface ContainerWithSignals {
   status: 'active' | 'full' | 'maintenance' | 'inactive' | 'pending'
   address?: string | null
   notes?: string | null
-  servicedBy?: string | null
+  servicedBy?: number | null
+  lastCleanedBy?: number | null
   lastCleaned?: string | null
   binCount?: number | null
   districtId?: number | null

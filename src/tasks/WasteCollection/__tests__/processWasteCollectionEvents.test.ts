@@ -78,6 +78,9 @@ function mockFetch(firmIds: number[], events: WasteCollectionEvent[]) {
     if (url.includes('get_fid')) {
       return { ok: true, json: async () => firmIds }
     }
+    if (url.includes('get_vehicle_metadata')) {
+      return { ok: true, json: async () => ({}) }
+    }
     if (url.includes('get_vehicle')) {
       return { ok: true, json: async () => events }
     }
@@ -203,7 +206,8 @@ describe('processWasteCollectionEvents handler', () => {
     expect(updateCall.collection).toBe('waste-containers')
     expect(updateCall.id).toBe(42)
     expect(updateCall.data.status).toBe('active')
-    expect(updateCall.data.servicedBy).toBe('Фирма: 95')
+    expect(updateCall.data.servicedBy).toBe(95)
+    expect(updateCall.data.lastCleanedBy).toBe(event.VehicleId)
     // district already set → should NOT overwrite it
     expect(updateCall.data.district).toBeUndefined()
 
@@ -312,7 +316,9 @@ describe('processWasteCollectionEvents handler', () => {
     ;(global.fetch as jest.Mock)
       .mockResolvedValueOnce({ ok: true, json: async () => [10, 20] }) // T1
       .mockResolvedValueOnce({ ok: true, json: async () => [e1] }) // T2 firm 10
+      .mockResolvedValueOnce({ ok: true, json: async () => ({}) }) // T3 firm 10
       .mockResolvedValueOnce({ ok: true, json: async () => [e2] }) // T2 firm 20
+      .mockResolvedValueOnce({ ok: true, json: async () => ({}) }) // T3 firm 20
 
     const mockPayload = makeMockPayload({ drizzleRows: [{ id: 100, district_id: 10 }] })
     const req: any = { payload: mockPayload }
@@ -324,6 +330,26 @@ describe('processWasteCollectionEvents handler', () => {
     expect(result.output.firmsProcessed).toBe(2)
     expect(mockPayload.update).toHaveBeenCalledTimes(2)
     expect(result.output.containersUpdated).toBe(2)
+  })
+
+  it('fetches vehicle metadata once per distinct VehicleId', async () => {
+    const e1 = makeEvent({ VehicleId: 114039 })
+    const e2 = makeEvent({ VehicleId: 114039, GpsTime: '2026-04-30 10:01:00' })
+    const e3 = makeEvent({ VehicleId: 45617, Longitude: 23.33, Latitude: 42.7 })
+    mockFetch([95], [e1, e2, e3])
+
+    const mockPayload = makeMockPayload({ drizzleRows: [{ id: 55, district_id: 10 }] })
+    const req: any = { payload: mockPayload }
+    const input = { from: '2026-04-30 09:00', to: '2026-04-30 10:00' }
+
+    const { processWasteCollectionEvents } = await import('../processWasteCollectionEvents')
+    await (processWasteCollectionEvents as any).handler({ input, req })
+
+    const metadataCalls = (global.fetch as jest.Mock).mock.calls
+      .map(([url]) => url as string)
+      .filter((url) => url.includes('get_vehicle_metadata'))
+    expect(metadataCalls).toHaveLength(1)
+    expect(metadataCalls[0]).toContain('vehicle_ids=114039,45617')
   })
 
   it('returns correct output schema fields', async () => {

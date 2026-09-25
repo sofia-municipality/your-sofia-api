@@ -19,6 +19,8 @@ import { PreviewComponent as PreviewComponent_a8a977ebc872c5d5ea7ee689724c0860 }
 import { SlugComponent as SlugComponent_92cc057d0a2abb4f6cf0307edf59f986 } from '@/fields/slug/SlugComponent'
 import { HorizontalRuleFeatureClient as HorizontalRuleFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { BlocksFeatureClient as BlocksFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
+import { ServicedByField as ServicedByField_4ff79414b1cbe21e161e7af03ed0ef13 } from '@/fields/vehicleMetadata/ServicedByField'
+import { LastCleanedByField as LastCleanedByField_f9229fdab03c08dca836976560305fea } from '@/fields/vehicleMetadata/LastCleanedByField'
 import { LocationMapComponent as LocationMapComponent_1e69b9f33a2416299ea4016cca9ee5d2 } from '@/fields/locationMap/LocationMapComponent'
 import { BoundaryMapField as BoundaryMapField_d8eecbba5d1f28abeab32a23a9cceac5 } from '@/fields/boundaryMap/BoundaryMapField'
 import { OpenCityObjectButton as OpenCityObjectButton_1cd6db38696fe0ee22979a13637ba7c8 } from '@/fields/signalCityObjectLink/OpenCityObjectButton'
@@ -74,6 +76,8 @@ export const importMap = {
   "@/fields/slug/SlugComponent#SlugComponent": SlugComponent_92cc057d0a2abb4f6cf0307edf59f986,
   "@payloadcms/richtext-lexical/client#HorizontalRuleFeatureClient": HorizontalRuleFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/richtext-lexical/client#BlocksFeatureClient": BlocksFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
+  "@/fields/vehicleMetadata/ServicedByField#ServicedByField": ServicedByField_4ff79414b1cbe21e161e7af03ed0ef13,
+  "@/fields/vehicleMetadata/LastCleanedByField#LastCleanedByField": LastCleanedByField_f9229fdab03c08dca836976560305fea,
   "@/fields/locationMap/LocationMapComponent#LocationMapComponent": LocationMapComponent_1e69b9f33a2416299ea4016cca9ee5d2,
   "@/fields/boundaryMap/BoundaryMapField#BoundaryMapField": BoundaryMapField_d8eecbba5d1f28abeab32a23a9cceac5,
   "@/fields/signalCityObjectLink/OpenCityObjectButton#OpenCityObjectButton": OpenCityObjectButton_1cd6db38696fe0ee22979a13637ba7c8,

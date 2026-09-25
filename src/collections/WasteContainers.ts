@@ -5,6 +5,8 @@ import { containersWithSignalCount } from '@/endpoints/containers-with-signals'
 import { collectionMetrics } from '@/endpoints/collection-metrics'
 import { bulkUpdateContainerStatus } from '@/endpoints/bulkUpdateContainerStatus'
 import { newlyCreatedContainersMetric } from '@/endpoints/newly-created-containers-metric'
+import { vehicleMetadata } from '@/endpoints/vehicleMetadata'
+import { firmInfo } from '@/endpoints/firmInfo'
 import { locationMapField } from '@/fields/locationMap'
 import {
   canViewCityInfrastructure,
@@ -36,6 +38,8 @@ export const WasteContainers: CollectionConfig = {
     collectionMetrics,
     newlyCreatedContainersMetric,
     bulkUpdateContainerStatus,
+    vehicleMetadata,
+    firmInfo,
   ],
   access: {
     admin: canViewCityInfrastructure,
@@ -224,10 +228,15 @@ export const WasteContainers: CollectionConfig = {
             {
               name: 'servicedBy',
               label: 'Обслужва се от',
-              type: 'text',
+              type: 'number',
               required: false,
               admin: {
-                description: 'Наименование на фирмата или услугата, отговорна за събирането',
+                description:
+                  'Фирма и договор от GPS системата — попълва се автоматично при събиране',
+                readOnly: true,
+                components: {
+                  Field: '@/fields/vehicleMetadata/ServicedByField#ServicedByField',
+                },
               },
             },
             {
@@ -304,6 +313,19 @@ export const WasteContainers: CollectionConfig = {
                 description: 'Дата и час, когато контейнерът е бил последно почистен',
                 date: {
                   pickerAppearance: 'dayAndTime',
+                },
+              },
+            },
+            {
+              name: 'lastCleanedBy',
+              label: 'Последно почистен от (превозно средство)',
+              type: 'number',
+              required: false,
+              admin: {
+                description: 'Камион от GPS системата, извършил последното събиране',
+                readOnly: true,
+                components: {
+                  Field: '@/fields/vehicleMetadata/LastCleanedByField#LastCleanedByField',
                 },
               },
             },

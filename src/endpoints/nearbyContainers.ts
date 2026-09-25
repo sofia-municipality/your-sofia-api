@@ -52,6 +52,7 @@ export const nearbyContainers: Endpoint = {
           wc.serviced_by,
           wc.notes,
           wc.last_cleaned,
+          wc.last_cleaned_by,
           wc.created_at,
           wc.updated_at,
           COALESCE(json_agg(wcs.value) FILTER (WHERE wcs.value IS NOT NULL), '[]'::json) as state,
@@ -88,7 +89,8 @@ export const nearbyContainers: Endpoint = {
         address: string
         capacity_volume: string
         capacity_size: string
-        serviced_by: string
+        serviced_by: string | null
+        last_cleaned_by: string | null
         waste_type: string
         status: string
         state: string[]
@@ -110,12 +112,13 @@ export const nearbyContainers: Endpoint = {
         address: row.address,
         capacityVolume: parseFloat(row.capacity_volume),
         capacitySize: row.capacity_size,
-        servicedBy: row.serviced_by,
+        servicedBy: row.serviced_by != null ? Number(row.serviced_by) : null,
         wasteType: row.waste_type,
         status: row.status,
         state: Array.isArray(row.state) ? row.state : [],
         notes: row.notes,
         lastCleaned: row.last_cleaned,
+        lastCleanedBy: row.last_cleaned_by != null ? Number(row.last_cleaned_by) : null,
         collectionDaysOfWeek: row.collection_days_of_week ?? [],
         collectionTimesPerDay: row.collection_times_per_day ?? 1,
         scheduleSource: row.schedule_source ?? null,

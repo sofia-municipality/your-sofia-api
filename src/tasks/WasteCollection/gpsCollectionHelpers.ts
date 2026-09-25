@@ -25,6 +25,58 @@ export interface WasteCollectionEvent {
   FirmId: number
 }
 
+/** Vehicle details returned by get_vehicle_metadata.php, keyed by VehicleId. */
+export interface VehicleMetadata {
+  license_plate: string
+  specification: string
+  firm: { id: number; name: string }
+  contract: { id: number; name: string }
+}
+
+export type VehicleMetadataResponse = Record<string, VehicleMetadata>
+
+const VEHICLE_METADATA_BATCH_SIZE = 100
+
+/**
+ * Fetch metadata for the given VehicleIds (deduplicated). Requests are batched to
+ * keep the query string short. Failures are logged and skipped so a metadata
+ * outage never blocks the caller.
+ */
+export async function fetchVehicleMetadata(
+  baseUrl: string | undefined,
+  headers: Record<string, string>,
+  ids: number[],
+  logger: { warn: (msg: string) => void }
+): Promise<Map<number, VehicleMetadata>> {
+  const vehicleIds = [...new Set(ids.filter(Number.isFinite))]
+  const metadata = new Map<number, VehicleMetadata>()
+
+  for (let i = 0; i < vehicleIds.length; i += VEHICLE_METADATA_BATCH_SIZE) {
+    const batch = vehicleIds.slice(i, i + VEHICLE_METADATA_BATCH_SIZE)
+    try {
+      const res = await fetch(
+        `${baseUrl}/get_vehicle_metadata.php?vehicle_ids=${batch.join(',')}`,
+        { headers }
+      )
+      if (!res.ok) {
+        logger.warn(
+          `[fetchVehicleMetadata] Failed for vehicle_ids=${batch.join(',')}: ` +
+            `${res.status} ${res.statusText}`
+        )
+        continue
+      }
+      const body = (await res.json()) as VehicleMetadataResponse | null
+      for (const [vehicleId, meta] of Object.entries(body ?? {})) {
+        metadata.set(Number(vehicleId), meta)
+      }
+    } catch (err) {
+      logger.warn(`[fetchVehicleMetadata] Request error: ${String(err)}`)
+    }
+  }
+
+  return metadata
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Spatial helpers
 // ─────────────────────────────────────────────────────────────────────────────

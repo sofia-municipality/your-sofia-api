@@ -6,6 +6,7 @@ import { useAuth } from '@payloadcms/ui'
 import { colors } from '@/cssVariables'
 import { isCityInfrastructureAdmin } from '@/access/cityInfrastructureAdmin'
 import { ContainerWithSignals } from './types'
+import { useFirmInfo } from '@/fields/vehicleMetadata/useFirmInfo'
 
 const STATUS_LABELS: Record<string, string> = {
   active: 'Активен',
@@ -121,7 +122,6 @@ interface EditFormState {
   status: ContainerWithSignals['status']
   address: string
   notes: string
-  servicedBy: string
   lastCleaned: string
   binCount: string
   districtId: string
@@ -150,7 +150,6 @@ function createEditFormState(container: ContainerWithSignals): EditFormState {
     status: container.status,
     address: container.address ?? '',
     notes: container.notes ?? '',
-    servicedBy: container.servicedBy ?? '',
     lastCleaned: toDateTimeLocalValue(container.lastCleaned),
     binCount: container.binCount != null ? String(container.binCount) : '',
     districtId: container.districtId != null ? String(container.districtId) : '',
@@ -351,6 +350,20 @@ export function ContainerPopup({
     background: isFieldDirty(field) ? colors.warningLight : colors.surface,
   })
 
+  // servicedBy is the GPS contract ID and lastCleanedBy the GPS vehicle ID — resolve both to names
+  const { info: contractInfo } = useFirmInfo({ contractId: container.servicedBy })
+  const { info: truckInfo } = useFirmInfo({ vehicleId: container.lastCleanedBy })
+  const servicedByText = contractInfo
+    ? `${contractInfo.firm.name} (договор ${contractInfo.contract.name})`
+    : container.servicedBy != null
+      ? `Договор ${container.servicedBy}`
+      : null
+  const truckText = truckInfo?.licensePlate
+    ? `${truckInfo.licensePlate} · ${truckInfo.firm.name}`
+    : container.lastCleanedBy != null
+      ? `ID ${container.lastCleanedBy}`
+      : null
+
   useEffect(() => {
     void Promise.resolve().then(() => {
       setForm(createEditFormState(container))
@@ -482,7 +495,6 @@ export function ContainerPopup({
         capacitySize: form.capacitySize,
         capacityVolume,
         binCount,
-        servicedBy: form.servicedBy.trim() || null,
         wasteType: form.wasteType,
         status: form.status,
         address: form.address.trim() || null,
@@ -517,7 +529,6 @@ export function ContainerPopup({
         status: payload.status,
         address: payload.address,
         notes: payload.notes,
-        servicedBy: payload.servicedBy,
         lastCleaned: payload.lastCleaned,
         binCount: payload.binCount,
         districtId: district,
@@ -948,13 +959,7 @@ export function ContainerPopup({
                   style={getInputStyle('address')}
                 />
               </DetailRow>
-              <DetailRow label="Обслужва">
-                <input
-                  value={form.servicedBy}
-                  onChange={(e) => handleFieldChange('servicedBy', e.target.value)}
-                  style={getInputStyle('servicedBy')}
-                />
-              </DetailRow>
+              <DetailRow label="Обслужва">{servicedByText ?? '—'}</DetailRow>
               <DetailRow label="Последно почистен">
                 <input
                   type="datetime-local"
@@ -1107,12 +1112,11 @@ export function ContainerPopup({
               </DetailRow>
               <DetailRow label="Обем">{container.capacityVolume} m³</DetailRow>
               {container.address && <DetailRow label="Адрес">{container.address}</DetailRow>}
-              {container.servicedBy && (
-                <DetailRow label="Обслужва">{container.servicedBy}</DetailRow>
-              )}
+              {servicedByText && <DetailRow label="Обслужва">{servicedByText}</DetailRow>}
               <DetailRow label="Последно почистен">
                 {container.lastCleaned && new Date(container.lastCleaned).toLocaleString('bg-BG')}
               </DetailRow>
+              {truckText && <DetailRow label="Камион">{truckText}</DetailRow>}
               <DetailRow label="Координати">
                 {container.location[1].toFixed(6)}, {container.location[0].toFixed(6)}
               </DetailRow>

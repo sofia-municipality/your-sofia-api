@@ -38,7 +38,7 @@ describe('nearbyContainers endpoint (unit)', () => {
       address: 'Test St',
       capacity_volume: '100',
       capacity_size: 'L',
-      serviced_by: 'City',
+      serviced_by: '13',
       waste_type: 'mixed',
       status: 'active',
       state: [],
