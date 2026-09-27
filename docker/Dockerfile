@@ -66,6 +66,8 @@ COPY --from=builder --chown=nextjs:nodejs /app/public ./public
 # Ensure nextjs user can write to public and .next directories
 RUN chown -R nextjs:nodejs public .next
 
+RUN mkdir -p /app/imports && chmod 777 /app/imports
+
 ENV TZ=Europe/Sofia
 RUN ln -snf /usr/share/zoneinfo/Europe/Sofia /etc/localtime && echo "Europe/Sofia" > /etc/timezone
 
