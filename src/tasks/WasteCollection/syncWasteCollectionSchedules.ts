@@ -142,13 +142,7 @@ const handler: TaskHandler<'syncWasteCollectionSchedules'> = async ({ input, req
               id,
               data: {
                 collectionDaysOfWeek: entry.daysOfWeek.map(String) as (
-                  | '1'
-                  | '2'
-                  | '3'
-                  | '4'
-                  | '5'
-                  | '6'
-                  | '7'
+                  '1' | '2' | '3' | '4' | '5' | '6' | '7'
                 )[],
                 collectionTimesPerDay: entry.timesPerDay,
                 scheduleSource: `${scheduleSourcePrefix}/${district}/${size}`,

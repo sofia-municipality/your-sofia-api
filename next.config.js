@@ -29,6 +29,9 @@ const nextConfig = {
   reactStrictMode: true,
   redirects,
   output: 'standalone', // Enable for Docker deployment
+  outputFileTracingIncludes: {
+    '**/*': ['./node_modules/.pnpm/@swc+helpers@*/node_modules/@swc/helpers/**/*'],
+  },
   sassOptions: {
     // Let Sass resolve @payloadcms/ui's bare partial imports (@import 'vars', etc.)
     // Works around "Can't find stylesheet to import" on Windows.
