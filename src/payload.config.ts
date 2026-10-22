@@ -57,6 +57,7 @@ import { sendInspectorMetricsReport } from './tasks/Reports/sendInspectorMetrics
 import { adminOnly } from '@/access/adminOnly'
 import { BulkyWasteZones } from './collections/BulkyWasteZones'
 import { bulkyWasteZonesEndpoint } from './endpoints/bulky-waste-zones'
+import { igrantTestConnection } from './endpoints/igrantTestConnection'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -210,6 +211,7 @@ export default buildConfig({
     signalsAgeMetric,
     signalsStatusMetric,
     signalsActiveContainerStateMetric,
+    igrantTestConnection,
   ],
   globals: [Header, Footer, NotificationSettings],
   i18n: {
