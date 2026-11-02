@@ -30,8 +30,12 @@ export const nearbyContainers: Endpoint = {
       )
     }
 
-    if (radius <= 0 || radius > 10000) {
+    if (isNaN(radius) || radius <= 0 || radius > 10000) {
       return Response.json({ error: 'Radius must be between 0 and 10000 meters' }, { status: 400 })
+    }
+
+    if (isNaN(limit) || limit < 1) {
+      return Response.json({ error: 'Limit must be a positive integer' }, { status: 400 })
     }
 
     try {
