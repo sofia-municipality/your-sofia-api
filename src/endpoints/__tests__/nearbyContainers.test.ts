@@ -5,6 +5,8 @@ jest.mock('@payloadcms/db-postgres', () => ({
   })),
 }))
 
+import type { PayloadRequest } from 'payload'
+
 describe('nearbyContainers endpoint (unit)', () => {
   afterEach(() => {
     jest.resetModules()
@@ -14,15 +16,49 @@ describe('nearbyContainers endpoint (unit)', () => {
   it('returns 400 for missing coordinates', async () => {
     const { nearbyContainers } = await import('../nearbyContainers')
 
-    const mockReq: any = {
+    const mockReq = {
       query: {},
       payload: { logger: { error: jest.fn() } },
-    }
+    } as unknown as PayloadRequest
 
-    const res: any = await nearbyContainers.handler(mockReq)
+    const res = await nearbyContainers.handler(mockReq)
     expect(res.status).toBe(400)
     const body = await res.json()
     expect(body).toHaveProperty('error')
+  })
+
+  it('returns 400 for a non-numeric radius', async () => {
+    const { nearbyContainers } = await import('../nearbyContainers')
+
+    const execute = jest.fn()
+    const mockReq = {
+      query: { latitude: '42.0', longitude: '23.0', radius: 'abc' },
+      payload: { db: { drizzle: { execute } }, logger: { error: jest.fn() } },
+    } as unknown as PayloadRequest
+
+    const res = await nearbyContainers.handler(mockReq)
+    expect(res.status).toBe(400)
+    const body: { error: string } = await res.json()
+    expect(body.error).toMatch(/Radius/)
+    expect(execute).not.toHaveBeenCalled()
+  })
+
+  it('returns 400 for a non-numeric or non-positive limit', async () => {
+    const { nearbyContainers } = await import('../nearbyContainers')
+
+    for (const limit of ['abc', '0', '-1']) {
+      const execute = jest.fn()
+      const mockReq = {
+        query: { latitude: '42.0', longitude: '23.0', limit },
+        payload: { db: { drizzle: { execute } }, logger: { error: jest.fn() } },
+      } as unknown as PayloadRequest
+
+      const res = await nearbyContainers.handler(mockReq)
+      expect(res.status).toBe(400)
+      const body = await res.json()
+      expect(body).toHaveProperty('error', 'Limit must be a positive integer')
+      expect(execute).not.toHaveBeenCalled()
+    }
   })
 
   it('queries using Payload API and returns containers on success', async () => {
@@ -49,7 +85,7 @@ describe('nearbyContainers endpoint (unit)', () => {
       distance: '42.4',
     }
 
-    const mockPayload: any = {
+    const mockPayload = {
       db: {
         drizzle: {
           execute: jest.fn(async () => ({ rows: [mockRow] })),
@@ -58,14 +94,14 @@ describe('nearbyContainers endpoint (unit)', () => {
       logger: { error: jest.fn() },
     }
 
-    const mockReq: any = {
+    const mockReq = {
       query: { latitude: '42.0', longitude: '23.0', radius: '500', limit: '10' },
       payload: mockPayload,
-    }
+    } as unknown as PayloadRequest
 
-    const res: any = await nearbyContainers.handler(mockReq)
+    const res = await nearbyContainers.handler(mockReq)
     expect(res.status).toBe(200)
-    const body = await res.json()
+    const body: { docs: unknown[]; totalDocs: number } = await res.json()
     expect(body).toHaveProperty('docs')
     expect(Array.isArray(body.docs)).toBe(true)
     expect(body.totalDocs).toBe(1)
