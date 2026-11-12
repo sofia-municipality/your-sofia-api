@@ -38,8 +38,7 @@ const toSummary = (district: unknown): DistrictSummary | null => {
  */
 export const afterReadCityObjectDistrict: FieldHook = async ({ siblingData, req }) => {
   const cityObject = siblingData as
-    | { referenceId?: null | string; type?: null | string }
-    | undefined
+    { referenceId?: null | string; type?: null | string } | undefined
 
   const type = cityObject?.type
   const referenceId = cityObject?.referenceId
