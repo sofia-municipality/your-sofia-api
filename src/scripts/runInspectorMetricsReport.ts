@@ -1,5 +1,6 @@
 import { runInspectorMetricsReport } from '../tasks/Reports/sendInspectorMetricsReportHandler'
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars -- call is suspended below
 async function runReport() {
   try {
     console.log('🚀 Running inspector metrics report...')
@@ -14,4 +15,5 @@ async function runReport() {
   }
 }
 
-runReport()
+// Undo this comment to resume daily report emails to inspectors and admins
+// runReport()
