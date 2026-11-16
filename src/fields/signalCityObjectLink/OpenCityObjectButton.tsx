@@ -14,8 +14,7 @@ const LINKABLE_COLLECTIONS: Record<string, { slug: string; lookupField: string }
 export function OpenCityObjectButton() {
   const type = useFormFields(([fields]) => fields['cityObject.type']?.value) as string | undefined
   const referenceId = useFormFields(([fields]) => fields['cityObject.referenceId']?.value) as
-    | string
-    | undefined
+    string | undefined
 
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
