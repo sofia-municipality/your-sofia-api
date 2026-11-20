@@ -5,6 +5,7 @@
 services:
   postgres:
     image: postgis/postgis:16-3.5
+    platform: linux/amd64
     container_name: your-sofia-postgres-dev
     restart: unless-stopped
     environment:
